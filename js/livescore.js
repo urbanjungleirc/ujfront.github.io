@@ -13,8 +13,8 @@
 */
 const minPageDisplay = 10000; // minimum time for a page to be displayed
 let dataRefreshInterval = 1 * 60000; // frequency for data refresh (1min = 60000)
-const rowsPerPage = 12; // number of rows per page
-const filter = ""; // filtering data - enter category
+const rowsPerPage = 8; // number of rows per page
+const filter = "Punks"; // filtering data - enter category
 const catTimeEnd = "2022-10-15 08:00";
 
 /* ------------------------------------- 
