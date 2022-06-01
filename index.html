@@ -1,46 +1,62 @@
-<!--
-Theme by: WebThemez.com 
-Note: Please use our back link in your site (webthemez.com)
--->
-<!DOCTYPE HTML>
-<!--[if lt IE 7 ]> <html lang="en" class="ie ie6"> <![endif]-->
-<!--[if IE 7 ]>	<html lang="en" class="ie ie7"> <![endif]-->
-<!--[if IE 8 ]>	<html lang="en" class="ie ie8"> <![endif]-->
-<!--[if IE 9 ]>	<html lang="en" class="ie ie9"> <![endif]-->
-<!--[if !IE]><!-->
+<!DOCTYPE html>
 <html lang="en">
-<!--<![endif]-->
 
 <head>
-	<meta charset="utf-8">
-	<title>Next comp coming soon - UJ</title>
-	<meta name="description" content="">
-	<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:regular,bold">
-	<link rel="stylesheet" type="text/css" href="css/uj_colors.min.css">
-	<link rel="stylesheet" type="text/css" href="coming-soon-page/css/styles.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Jungle</title>
+
+    <link rel="stylesheet" href="css/uj_colors.min.css">
+
 </head>
 
-<body id="home">
-	<section class="main">
-		<div id="Content" class="wrapper topSection">
-			<div id="Header">
-				<div class="wrapper">
-					<div class="logo">
-						<h1 class="text-primary"><img src="assets/UrbanJungle_Logo_transparent_with_shadow.png" />Urban Jungle IRC</h1>
-					</div>
-				</div>
-			</div>
-			<h2>The next comp is coming soon!!!</h2>
-			<div class="countdown styled bg-secondary text-white"></div>
-		</div>
-	</section>
-	<span class="tempBy">Template by: <a href="http://webthemez.com" alt="webthemez">WebThemez.com</a></span>
+<body>
 
-	<!--Scripts-->
-	<script type="text/javascript" src="coming-soon-page/js/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="coming-soon-page/js/jquery.countdown.js"></script>
-	<script type="text/javascript" src="coming-soon-page/js/global.js"></script>
+    <!-- Background image -->
+    <div class="bg-image d-flex justify-content-center align-items-center" style="
+  background-image: url('/assets/bg_image.jpg');
+  height: 100vh;
+">
+        <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
+            <div class="card bg-light  border-1 shadow-lg" style="border-radius: .5rem;">
+                <div class="card-body text-center">
+                    <h1 class="text-primary">The next competition is on in</h1>
+                    <div id="timer">
+                        <p class="h3">
+                            <span data-days class="text-primary fw-bold"></span> days
+                            <span data-hours class="text-primary fw-bold"></span> hours
+                            <span data-minutes class="text-primary fw-bold"></span> minutes
+                            <span data-seconds class="text-primary fw-bold"></span> seconds
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Background image -->
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+        crossorigin="anonymous"></script>
+
+    <!-- dataTables -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- countdown timer: https://github.com/BrooonS/TimezZ -->
+    <script src="https://cdn.jsdelivr.net/npm/timezz/dist/timezz.min.js"></script>
+
+    <!-- custom java -->
+    <script>
+        // set pumpfest count down
+        const catTimeEnd = "2022-10-15 08:00";
+
+        timezz(document.querySelector("#timer"), {
+            date: catTimeEnd,
+        });
+
+    </script>
+
 
 </body>
 
