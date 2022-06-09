@@ -39,17 +39,17 @@ $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
 
     let table = $("#results")
-        .on("init.dt", function () {
-            console.log(
-                `Table initialisation complete: ${new Date().getTime()}`
-            );
-        })
-        .on("xhr.dt", function (e, settings, json, xhr) {
-            //$("#status").html(json.status);
-            let el = document.getElementById("updatedAt");
-            let d = new Date();
-            el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
-        })
+        // .on("init.dt", function () {
+        //     console.log(
+        //         `Table initialisation complete: ${new Date().getTime()}`
+        //     );
+        // })
+        // .on("xhr.dt", function (e, settings, json, xhr) {
+        //     //$("#status").html(json.status);
+        //     let el = document.getElementById("updatedAt");
+        //     let d = new Date();
+        //     el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
+        // })
         .dataTable({
             ajax: {
                 url: score,
@@ -60,23 +60,23 @@ $(document).ready(function () {
                 dataSrc: "data",
             },
 
-            lengthChange: false,
-            pageLength: rowsPerPage,
-            pagingType: "numbers",
-            renderer: "bootstrap",
+            // lengthChange: false,
+            // pageLength: rowsPerPage,
+            // pagingType: "numbers",
+            // renderer: "bootstrap",
 
-            search: {
-                search: filter,
-            },
+            // search: {
+            //     search: filter,
+            // },
 
-            // ordering:  false,
-            order: [[0, "asc"]],
-            rowReorder: true, // allows to re-order
-            columnDefs: [
-                { orderable: true, className: "reorder", targets: 0 },
-                { orderable: false, targets: "_all" }, // disable ordering for columns
-            ],
-            orderClasses: true, // highlight the columns which are used to order the content
+            // // ordering:  false,
+            // order: [[0, "asc"]],
+            // rowReorder: true, // allow to re-order rows
+            // columnDefs: [
+            //     { orderable: true, className: "reorder", targets: 0 },
+            //     { orderable: false, targets: "_all" }, // disable ordering for columns
+            // ],
+            // orderClasses: true, // highlight the columns which are used to order the content
 
             columns: [
                 { data: "name", title: filter },
@@ -246,37 +246,37 @@ $(document).ready(function () {
                 // results
             ],
 
-            initComplete: function () {
-                // calculate time intervals for the page rotating and updates
-                let api = this.api();
-                let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
+            // initComplete: function () {
+            //     // calculate time intervals for the page rotating and updates
+            //     let api = this.api();
+            //     let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
 
-                if (tableInfo.pages > 1) {
-                    // more than one page
-                    let timePerPage = dataRefreshInterval / tableInfo.pages;
-                    if (timePerPage < minPageDisplay) {
-                        dataRefreshInterval = minPageDisplay * tableInfo.pages;
-                        timePerPage = minPageDisplay;
-                    } else {
-                        timePerPage = timePerPage.toFixed();
-                    }
+            //     if (tableInfo.pages > 1) {
+            //         // more than one page
+            //         let timePerPage = dataRefreshInterval / tableInfo.pages;
+            //         if (timePerPage < minPageDisplay) {
+            //             dataRefreshInterval = minPageDisplay * tableInfo.pages;
+            //             timePerPage = minPageDisplay;
+            //         } else {
+            //             timePerPage = timePerPage.toFixed();
+            //         }
 
-                    // set interval for flipping pages
-                    setInterval(function () {
-                        if (api.page.info().page == api.page.info().pages - 1) {
-                            api.page("first").draw("page");
-                        } else {
-                            api.page("next").draw("page");
-                        }
-                    }, timePerPage);
-                }
+            //         // set interval for flipping pages
+            //         setInterval(function () {
+            //             if (api.page.info().page == api.page.info().pages - 1) {
+            //                 api.page("first").draw("page");
+            //             } else {
+            //                 api.page("next").draw("page");
+            //             }
+            //         }, timePerPage);
+            //     }
 
-                // set interval for data refresh
-                setInterval(function () {
-                    //console.log("Table refreshed: " + new Date().getTime());
-                    api.ajax.reload();
-                }, dataRefreshInterval);
-            },
+            //     // set interval for data refresh
+            //     setInterval(function () {
+            //         //console.log("Table refreshed: " + new Date().getTime());
+            //         api.ajax.reload();
+            //     }, dataRefreshInterval);
+            // },
         });
 
     // hide search option
