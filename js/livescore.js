@@ -31,9 +31,9 @@ const score =
     "https://script.google.com/macros/s/AKfycbyUXxaevlA-4_yhSS_-BvAmNiE1xf0tV2EEZ0U2r5qQA_JaYSGqhQ4ExjNiE_WvJli2/exec";
 
 // set pumpfest count down
-// timezz(document.querySelector("#timer"), {
-//     date: catTimeEnd,
-// });
+timezz(document.querySelector("#timer"), {
+    date: catTimeEnd,
+});
 
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
@@ -285,58 +285,63 @@ $(document).ready(function () {
 
 // formating speed results
 function speed(data, type) {
-    var number = $.fn.dataTable.render.number(",", ".", 3).display(data);
+    return data;
+    // var number = $.fn.dataTable.render.number(",", ".", 3).display(data);
 
-    if (type === "display") {
-        let fclasses = "";
-        if (data > 0) {
-            if (data < 6) {
-                fclasses = "text-primary fw-bold";
-            } else if (data < 10) {
-                fclasses = "text-primary";
-            }
-        }
-        return `<span class="${fclasses}">${number}</span>`;
-    }
-    return number;
+    // if (type === "display") {
+    //     let fclasses = "";
+    //     if (data > 0) {
+    //         if (data < 6) {
+    //             fclasses = "text-primary fw-bold";
+    //         } else if (data < 10) {
+    //             fclasses = "text-primary";
+    //         }
+    //     }
+    //     return `<span class="${fclasses}">${number}</span>`;
+    // }
+    // return number;
 }
 
 // formating lee results
 function leed(data, type) {
-    if (type === "display") {
-        if (data == 99) {
-            return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
-        } else {
-            return `<span class="primary-dark bg-transparent">${data}</span>`;
-        }
-    }
     return data;
+    // if (type === "display") {
+    //     if (data == 99) {
+    //         return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+    //     } else {
+    //         return `<span class="primary-dark bg-transparent">${data}</span>`;
+    //     }
+    // }
+    // return data;
 }
 
 // formating boulder results
 function boulder(tries = 0, zone = 0, top = 0) {
-    if (top > 0) {
-        if (top == 1) {
-            return `<div class="text-secondary text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
-        } else {
-            return `<div class="badge bg-secondary text-wrap pt-4" style="width: 2rem;">${top}</div>`;
-        }
-    } else if (zone > 0) {
-        return `<div class="badge secondary-light text-white text-wrap pt-2" style="width: 2rem;">${zone}</div>`;
-    } else {
-        // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
-        return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
-    }
+    return tries;
 }
+// function boulder(tries = 0, zone = 0, top = 0) {
+//     if (top > 0) {
+//         if (top == 1) {
+//             return `<div class="text-secondary text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+//         } else {
+//             return `<div class="badge bg-secondary text-wrap pt-4" style="width: 2rem;">${top}</div>`;
+//         }
+//     } else if (zone > 0) {
+//         return `<div class="badge secondary-light text-white text-wrap pt-2" style="width: 2rem;">${zone}</div>`;
+//     } else {
+//         // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
+//         return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
+//     }
+// }
 
-function resetProgress(max) {
-    let el = document.getElementById("updateProgressBar");
-    //console.log(el.ariaValueMax); // 7
-    el.ariaValueMax = max;
-    el.ariaValueMin = 0;
-    el.ariaValueNow = 0;
-    //console.log(el.ariaValueMax); // 6
-}
+// function resetProgress(max) {
+//     let el = document.getElementById("updateProgressBar");
+//     //console.log(el.ariaValueMax); // 7
+//     el.ariaValueMax = max;
+//     el.ariaValueMin = 0;
+//     el.ariaValueNow = 0;
+//     //console.log(el.ariaValueMax); // 6
+// }
 
 /* Resources:
 
