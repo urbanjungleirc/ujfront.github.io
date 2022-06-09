@@ -31,9 +31,9 @@ const score =
     "https://script.google.com/macros/s/AKfycbyUXxaevlA-4_yhSS_-BvAmNiE1xf0tV2EEZ0U2r5qQA_JaYSGqhQ4ExjNiE_WvJli2/exec";
 
 // set pumpfest count down
-// timezz(document.querySelector("#timer"), {
-//     date: catTimeEnd,
-// });
+timezz(document.querySelector("#timer"), {
+    date: catTimeEnd,
+});
 
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
