@@ -83,29 +83,29 @@ $(document).ready(function () {
                 {
                     data: "rrank",
                     class: "dt-center",
-                    render: function (data, type) {
-                        if (type === "display") {
-                            switch (data) {
-                                case 1:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
-                                    break;
-                                case 2:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
-                                    break;
-                                case 3:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
-                                    break;
-                                case 4:
-                                case 5:
-                                case 6:
-                                    return `<span class="primary-dark bg-transparent fw-semibold">${data}</span>`;
-                                    break;
-                                default:
-                                    return `<span class="primary-dark bg-transparent">${data}</span>`;
-                            }
-                        }
-                        return data;
-                    },
+                    // render: function (data, type) {
+                    //     if (type === "display") {
+                    //         switch (data) {
+                    //             case 1:
+                    //                 return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
+                    //                 break;
+                    //             case 2:
+                    //                 return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
+                    //                 break;
+                    //             case 3:
+                    //                 return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
+                    //                 break;
+                    //             case 4:
+                    //             case 5:
+                    //             case 6:
+                    //                 return `<span class="primary-dark bg-transparent fw-semibold">${data}</span>`;
+                    //                 break;
+                    //             default:
+                    //                 return `<span class="primary-dark bg-transparent">${data}</span>`;
+                    //         }
+                    //     }
+                    //     return data;
+                    // },
                 },
 
                 // speed columns
