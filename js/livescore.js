@@ -111,133 +111,133 @@ $(document).ready(function () {
                 // speed columns
                 {
                     data: "s1",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
+                    // class: "dt-body-right dt-head-center",
+                    // render: function (data, type) {
+                    //     return speed(data, type);
+                    // },
                 },
                 {
                     data: "s2",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
+                    // class: "dt-body-right dt-head-center",
+                    // render: function (data, type) {
+                    //     return speed(data, type);
+                    // },
                 },
                 {
                     data: "s3",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
+                    // class: "dt-body-right dt-head-center",
+                    // render: function (data, type) {
+                    //     return speed(data, type);
+                    // },
                 },
                 {
                     data: "s4",
                     class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return speed(data, type);
+                    // },
                 },
 
                 // boulder columns
                 {
-                    data: null,
+                    data: "a",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.a, row.az, row.at);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.a, row.az, row.at);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "b",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.b, row.bz, row.bt);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.b, row.bz, row.bt);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "c",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.c, row.cz, row.ct);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.c, row.cz, row.ct);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "d",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.d, row.dz, row.dt);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.d, row.dz, row.dt);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "e",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.e, row.ez, row.et);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.e, row.ez, row.et);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "f",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.f, row.fz, row.ft);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.f, row.fz, row.ft);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "g",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.g, row.gz, row.gt);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.g, row.gz, row.gt);
+                    // },
                 },
                 {
-                    data: null,
+                    data: "h",
                     class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.h, row.hz, row.ht);
-                    },
+                    // render: function (row) {
+                    //     return boulder(row.h, row.hz, row.ht);
+                    // },
                 },
 
                 // lead columns
                 {
                     data: "l1",
                     class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return leed(data, type);
+                    // },
                 },
                 {
                     data: "l2",
                     class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return leed(data, type);
+                    // },
                 },
                 {
                     data: "l3",
                     class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return leed(data, type);
+                    // },
                 },
                 {
                     data: "l4",
                     class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return leed(data, type);
+                    // },
                 },
                 {
                     data: "l5",
                     class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return leed(data, type);
+                    // },
                 },
                 {
                     data: "l6",
                     class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
+                    // render: function (data, type) {
+                    //     return leed(data, type);
+                    // },
                 },
 
                 // category
