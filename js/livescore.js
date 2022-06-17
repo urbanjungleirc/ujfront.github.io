@@ -7,16 +7,6 @@
     https://script.google.com/macros/s/AKfycbyUXxaevlA-4_yhSS_-BvAmNiE1xf0tV2EEZ0U2r5qQA_JaYSGqhQ4ExjNiE_WvJli2/exec
 */
 
-/* -------------------------------------
-    Default setting
-   -------------------------------------
-*/
-const minPageDisplay = 10000; // minimum time for a page to be displayed
-let dataRefreshInterval = 1 * 60000; // frequency for data refresh (1min = 60000)
-const rowsPerPage = 8; // number of rows per page
-const filter = "Punks"; // filtering data - enter category
-const catTimeEnd = "2022-10-15 08:00";
-
 /* ------------------------------------- 
     To do 
    -------------------------------------
@@ -280,7 +270,7 @@ $(document).ready(function () {
         });
 
     // hide search option
-    document.getElementById("results_filter").style.display = "none";
+    //document.getElementById("results_filter").style.display = "none";
 });
 
 // formating speed results
