@@ -58,7 +58,7 @@ $(document).ready(function () {
             columns: [
                 { data: "name", title: filter },
                 {
-                    data: "rrank",
+                    data: "rank",
                     class: "dt-center",
                     render: function (data, type) {
                         if (type === "display") {
@@ -82,36 +82,6 @@ $(document).ready(function () {
                             }
                         }
                         return data;
-                    },
-                },
-
-                // speed columns
-                {
-                    data: "s1",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-                {
-                    data: "s2",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-                {
-                    data: "s3",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-                {
-                    data: "s4",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
                     },
                 },
 
@@ -173,49 +143,6 @@ $(document).ready(function () {
                     },
                 },
 
-                // lead columns
-                {
-                    data: "l1",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l2",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l3",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l4",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l5",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l6",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
 
                 // category
                 { data: "category", visible: false },
