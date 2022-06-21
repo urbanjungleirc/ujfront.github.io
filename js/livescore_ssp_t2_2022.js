@@ -17,6 +17,7 @@ $(document).ready(function () {
 
     let table = $("#results")
         .on("init.dt", function () {
+            // called once initialistion is complete
             console.log(
                 `Table initialisation complete: ${new Date().getTime()}`
             );
@@ -42,9 +43,9 @@ $(document).ready(function () {
             pagingType: "numbers",
             renderer: "bootstrap",
 
-            search: {
-                search: filter,
-            },
+            // search: {
+            //     search: filter,
+            // },
 
             // ordering:  false,
             order: [[0, "asc"]],
@@ -56,7 +57,7 @@ $(document).ready(function () {
             orderClasses: true, // highlight the columns which are used to order the content
 
             columns: [
-                { data: "name", title: filter },
+                { data: "name"},
                 {
                     data: "rank",
                     class: "dt-center",
@@ -83,6 +84,7 @@ $(document).ready(function () {
                         }
                         return data;
                     },
+                    visible: false
                 },
 
                 // boulder columns
@@ -142,12 +144,120 @@ $(document).ready(function () {
                         return boulder(row.h, row.hz, row.ht);
                     },
                 },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.i, row.iz, row.it);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.j, row.jz, row.jt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.k, row.kz, row.kt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.l, row.lz, row.lt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.m, row.mz, row.mt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.n, row.nz, row.nt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.o, row.oz, row.ot);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.p, row.pz, row.pt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.q, row.qz, row.qt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.r, row.rz, row.rt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.s, row.sz, row.st);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.t, row.tz, row.tt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.u, row.uz, row.ut);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.v, row.vz, row.vt);
+                    },
+                },
+                {
+                    data: null,
+                    class: "dt-center",
+                    render: function (row) {
+                        return boulder(row.w, row.wz, row.wt);
+                    },
+                },
 
 
-                // category
+                // hidden columns
                 { data: "category", visible: false },
-
-                // results
+                { data: "gender", visible: false },
+                { data: "tops", visible: false },
+                { data: "zones", visible: false },
+                { data: "top_attempts", visible: false },
+                { data: "zone_attempts", visible: false },
             ],
 
             initComplete: function () {
@@ -181,10 +291,47 @@ $(document).ready(function () {
                     api.ajax.reload();
                 }, dataRefreshInterval);
             },
+            language: {
+                searchPanes: {
+                    clearMessage: 'Clear selections',
+                    collapse: {0: 'Filter', _: 'Filters (%d)'}
+                }
+            },
+            buttons: [
+                'searchPanes',
+                {
+                    text: 'Order by Name',
+                    action: function ( e, dt, node, config ) {
+                        dt.order([0, 'asc']).draw();
+                    }
+                },
+                {
+                    text: 'Final ranking',
+                    action: function ( e, dt, node, config ) {
+                        dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
+                    }
+                }
+            ],
+            dom: 'Bfrtip',
+            columnDefs: [
+                {
+                    searchPanes: {
+                        show: true
+                    },
+                    targets: [25,26] // 25 = category, 26 = gender
+                },
+                {
+                    searchPanes: {
+                        show: false
+                    },
+                    targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,27,28,29,30]
+                }
+            ]
+            
         });
 
     // hide search option
-    //document.getElementById("results_filter").style.display = "none";
+    document.getElementById("results_filter").style.display = "none";
 });
 
 // formating speed results
