@@ -25,13 +25,13 @@
 
 <body class="bg-secondary">
 
-    <div class="container-xl bg-light ">
-
+    <div class="container-fluid">
         <div class="row d-flex align-items-end text-white secondary-dark mb-2 py-3">
-            <div class="col-6">
-                <h1 class="">Super Social Pumpfest T2 2022 - <small class="secondary-light bg-transparent">RESULTS</small><small id="updatedAt" class="secondary-light bg-transparent visually-hidden"></small></h1>
+            <div class="col-8">
+                <h1 class="">Super Social Pumpfest <small class="secondary-light bg-transparent">RESULTS</small><small
+                        id="updatedAt" class="secondary-light bg-transparent visually-hidden"></small></h1>
             </div>
-            <div class="col-6 visually-hidden">
+            <div class="col-4 visually-hidden">
                 <div id="timer">
                     <p class="h2 text-end text-primary">
                         Time left <span data-hours class="text-white fw-bold"></span>h
@@ -41,7 +41,9 @@
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="container-xl">
         <div class="row justify-content-center px-1">
             <div class="card bg-primary bg-opacity-100 border-0 mx-0 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
@@ -67,6 +69,7 @@
         </div>
     </div>
 
+
     <script>
         /*  -------------------------------------
             Default setting
@@ -74,7 +77,7 @@
         */
         const score = "https://script.google.com/macros/s/AKfycbzgewLxqb10uDLR9NNlTpo17TPWtUps78L0OcEYkDuPng6uIpc54U0b660XeE3nqVR2JQ/exec";
         const minPageDisplay = 10000; // minimum time for a page to be displayed
-        let dataRefreshInterval = 20 * 60000; // frequency for data refresh (1min = 60000)
+        let dataRefreshInterval = 30 * 60000; // frequency for data refresh (1min = 60000)
         const rowsPerPage = 8; // number of rows per page
         const filter = ""; // filtering data - enter category
         const catTimeEnd = "2022-06-25 12:15";

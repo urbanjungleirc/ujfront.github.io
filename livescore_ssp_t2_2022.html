@@ -24,17 +24,66 @@
 </head>
 
 <body>
+    <!-- Modal -->
+    <div class="modal fade" id="changeTimer" tabindex="-1" aria-labelledby="changeTimerLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changeTimerLabel">Change timer</h5>
+                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                </div>
+                <div class="modal-body">
 
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"
+                            onclick="resetCountDownTimer('2022-06-25 09:05')">
+                        <label class="form-check-label" for="flexRadioDefault1">
+                            Youth D (09:05)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2"
+                            onclick="resetCountDownTimer('2022-06-25 10:10')">
+                        <label class="form-check-label" for="flexRadioDefault2">
+                            Yout C (10:10)
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3"
+                            onclick="resetCountDownTimer('2022-06-25 11:15')">
+                        <label class="form-check-label" for="flexRadioDefault3">
+                            Yout B (11:15)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault4"
+                            onclick="resetCountDownTimer('2022-06-25 12:15')">
+                        <label class="form-check-label" for="flexRadioDefault4">
+                            Youth A & Junior (12:15)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- main container -->
     <div class="container-fluid bg-light">
 
 
         <div class="row d-flex align-items-end text-white primary-dark mb-2 py-3">
-            <div class="col-6">
-                <h1 class="">Super Social Pumpfest T2 2022 - <small class="text-primary">LIVESCORE</small><small id="updatedAt" class="text-primary"></small></h1>
+            <div class="col-8">
+                <h1 class="">Super Social Pumpfest <small class="text-primary">LIVESCORE</small><small id="updatedAt"
+                        class="text-primary"></small></h1>
             </div>
-            <div class="col-6 visually-hidden">
+            <div class="col-4" >
                 <div id="timer">
-                    <p class="h2 text-end text-primary">
+                    <p class="h1 text-end text-primary" data-bs-toggle="modal" data-bs-target="#changeTimer">
                         Time left <span data-hours class="text-white fw-bold"></span>h
                         <span data-minutes class="text-white fw-bold"></span>m
                         <span data-seconds class="text-white fw-bold"></span>s
@@ -43,7 +92,7 @@
             </div>
         </div>
 
-        <div class="row justify-content-center px-1">
+        <div class="row justify-content-center px-1 ">
             <div class="card bg-primary bg-opacity-100 border-0 mx-0 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -96,7 +145,7 @@
         const score = "https://script.google.com/macros/s/AKfycbzgewLxqb10uDLR9NNlTpo17TPWtUps78L0OcEYkDuPng6uIpc54U0b660XeE3nqVR2JQ/exec";
         const minPageDisplay = 10000; // minimum time for a page to be displayed
         let dataRefreshInterval = 2 * 60000; // frequency for data refresh (1min = 60000)
-        const rowsPerPage = 8; // number of rows per page
+        const rowsPerPage = 10; // number of rows per page
         const filter = ""; // filtering data - enter category
         const catTimeEnd = "2022-06-25 12:15";
     </script>

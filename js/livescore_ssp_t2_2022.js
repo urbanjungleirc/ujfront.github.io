@@ -8,9 +8,17 @@
 */
 
 // set pumpfest count down
-timezz(document.querySelector("#timer"), {
+let timer = timezz(document.querySelector("#timer"), {
     date: catTimeEnd,
+    stopOnZero: true,
 });
+
+function resetCountDownTimer(newTimeEnd = catTimeEnd) {
+    timer.destroy();
+    timer = timezz(document.querySelector("#timer"), {
+         date: newTimeEnd,
+        });   
+}
 
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
@@ -250,10 +258,9 @@ $(document).ready(function () {
                     },
                 },
 
-
                 // hidden columns
-                { data: "category", visible: false },
-                { data: "gender", visible: false },
+                { data: "category", visible: false, title: "Category" },
+                { data: "gender", visible: false, title: "Gender" },
                 { data: "tops", visible: false },
                 { data: "zones", visible: false },
                 { data: "top_attempts", visible: false },
@@ -291,6 +298,8 @@ $(document).ready(function () {
                     api.ajax.reload();
                 }, dataRefreshInterval);
             },
+
+            // setting Search Panels
             language: {
                 searchPanes: {
                     clearMessage: 'Clear selections',
@@ -352,11 +361,11 @@ function speed(data, type) {
     return number;
 }
 
-// formating lee results
+// formating lead results
 function leed(data, type) {
     if (type === "display") {
         if (data == 99) {
-            return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+            return `<div class="primary-dark bg-transparent style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
             return `<span class="primary-dark bg-transparent">${data}</span>`;
         }
@@ -368,12 +377,12 @@ function leed(data, type) {
 function boulder(tries = 0, zone = 0, top = 0) {
     if (top > 0) {
         if (top == 1) {
-            return `<div class="text-secondary text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+            return `<div class="text-secondary  style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
-            return `<div class="badge bg-secondary text-wrap pt-4" style="width: 2rem;">${top}</div>`;
+            return `<div class="badge bg-secondary pt-4 fs-5" style="width: 3rem;">${top}</div>`;
         }
     } else if (zone > 0) {
-        return `<div class="badge secondary-light text-white text-wrap pt-2" style="width: 2rem;">${zone}</div>`;
+        return `<div class="badge secondary-light text-white pt-2 fs-5" style="width: 2.9rem;">${zone}</div>`;
     } else {
         // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
         return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
