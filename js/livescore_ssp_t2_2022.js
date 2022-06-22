@@ -295,7 +295,7 @@ $(document).ready(function () {
                 // set interval for data refresh
                 setInterval(function () {
                     //console.log("Table refreshed: " + new Date().getTime());
-                    api.ajax.reload();
+                    api.ajax.reload(null, false);
                 }, dataRefreshInterval);
             },
 
