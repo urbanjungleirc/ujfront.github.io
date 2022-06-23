@@ -308,18 +308,18 @@ $(document).ready(function () {
             },
             buttons: [
                 'searchPanes',
-                {
-                    text: 'Order by Name',
-                    action: function ( e, dt, node, config ) {
-                        dt.order([0, 'asc']).draw();
-                    }
-                },
-                {
-                    text: 'Final ranking',
-                    action: function ( e, dt, node, config ) {
-                        dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
-                    }
-                }
+                // {
+                //     text: 'Order by Name',
+                //     action: function ( e, dt, node, config ) {
+                //         dt.order([0, 'asc']).draw();
+                //     }
+                // },
+                // {
+                //     text: 'Final ranking',
+                //     action: function ( e, dt, node, config ) {
+                //         dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
+                //     }
+                // }
             ],
             dom: 'Bfrtip',
             columnDefs: [
