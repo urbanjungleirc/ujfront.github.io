@@ -3,11 +3,11 @@
         youtube: https://www.youtube.com/watch?v=uJDLT8nh2ps
         script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
 
-    my live score api:
+    * my live score api:
     https://script.google.com/macros/s/AKfycbyUXxaevlA-4_yhSS_-BvAmNiE1xf0tV2EEZ0U2r5qQA_JaYSGqhQ4ExjNiE_WvJli2/exec
 */
 
-// set pumpfest count down
+//* set pumpfest count down
 let timer = timezz(document.querySelector("#timer"), {
     date: catTimeEnd,
     stopOnZero: true,
