@@ -1,0 +1,91 @@
+// logo colors
+// dark green #0d4014
+// green	#6fa638
+// light green #d3d923
+// orange #f26e22
+// red #f23827
+
+// custom variables
+$primary:       #70aa3e;
+$secondary:     #6f38a6;
+$info:          #252730;
+$success:       #57ae4b;
+$warning:       #d49d13;
+$danger:        #f44336;
+$light:         #F9F8F9;
+$dark:          #1d1e25;
+
+
+// import bootstrap
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
+
+
+// custom styles
+
+.primary-dark {
+  color: #0c4a00; 
+  background-color: #0c4a00;
+}
+.primary-light {
+  color: #6fa639;
+  background-color: #6fa639;
+}
+.secondary-dark {
+  color: #3e0776;
+  background-color: #3e0776;
+}
+.secondary-light {
+  color: #a165d8;
+  background-color: #a165d8;
+}
+
+.rumble {
+  color: #B3AD40;
+}
+.lead {
+  color: #4AF092;
+}
+.speed {
+  color: #00DDFF;
+}
+.boulder {
+  color: #FF5487;
+}
+
+
+.blue-hold { 
+    color: $white;
+    background-color: $blue-600;  
+   }
+.red-hold {
+    color: $white;
+    background-color: $red-600; 
+  }
+.yellow-hold {
+    color: $black;
+    background-color: $yellow-400; 
+  }
+.pink-hold {
+    color: $black; 
+    background-color: $pink-400; 
+  }
+.orange-hold {
+    color: $black;
+    background-color: $orange-500;
+}
+.green-hold {
+    color: $black;
+    background-color: #60B36F;
+}
+.black-hold {
+    color: $white;
+    background-color: $black;
+}
+.purple-hold {
+    color: $white;
+    background-color: $purple-700;
+}
+.white-hold {
+    color: $black;
+    background-color: $white;
+}
