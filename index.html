@@ -2,16 +2,61 @@
 <html lang="en">
 
 <head>
-  <meta name="description" content="Urban Jungle competition card" />
-  <meta charset="utf-8">
-  <title>UJ score card</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="author" content="">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Jungle</title>
+
+    <link rel="stylesheet" href="css/uj_colors.min.css">
+
 </head>
 
 <body>
 
-  <iframe src="https://script.google.com/macros/s/AKfycbzyIL3Q9agH94cPGfjipNsjHR67K1Q5ytyNQnLKk6Ex8VQ00c7sYurlvz5xHkumsyHw/exec" frameborder="0" width="100%" height="900px" ></iframe>
+    <!-- Background image -->
+    <div class="bg-image d-flex justify-content-center align-items-center" style="
+  background-image: url('/assets/bg_image.jpg');
+  height: 100vh;
+">
+        <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
+            <div class="card bg-light  border-1 shadow-lg" style="border-radius: .5rem;">
+                <div class="card-body text-center">
+                    <h1 class="text-primary">The next competition is on in</h1>
+                    <div id="timer">
+                        <p class="h3">
+                            <span data-days class="text-primary fw-bold"></span> days
+                            <span data-hours class="text-primary fw-bold"></span> hours
+                            <span data-minutes class="text-primary fw-bold"></span> minutes
+                            <span data-seconds class="text-primary fw-bold"></span> seconds
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Background image -->
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+        crossorigin="anonymous"></script>
+
+    <!-- dataTables -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- countdown timer: https://github.com/BrooonS/TimezZ -->
+    <script src="https://cdn.jsdelivr.net/npm/timezz/dist/timezz.min.js"></script>
+
+    <!-- custom java -->
+    <script>
+        // set pumpfest count down
+        const catTimeEnd = "2022-10-22 08:00";
+
+        timezz(document.querySelector("#timer"), {
+            date: catTimeEnd,
+        });
+
+    </script>
+
 
 </body>
 
