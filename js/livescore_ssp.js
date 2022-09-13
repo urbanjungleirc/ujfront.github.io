@@ -4,7 +4,45 @@
         script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
 */
 
-// 
+const setting = {data: {}};
+const output = document.querySelector('.output');
+output.innerHTML = 'testing';
+readSetting();
+
+// todo 
+function readSetting(){
+    output.innerHTML = 'loading setting...';
+    fetch (settingUrl)
+    .then (res => res.json())
+    .then (data => {
+        console.log (data);
+        setting.data = data;
+        outputData();
+    })
+}
+
+function outputData() {
+    output.innerHTML = '';
+    const el = maker('h2', output, 'text-primary','In progress:');
+    maker('span',el,'text-secondary',setting.data.inProgress[0][2]);
+    maker('span',output,'text-secondary',`next up: ${setting.data.nextUp[0][2]}`);
+    maker('h3',output,'comp','schedule:');
+    const list = maker('ul',output,'list','');
+    setting.data.schedule.forEach(category => {
+        console.log (category);
+        if (category){ 
+            const val = maker('li',list,'value',category.name);
+        }
+    })
+}
+
+function maker(tag, parent, cls, html) {
+    const el = document.createElement(tag);
+    el.classList.add(cls);
+    el.textContent = html;
+    return parent.appendChild(el);
+}
+
 
 //* set pumpfest count down
 let timer = timezz(document.querySelector("#timer"), {
@@ -19,6 +57,16 @@ function resetCountDownTimer(newTimeEnd = catTimeEnd) {
         });   
 }
 
+// 
+timer.update = (event) => {
+    //document.querySelector(".timer1").querySelector(".seconds").innerHTML = event.seconds === 1 ? "Second" : "Seconds";
+    // properties: days, minutes, seconds, distance 
+    if (event.seconds === 0) {
+        console.log(event);
+    }
+};
+
+//* set the table
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
 
@@ -37,7 +85,7 @@ $(document).ready(function () {
         })
         .dataTable({
             ajax: {
-                url: score,
+                url: scoreUrl,
                 cache: true,
                 data: function (d) {
                     d.format = "json";
