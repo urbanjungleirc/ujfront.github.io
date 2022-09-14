@@ -27,49 +27,25 @@
     
     <div class="output"></div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="changeTimer" tabindex="-1" aria-labelledby="changeTimerLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="changeTimerLabel">Change timer</h5>
+    <!-- Modal timer-->
+    <div class="modal fade" id="modalTimer" tabindex="-1" aria-labelledby="modalTimerLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content text-center">
+                <div class="modal-header text-center" id="modalTimerHeader">
                     <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
                 </div>
                 <div class="modal-body">
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"
-                            onclick="resetCountDownTimer('2022-06-25 09:05')">
-                        <label class="form-check-label" for="flexRadioDefault1">
-                            Youth D (09:05)
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2"
-                            onclick="resetCountDownTimer('2022-06-25 10:10')">
-                        <label class="form-check-label" for="flexRadioDefault2">
-                            Yout C (10:10)
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3"
-                            onclick="resetCountDownTimer('2022-06-25 11:15')">
-                        <label class="form-check-label" for="flexRadioDefault3">
-                            Yout B (11:15)
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault4"
-                            onclick="resetCountDownTimer('2022-06-25 12:15')">
-                        <label class="form-check-label" for="flexRadioDefault4">
-                            Youth A & Junior (12:15)
-                        </label>
+                    <div id="modalTimerBody"></div>
+                    <div >
+                        <div class="h1 text-primary text-center" id="timer2">
+                            <span data-hours class="text-black fw-bold"></span>h
+                            <span data-minutes class=" text-black fw-bold"></span>m
+                            <span data-seconds class="text-black fw-bold"></span>s
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                <div class="modal-footer" id="modalTimerFooter">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
                 </div>
             </div>
         </div>
@@ -84,17 +60,18 @@
                 <h1 class="">Super Social Pumpfest <small class="text-primary">LIVESCORE</small><small id="updatedAt"
                         class="text-primary"></small></h1>
             </div>
-            <div class="col-4" >
-                <div id="timer">
-                    <p class="h1 text-end text-primary" data-bs-toggle="modal" data-bs-target="#changeTimer">
+            <div class="col-4">
+                <div>
+                    <h1 class="h1 text-end text-primary" id="timer">
                         Time left <span data-hours class="text-white fw-bold"></span>h
                         <span data-minutes class="text-white fw-bold"></span>m
                         <span data-seconds class="text-white fw-bold"></span>s
-                    </p>
+                    </h1>
                 </div>
             </div>
         </div>
 
+        <!-- the table -->
         <div class="row justify-content-center px-1 ">
             <div class="card bg-primary bg-opacity-100 border-0 mx-0 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
