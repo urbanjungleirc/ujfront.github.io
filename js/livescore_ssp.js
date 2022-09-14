@@ -6,10 +6,25 @@
 
 const setting = {data: {}};
 const output = document.querySelector('.output');
-output.innerHTML = 'testing';
+const modalHeader = document.getElementById('modalTimerHeader');
+const modalBody = document.getElementById('modalTimerBody');
+const modalFooter = document.getElementById('modalTimerFooter');
+let myModal = new bootstrap.Modal(document.getElementById('modalTimer'), {
+    keyboard: false
+  });
+
+//* set pumpfest count down
+let timer = timezz(document.querySelector("#timer"), {
+    date: catTimeEnd,
+    stopOnZero: true
+});
+let timerInModal = timezz(document.querySelector("#timer2"), {
+    date: catTimeEnd,
+    stopOnZero: true
+});
+
 readSetting();
 
-// todo 
 function readSetting(){
     output.innerHTML = 'loading setting...';
     fetch (settingUrl)
@@ -18,9 +33,11 @@ function readSetting(){
         console.log (data);
         setting.data = data;
         outputData();
+        resetCategory();
     })
 }
 
+// for testing purpose only
 function outputData() {
     output.innerHTML = '';
     const el = maker('h2', output, 'text-primary','In progress:');
@@ -31,10 +48,30 @@ function outputData() {
     setting.data.schedule.forEach(category => {
         console.log (category);
         if (category){ 
-            const val = maker('li',list,'value',category.name);
+            const compEnd = new Date(category.to).toLocaleTimeString();
+            const compStart = new Date(category.start).toLocaleTimeString();
+            const val = maker('li',list,'value',`${category.name} from ${compStart} till ${compEnd}`);
         }
     })
 }
+
+function resetCategory() {
+    myModal.show();
+    modalHeader.innerText = '';
+    modalBody.innerText = '';
+    modalHeader.innerText = '';
+    maker('h2', modalHeader, 'text-primary',setting.data.inProgress[0][2]);
+    maker('h3', modalBody, 'text-primary','Time left');
+    const newEnd = new Date(setting.data.inProgress[0][1]);
+    maker('h1', modalBody, 'text-primary',newEnd.toLocaleString());
+    maker('h4', modalFooter, 'text-primary',`Next up: ${setting.data.nextUp[0][2]}`);
+    
+    resetCountDownTimer (newEnd);
+    
+    //myModal.show();
+    //myModal.hide();
+}
+
 
 function maker(tag, parent, cls, html) {
     const el = document.createElement(tag);
@@ -43,26 +80,24 @@ function maker(tag, parent, cls, html) {
     return parent.appendChild(el);
 }
 
-
-//* set pumpfest count down
-let timer = timezz(document.querySelector("#timer"), {
-    date: catTimeEnd,
-    stopOnZero: true,
-});
-
 function resetCountDownTimer(newTimeEnd = catTimeEnd) {
     timer.destroy();
     timer = timezz(document.querySelector("#timer"), {
-         date: newTimeEnd,
-        });   
+        date: newTimeEnd,
+    });
+    timerInModal.destroy();
+    timerInModal = timezz(document.querySelector("#timer2"), {
+        date: newTimeEnd,
+    });   
 }
 
-// 
+// start time till next event
 timer.update = (event) => {
-    //document.querySelector(".timer1").querySelector(".seconds").innerHTML = event.seconds === 1 ? "Second" : "Seconds";
     // properties: days, minutes, seconds, distance 
-    if (event.seconds === 0) {
-        console.log(event);
+    if (event.distance === 0) {
+        console.log('distance in timer 0 -> reset');
+        myModal.hide();
+        resetCategory();
     }
 };
 
