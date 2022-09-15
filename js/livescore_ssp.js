@@ -6,13 +6,13 @@
 
 const setting = {data: {}};
 const output = document.querySelector('.output');
-const modalHeader = document.getElementById('modalTimerHeader');
-const modalBody = document.getElementById('modalTimerBody');
-const modalFooter = document.getElementById('modalTimerFooter');
 let myModal = new bootstrap.Modal(document.getElementById('modalTimer'), {
     keyboard: false
   });
-
+const modalHeader = document.getElementById('modalTimerHeader');
+const modalBody = document.getElementById('modalTimerBody');
+const modalFooter = document.getElementById('modalTimerFooter');
+  
 //* set pumpfest count down
 let timer = timezz(document.querySelector("#timer"), {
     date: catTimeEnd,
@@ -24,15 +24,14 @@ let timerInModal = timezz(document.querySelector("#timer2"), {
 });
 
 readSetting();
-
 function readSetting(){
-    output.innerHTML = 'loading setting...';
+    //output.innerHTML = 'loading setting...';
     fetch (settingUrl)
     .then (res => res.json())
     .then (data => {
         console.log (data);
         setting.data = data;
-        outputData();
+        //outputData();
         resetCategory();
     })
 }
@@ -60,46 +59,88 @@ function resetCategory() {
     modalHeader.innerText = '';
     modalBody.innerText = '';
     modalHeader.innerText = '';
-    maker('h2', modalHeader, 'text-primary',setting.data.inProgress[0][2]);
-    maker('h3', modalBody, 'text-primary','Time left');
-    const newEnd = new Date(setting.data.inProgress[0][1]);
-    maker('h1', modalBody, 'text-primary',newEnd.toLocaleString());
-    maker('h4', modalFooter, 'text-primary',`Next up: ${setting.data.nextUp[0][2]}`);
-    
-    resetCountDownTimer (newEnd);
-    
-    //myModal.show();
-    //myModal.hide();
+    let currentTitle = ''
+    let bodyTitle = '';
+    let nextTitle = '';
+    let newDate = new Date();
+
+    if (setting.data.inProgress[0][2] == "") {
+        // nothing in progress
+        if (setting.data.nextUp[0][2] == "") {
+            // competition finished, display Congratulation to all competitors
+            currentTitle = 'Congratulation to all participants'
+            bodyTitle = 'The competition is over';
+            nextTitle = 'Stay fit';
+            newDate = new Date();
+        } else {
+            // display what is next up and count down to the start of it
+            currentTitle = 'Competition break, next up'
+            bodyTitle = setting.data.nextUp[0][2];
+            newDate = new Date(setting.data.nextUp[0][0]);
+            nextTitle = 'Stay fit';
+        }
+    } else {
+        // comp in progress
+        currentTitle = `in progress: ${setting.data.inProgress[0][2]}`
+        bodyTitle = 'Time left';
+        newDate = new Date(setting.data.inProgress[0][1]);
+        if (setting.data.nextUp[0][2] == "") {
+            // this is the last category, hide what is next up
+            nextTitle = '';
+        } else {
+            // display what is next
+            const nextStart = new Date(setting.data.nextUp[0][0]).toLocaleTimeString();
+            nextTitle = `Next up at ${nextStart}: ${setting.data.nextUp[0][2]}`;
+        }
+    }
+    maker('h1', modalHeader, 'text-primary',currentTitle );
+    maker('h1', modalBody, 'text-primary',bodyTitle);
+    maker('h4', modalFooter, 'text-primary',nextTitle);  
+    resetCountDownTimer (newDate);
 }
 
+// iniciate timer reset & modal message 
+// timer.update = (event) => {
+//     // properties: days, minutes, seconds, distance 
+//     console.log (event);
+//     if (event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
+//         console.log('5 mins left -> display the modal box');
+//         console.log (event);
+//         myModal.show();
+//     } else if (event.distance === 0 || event.distance === 300000 ) {
+//         console.log('distance in timer = 0 -> call resetCategory & hide modal');
+//         myModal.hide();
+//         resetCategory();
+//     }
+// };
 
-function maker(tag, parent, cls, html) {
-    const el = document.createElement(tag);
-    el.classList.add(cls);
-    el.textContent = html;
-    return parent.appendChild(el);
-}
 
-function resetCountDownTimer(newTimeEnd = catTimeEnd) {
+function resetCountDownTimer(newTimeEnd) {
     timer.destroy();
+    //console.log('timer destroyed');
     timer = timezz(document.querySelector("#timer"), {
         date: newTimeEnd,
+        stopOnZero: true,
+        update(event) {
+            // properties: days, minutes, seconds, distance 
+            // console.log (event);
+            if (event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
+                console.log('5 mins left -> display the modal box');
+                //console.log (event);
+                myModal.show();
+            } else if (event.hours == 0 && event.minutes == 0 && event.seconds == 1) {
+                console.log('distance in timer = 0 -> call resetCategory & hide modal');
+                myModal.hide();
+                resetCategory();
+        }}
     });
     timerInModal.destroy();
     timerInModal = timezz(document.querySelector("#timer2"), {
         date: newTimeEnd,
-    });   
+        stopOnZero: true
+    });
 }
 
-// start time till next event
-timer.update = (event) => {
-    // properties: days, minutes, seconds, distance 
-    if (event.distance === 0) {
-        console.log('distance in timer 0 -> reset');
-        myModal.hide();
-        resetCategory();
-    }
-};
 
 //* set the table
 $(document).ready(function () {
@@ -469,6 +510,16 @@ function boulder(tries = 0, zone = 0, top = 0) {
         // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
         return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
     }
+}
+
+/* Helper functions --------------------------------------------------------------*/
+
+// create & return new html elements
+function maker(tag, parent, cls, html) {
+    const el = document.createElement(tag);
+    el.classList.add(cls);
+    el.textContent = html;
+    return parent.appendChild(el);
 }
 
 function resetProgress(max) {
