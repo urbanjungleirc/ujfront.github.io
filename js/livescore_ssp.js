@@ -6,9 +6,19 @@
 
 const setting = {data: {}};
 const output = document.querySelector('.output');
+// setting up Modal element
 let myModal = new bootstrap.Modal(document.getElementById('modalTimer'), {
     keyboard: false
   });
+let modalIsOn = false;
+let forceModal = false;
+document.getElementById('modalTimer').addEventListener("show.bs.modal", function(event) {
+    modalIsOn = true; 
+});
+document.getElementById('modalTimer').addEventListener("hide.bs.modal", function(event) {
+    modalIsOn = false; 
+});
+
 const modalHeader = document.getElementById('modalTimerHeader');
 const modalBody = document.getElementById('modalTimerBody');
 const modalFooter = document.getElementById('modalTimerFooter');
@@ -55,7 +65,7 @@ function outputData() {
 }
 
 function resetCategory() {
-    myModal.show();
+    //myModal.show();
     modalHeader.innerText = '';
     modalBody.innerText = '';
     modalHeader.innerText = '';
@@ -63,25 +73,26 @@ function resetCategory() {
     let bodyTitle = '';
     let nextTitle = '';
     let newDate = new Date();
-
+    forceModal = false;
     if (setting.data.inProgress[0][2] == "") {
         // nothing in progress
+        forceModal = true;
         if (setting.data.nextUp[0][2] == "") {
             // competition finished, display Congratulation to all competitors
             currentTitle = 'Congratulation to all participants'
             bodyTitle = 'The competition is over';
-            nextTitle = 'Stay fit';
+            nextTitle = 'Thx for coming, see ya next time';
             newDate = new Date();
         } else {
             // display what is next up and count down to the start of it
             currentTitle = 'Competition break, next up'
-            bodyTitle = setting.data.nextUp[0][2];
+            bodyTitle = setting.data.nextUp[0][2].toLocaleUpperCase();
             newDate = new Date(setting.data.nextUp[0][0]);
-            nextTitle = 'Stay fit';
+            nextTitle = 'Warm up, get briefed and have fun';
         }
     } else {
         // comp in progress
-        currentTitle = `in progress: ${setting.data.inProgress[0][2]}`
+        currentTitle = setting.data.inProgress[0][2].toLocaleUpperCase();
         bodyTitle = 'Time left';
         newDate = new Date(setting.data.inProgress[0][1]);
         if (setting.data.nextUp[0][2] == "") {
@@ -90,12 +101,13 @@ function resetCategory() {
         } else {
             // display what is next
             const nextStart = new Date(setting.data.nextUp[0][0]).toLocaleTimeString();
-            nextTitle = `Next up at ${nextStart}: ${setting.data.nextUp[0][2]}`;
-        }
+            nextTitle = `Next up at ${nextStart}: ${setting.data.nextUp[0][2].toLocaleUpperCase()}`;
+        } 
     }
-    maker('h1', modalHeader, 'text-primary',currentTitle );
-    maker('h1', modalBody, 'text-primary',bodyTitle);
-    maker('h4', modalFooter, 'text-primary',nextTitle);  
+    console.log(forceModal);
+    maker('h1', modalHeader, 'text-white',currentTitle );
+    maker('h1', modalBody, 'text-white',bodyTitle);
+    maker('h4', modalFooter, 'text-secondary',nextTitle);  
     resetCountDownTimer (newDate);
 }
 
@@ -113,34 +125,38 @@ function resetCategory() {
 //         resetCategory();
 //     }
 // };
-
-
 function resetCountDownTimer(newTimeEnd) {
-    timer.destroy();
-    //console.log('timer destroyed');
-    timer = timezz(document.querySelector("#timer"), {
-        date: newTimeEnd,
-        stopOnZero: true,
-        update(event) {
-            // properties: days, minutes, seconds, distance 
-            // console.log (event);
-            if (event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
-                console.log('5 mins left -> display the modal box');
-                //console.log (event);
-                myModal.show();
-            } else if (event.hours == 0 && event.minutes == 0 && event.seconds == 1) {
-                console.log('distance in timer = 0 -> call resetCategory & hide modal');
-                myModal.hide();
-                resetCategory();
-        }}
-    });
     timerInModal.destroy();
     timerInModal = timezz(document.querySelector("#timer2"), {
         date: newTimeEnd,
         stopOnZero: true
     });
+    timer.destroy();
+    //console.log('timer destroyed');
+    timer = timezz(document.querySelector("#timer"), {
+        date: newTimeEnd,
+        stopOnZero: true,
+        beforeUpdate(){},
+        update(event) { // properties: days, minutes, seconds, distance 
+            // console.log (event);
+            if (event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
+                // display Modal countdown for last 5 mins
+                myModal.show();
+            } else if (event.hours == 0 && event.minutes == 0 && event.seconds == 1) {
+                // display Modal countdown for Time break
+                timer.pause = true;
+                delay();
+                myModal.hide();
+                readSetting();
+            } else if (event.hours == 0 && event.minutes < 5 && modalIsOn == false ){
+                // display Modal if 5 last minutes for the comp and it's not displayed yet
+                myModal.show();
+            } else if (forceModal) {
+                myModal.show();
+            }
+        }
+    });
 }
-
 
 //* set the table
 $(document).ready(function () {
@@ -521,6 +537,19 @@ function maker(tag, parent, cls, html) {
     el.textContent = html;
     return parent.appendChild(el);
 }
+
+function resolveAfter1Second(x) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(x);
+      }, 1000);
+    });
+  }
+async function delay() {
+    const x = await resolveAfter1Second(10);
+    console.log(x); // 10
+  }
+
 
 function resetProgress(max) {
     let el = document.getElementById("updateProgressBar");
