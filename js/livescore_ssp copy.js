@@ -4,7 +4,7 @@
         script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
 */
 
-const setting = {data: {}};
+let setting = {data: {}};
 const output = document.querySelector('.output');
 // setting up Modal element
 let myModal = new bootstrap.Modal(document.getElementById('modalTimer'), {
@@ -31,46 +31,19 @@ let timerInModal = timezz(document.querySelector("#timer2"), {
     date: catTimeEnd,
     stopOnZero: true
 });
-const localSchedule = {categories: {}};
+
 readSetting();
 function readSetting(){
     //output.innerHTML = 'loading setting...';
+    setting = {data: {}};
     fetch (settingUrl)
     .then (res => res.json())
     .then (data => {
         console.log (data);
         setting.data = data;
-        localSchedule.categories = data.schedule;
-        console.log(localSchedule);
         //outputData();
-        sortSchedule();
         resetCategory();
     })
-}
-// for testing purpose only
-let currentCatID = -1;
-let nextCatID = -1;
-function sortSchedule() {
-    currentCatID = -1;
-    nextCatID = -1;
-    const dNow = new Date();
-    localSchedule.categories.forEach((category,ind) => {
-        if (category){
-            const compEnd = new Date(category.to);
-            const compStart = new Date(category.start);
-            if (compStart.valueOf() <= dNow.valueOf() && dNow.valueOf() <= compEnd.valueOf()) {
-                currentCatID = ind;
-            }
-            if (nextCatID == -1 ) {
-                if (compStart.valueOf() > dNow.valueOf()){nextCatID = ind;}
-            }
-            //console.log (`ID ${ind} - ${currentCatID} / ${nextCatID}`);
-
-        } else {
-            //console.log(ind);
-        }
-    })
-    console.log (`current ${currentCatID} next ${nextCatID}`);
 }
 
 // for testing purpose only
@@ -92,52 +65,6 @@ function outputData() {
 }
 
 function resetCategory() {
-    //myModal.show();
-    modalHeader.innerText = '';
-    modalBody.innerText = '';
-    modalHeader.innerText = '';
-    let currentTitle = '';
-    let bodyTitle = '';
-    let nextTitle = '';
-    let newDate = new Date();
-    if (currentCatID == -1 ) {
-        // nothing in progress
-        forceModal = true;
-        if ( nextCatID == -1 ) {
-            // competition finished, display Congratulation to all competitors
-            currentTitle = 'The competition is over :(';
-            bodyTitle = 'Well done all and thx for coming';
-            newDate = new Date();
-            nextTitle = 'UJ Team';
-        } else {
-            // display what is next up and count down to the start of it
-            currentTitle = 'Competition break, next category';
-            bodyTitle = setting.data.schedule[nextCatID].name.toLocaleUpperCase();
-            newDate = new Date(setting.data.schedule[nextCatID].start);
-            nextTitle = 'Try hard, send harder and cheer even more';
-        }
-    } else {
-        // comp in progress
-        forceModal = false;
-        currentTitle = setting.data.schedule[currentCatID].name.toLocaleUpperCase();
-        bodyTitle = 'Time left';
-        newDate = new Date(setting.data.schedule[currentCatID].to);
-        if (nextCatID == -1) {
-            // this is the last category, hide what is next up
-            nextTitle = '';
-        } else {
-            // display what is next
-            const nextStart = new Date(setting.data.schedule[nextCatID].start).toLocaleTimeString();
-            nextTitle = `Next category ${setting.data.schedule[nextCatID].name.toLocaleUpperCase()} at ${nextStart}`;
-        } 
-    }
-    maker('h1', modalHeader, 'text-white',currentTitle );
-    maker('h1', modalBody, 'text-white',bodyTitle);
-    maker('h4', modalFooter, 'text-secondary',nextTitle);  
-    resetCountDownTimer (newDate);
-}
-
-function resetCategoryOld() {
     //myModal.show();
     modalHeader.innerText = '';
     modalBody.innerText = '';

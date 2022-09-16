@@ -29,18 +29,17 @@
 
     <!-- Modal timer-->
     <div class="modal fade" id="modalTimer" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="modalTimerLabel" aria-hidden="true" >
-        <div class="modal-dialog modal-dialog-centered modal-lg border-secondary border-5">
+        <div class="modal-dialog modal-dialog-centered modal-xl border-secondary border-5">
             <div class="modal-content text-center">
                 <div class="modal-header text-secondary">
-                    <h1>Super Social Pumpfest Term 3 - 2022</h1>
+                    <h1>UJ youth squad - Super Social Pumpfest</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body bg-secondary">
-                    <div id="modalTimerHeader"></div>
+                    <div id="modalTimerHeader" class="m-5"></div>
                     <div class="m-5">
                         <div id="modalTimerBody"></div>
                         <div class="h1 text-black-50 text-center" style="font-size: 6em;" id="timer2">
-                            <span data-hours class="text-white fw-bold"></span>h
                             <span data-minutes class="text-white fw-bold"></span>m
                             <span data-seconds class="text-white fw-bold"></span>s
                         </div>           
@@ -64,7 +63,7 @@
                         class="text-primary"></small></h1>
             </div>
             <div class="col-4">
-                <div>
+                <div onclick="myModal.show()">
                     <h1 class="h1 text-end text-primary" id="timer">
                         Time left <span data-hours class="text-white fw-bold"></span>h
                         <span data-minutes class="text-white fw-bold"></span>m
