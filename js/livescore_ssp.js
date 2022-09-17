@@ -6,6 +6,7 @@
 
 const setting = {data: {}};
 const output = document.querySelector('.output');
+
 // setting up Modal element
 let myModal = new bootstrap.Modal(document.getElementById('modalTimer'), {
     keyboard: false
@@ -22,7 +23,7 @@ const modalHeader = document.getElementById('modalTimerHeader');
 const modalBody = document.getElementById('modalTimerBody');
 const modalFooter = document.getElementById('modalTimerFooter');
   
-//* set pumpfest count down
+//* set default timers
 let timer = timezz(document.querySelector("#timer"), {
     date: catTimeEnd,
     stopOnZero: true
@@ -31,7 +32,8 @@ let timerInModal = timezz(document.querySelector("#timer2"), {
     date: catTimeEnd,
     stopOnZero: true
 });
-const localSchedule = {categories: {}};
+
+// read data from setting sheet and iniciate Modal/timer
 readSetting();
 function readSetting(){
     //output.innerHTML = 'loading setting...';
@@ -40,21 +42,20 @@ function readSetting(){
     .then (data => {
         console.log (data);
         setting.data = data;
-        localSchedule.categories = data.schedule;
-        console.log(localSchedule);
         //outputData();
-        sortSchedule();
+        findCurrentNext();
         resetCategory();
     })
 }
-// for testing purpose only
+
+// find Current and Next category
 let currentCatID = -1;
 let nextCatID = -1;
-function sortSchedule() {
+function findCurrentNext() {
     currentCatID = -1;
     nextCatID = -1;
     const dNow = new Date();
-    localSchedule.categories.forEach((category,ind) => {
+    setting.data.schedule.forEach((category,ind) => {
         if (category){
             const compEnd = new Date(category.to);
             const compStart = new Date(category.start);
@@ -65,37 +66,16 @@ function sortSchedule() {
                 if (compStart.valueOf() > dNow.valueOf()){nextCatID = ind;}
             }
             //console.log (`ID ${ind} - ${currentCatID} / ${nextCatID}`);
-
-        } else {
-            //console.log(ind);
         }
     })
     console.log (`current ${currentCatID} next ${nextCatID}`);
-}
-
-// for testing purpose only
-function outputData() {
-    output.innerHTML = '';
-    const el = maker('h2', output, 'text-primary','In progress:');
-    maker('span',el,'text-secondary',setting.data.inProgress[0][2]);
-    maker('span',output,'text-secondary',`next up: ${setting.data.nextUp[0][2]}`);
-    maker('h3',output,'comp','schedule:');
-    const list = maker('ul',output,'list','');
-    setting.data.schedule.forEach(category => {
-        console.log (category);
-        if (category){ 
-            const compEnd = new Date(category.to).toLocaleTimeString();
-            const compStart = new Date(category.start).toLocaleTimeString();
-            const val = maker('li',list,'value',`${category.name} from ${compStart} till ${compEnd}`);
-        }
-    })
 }
 
 function resetCategory() {
     //myModal.show();
     modalHeader.innerText = '';
     modalBody.innerText = '';
-    modalHeader.innerText = '';
+    modalFooter.innerText = '';
     let currentTitle = '';
     let bodyTitle = '';
     let nextTitle = '';
@@ -129,52 +109,6 @@ function resetCategory() {
             // display what is next
             const nextStart = new Date(setting.data.schedule[nextCatID].start).toLocaleTimeString();
             nextTitle = `Next category ${setting.data.schedule[nextCatID].name.toLocaleUpperCase()} at ${nextStart}`;
-        } 
-    }
-    maker('h1', modalHeader, 'text-white',currentTitle );
-    maker('h1', modalBody, 'text-white',bodyTitle);
-    maker('h4', modalFooter, 'text-secondary',nextTitle);  
-    resetCountDownTimer (newDate);
-}
-
-function resetCategoryOld() {
-    //myModal.show();
-    modalHeader.innerText = '';
-    modalBody.innerText = '';
-    modalHeader.innerText = '';
-    let currentTitle = '';
-    let bodyTitle = '';
-    let nextTitle = '';
-    let newDate = new Date();
-    if (setting.data.inProgress[0][2] == "") {
-        // nothing in progress
-        forceModal = true;
-        if (setting.data.nextUp[0][2] == "") {
-            // competition finished, display Congratulation to all competitors
-            currentTitle = 'The competition is over :(';
-            bodyTitle = 'Well done all and thx for coming';
-            newDate = new Date();
-            nextTitle = 'UJ Team';
-        } else {
-            // display what is next up and count down to the start of it
-            currentTitle = 'Competition break, next category';
-            bodyTitle = setting.data.nextUp[0][2].toLocaleUpperCase();
-            newDate = new Date(setting.data.nextUp[0][0]);
-            nextTitle = 'Send hard, try harder and HAVE FUN';
-        }
-    } else {
-        // comp in progress
-        forceModal = false;
-        currentTitle = setting.data.inProgress[0][2].toLocaleUpperCase();
-        bodyTitle = 'Time left';
-        newDate = new Date(setting.data.inProgress[0][1]);
-        if (setting.data.nextUp[0][2] == "") {
-            // this is the last category, hide what is next up
-            nextTitle = '';
-        } else {
-            // display what is next
-            const nextStart = new Date(setting.data.nextUp[0][0]).toLocaleTimeString();
-            nextTitle = `Next category ${setting.data.nextUp[0][2].toLocaleUpperCase()} at ${nextStart}`;
         } 
     }
     maker('h1', modalHeader, 'text-white',currentTitle );
@@ -610,6 +544,28 @@ async function delay() {
   }
 
 
+/* Not in sure - for testing purpose only -----------------------------------------*/
+
+
+// for testing purpose only
+function outputData() {
+    output.innerHTML = '';
+    const el = maker('h2', output, 'text-primary','In progress:');
+    maker('span',el,'text-secondary',setting.data.inProgress[0][2]);
+    maker('span',output,'text-secondary',`next up: ${setting.data.nextUp[0][2]}`);
+    maker('h3',output,'comp','schedule:');
+    const list = maker('ul',output,'list','');
+    setting.data.schedule.forEach(category => {
+        console.log (category);
+        if (category){ 
+            const compEnd = new Date(category.to).toLocaleTimeString();
+            const compStart = new Date(category.start).toLocaleTimeString();
+            const val = maker('li',list,'value',`${category.name} from ${compStart} till ${compEnd}`);
+        }
+    })
+}
+
+
 function resetProgress(max) {
     let el = document.getElementById("updateProgressBar");
     //console.log(el.ariaValueMax); // 7
@@ -618,6 +574,53 @@ function resetProgress(max) {
     el.ariaValueNow = 0;
     //console.log(el.ariaValueMax); // 6
 }
+
+function resetCategoryOld() {
+    //myModal.show();
+    modalHeader.innerText = '';
+    modalBody.innerText = '';
+    modalHeader.innerText = '';
+    let currentTitle = '';
+    let bodyTitle = '';
+    let nextTitle = '';
+    let newDate = new Date();
+    if (setting.data.inProgress[0][2] == "") {
+        // nothing in progress
+        forceModal = true;
+        if (setting.data.nextUp[0][2] == "") {
+            // competition finished, display Congratulation to all competitors
+            currentTitle = 'The competition is over :(';
+            bodyTitle = 'Well done all and thx for coming';
+            newDate = new Date();
+            nextTitle = 'UJ Team';
+        } else {
+            // display what is next up and count down to the start of it
+            currentTitle = 'Competition break, next category';
+            bodyTitle = setting.data.nextUp[0][2].toLocaleUpperCase();
+            newDate = new Date(setting.data.nextUp[0][0]);
+            nextTitle = 'Send hard, try harder and HAVE FUN';
+        }
+    } else {
+        // comp in progress
+        forceModal = false;
+        currentTitle = setting.data.inProgress[0][2].toLocaleUpperCase();
+        bodyTitle = 'Time left';
+        newDate = new Date(setting.data.inProgress[0][1]);
+        if (setting.data.nextUp[0][2] == "") {
+            // this is the last category, hide what is next up
+            nextTitle = '';
+        } else {
+            // display what is next
+            const nextStart = new Date(setting.data.nextUp[0][0]).toLocaleTimeString();
+            nextTitle = `Next category ${setting.data.nextUp[0][2].toLocaleUpperCase()} at ${nextStart}`;
+        } 
+    }
+    maker('h1', modalHeader, 'text-white',currentTitle );
+    maker('h1', modalBody, 'text-white',bodyTitle);
+    maker('h4', modalFooter, 'text-secondary',nextTitle);  
+    resetCountDownTimer (newDate);
+}
+
 
 /* Resources:
 
