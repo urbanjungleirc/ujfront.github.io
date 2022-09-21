@@ -39,17 +39,41 @@ $dark:          #1d1e25;
   background-color: #a165d8;
 }
 
-.rumble {
+
+.text-rumble {
   color: #B3AD40;
 }
-.lead {
+.text-lead {
   color: #4AF092;
 }
-.speed {
+.text-speed {
   color: #00DDFF;
 }
-.boulder {
+.text-boulder {
   color: #FF5487;
+}
+
+.bg-rumble {
+  background-color: #B3AD40;
+}
+.bg-lead {
+  background-color: #4AF092;
+}
+.bg-speed {
+  background-color: #00DDFF;
+}
+.bg-boulder {
+  background-color: #FF5487;
+}
+
+.bg-rumble-purple-dark {
+  background-color: #351942;
+}
+.bg-rumble-purple {
+  background-color: #4F2563;
+}
+.bg-rumble-white {
+  background-color: #FAFAFA;
 }
 
 
