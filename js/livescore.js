@@ -2,263 +2,155 @@
     how to creat the api with formated json in google script
         youtube: https://www.youtube.com/watch?v=uJDLT8nh2ps
         script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
-
-    my live score api:
-    https://script.google.com/macros/s/AKfycbyUXxaevlA-4_yhSS_-BvAmNiE1xf0tV2EEZ0U2r5qQA_JaYSGqhQ4ExjNiE_WvJli2/exec
 */
 
-// set pumpfest count down
-timezz(document.querySelector("#timer"), {
+const setting = {data: {}};
+const output = document.querySelector('.output');
+
+// setting up Modal element
+let myModal = new bootstrap.Modal(document.getElementById('modalTimer'), {
+    keyboard: false
+  });
+let modalIsOn = false;
+let forceModal = false;
+document.getElementById('modalTimer').addEventListener("show.bs.modal", function(event) {
+    modalIsOn = true; 
+});
+document.getElementById('modalTimer').addEventListener("hide.bs.modal", function(event) {
+    modalIsOn = false; 
+});
+const modalHeader = document.getElementById('modalTimerHeader');
+const modalBody = document.getElementById('modalTimerBody');
+const modalFooter = document.getElementById('modalTimerFooter');
+  
+//* set default timers
+let timer = timezz(document.querySelector("#timer"), {
     date: catTimeEnd,
+    stopOnZero: true
+});
+let timerInModal = timezz(document.querySelector("#timer2"), {
+    date: catTimeEnd,
+    stopOnZero: true
 });
 
-$(document).ready(function () {
-    console.log(`Table initialisation start: ${new Date().getTime()}`);
+// read data from setting sheet and iniciate Modal/timer
+readSetting();
+function readSetting(){
+    //output.innerHTML = 'loading setting...';
+    fetch (settingUrl)
+    .then (res => res.json())
+    .then (data => {
+        console.log (data);
+        setting.data = data;
+        //outputData();
+        findCurrentNext();
+        resetCategory();
+    })
+}
 
-    let table = $("#results")
-        .on("init.dt", function () {
-            console.log(
-                `Table initialisation complete: ${new Date().getTime()}`
-            );
-        })
-        .on("xhr.dt", function (e, settings, json, xhr) {
-            //$("#status").html(json.status);
-            let el = document.getElementById("updatedAt");
-            let d = new Date();
-            el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
-        })
-        .dataTable({
-            ajax: {
-                url: score,
-                cache: true,
-                data: function (d) {
-                    d.format = "json";
-                },
-                dataSrc: "data",
-            },
+// find Current and Next category
+let currentCatID = -1;
+let nextCatID = -1;
+function findCurrentNext() {
+    currentCatID = -1;
+    nextCatID = -1;
+    const dNow = new Date();
+    setting.data.schedule.forEach((category,ind) => {
+        if (category){
+            const compEnd = new Date(category.to);
+            const compStart = new Date(category.start);
+            if (compStart.valueOf() <= dNow.valueOf() && dNow.valueOf() <= compEnd.valueOf()) {
+                currentCatID = ind;
+            }
+            if (nextCatID == -1 ) {
+                if (compStart.valueOf() > dNow.valueOf()){nextCatID = ind;}
+            }
+            //console.log (`ID ${ind} - ${currentCatID} / ${nextCatID}`);
+        }
+    })
+    console.log (`current ${currentCatID} next ${nextCatID}`);
+}
 
-            lengthChange: false,
-            pageLength: rowsPerPage,
-            pagingType: "numbers",
-            renderer: "bootstrap",
+function resetCategory() {
+    //myModal.show();
+    modalHeader.innerText = '';
+    modalBody.innerText = '';
+    modalFooter.innerText = '';
+    let currentTitle = '';
+    let bodyTitle = '';
+    let nextTitle = '';
+    let newDate = new Date();
+    if (currentCatID == -1 ) {
+        // nothing in progress
+        forceModal = true;
+        if ( nextCatID == -1 ) {
+            // competition finished, display Congratulation to all competitors
+            currentTitle = 'The competition is over :(';
+            bodyTitle = 'Well done all and thx for coming';
+            newDate = new Date();
+            nextTitle = 'UJ Team';
+        } else {
+            // display what is next up and count down to the start of it
+            currentTitle = 'Competition break, next category';
+            bodyTitle = setting.data.schedule[nextCatID].name.toLocaleUpperCase();
+            newDate = new Date(setting.data.schedule[nextCatID].start);
+            nextTitle = 'Try hard, send harder and cheer even more';
+        }
+    } else {
+        // comp in progress
+        forceModal = false;
+        currentTitle = setting.data.schedule[currentCatID].name.toLocaleUpperCase();
+        bodyTitle = 'Time left';
+        newDate = new Date(setting.data.schedule[currentCatID].to);
+        if (nextCatID == -1) {
+            // this is the last category, hide what is next up
+            nextTitle = '';
+        } else {
+            // display what is next
+            const nextStart = new Date(setting.data.schedule[nextCatID].start).toLocaleTimeString();
+            nextTitle = `Next category ${setting.data.schedule[nextCatID].name.toLocaleUpperCase()} at ${nextStart}`;
+        } 
+    }
+    maker('h1', modalHeader, 'text-white',currentTitle );
+    maker('h1', modalBody, 'text-white',bodyTitle);
+    maker('h4', modalFooter, 'text-secondary',nextTitle);  
+    resetCountDownTimer (newDate);
+}
 
-            search: {
-                search: filter,
-            },
+function resetCountDownTimer(newTimeEnd) {
+    timerInModal.destroy();
+    timerInModal = timezz(document.querySelector("#timer2"), {
+        date: newTimeEnd,
+        stopOnZero: true
+    });
+    timer.destroy();
+    //console.log('timer destroyed');
+    timer = timezz(document.querySelector("#timer"), {
+        date: newTimeEnd,
+        stopOnZero: true,
+        beforeUpdate(){},
+        update(event) { // properties: days, minutes, seconds, distance 
+            // console.log (event);
+            if (event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
+                // display Modal countdown for last 5 mins
+                myModal.show();
+            } else if (event.hours == 0 && event.minutes == 0 && event.seconds == 1) {
+                // display Modal countdown for Time break
+                timer.pause = true;
+                delay();
+                myModal.hide();
+                readSetting();
+            } else if (event.hours == 0 && event.minutes < 5 && modalIsOn == false ){
+                // display Modal if 5 last minutes for the comp and it's not displayed yet
+                myModal.show();
+            } else if (forceModal) {
+                // forcing displaying the Modal for break time
+                myModal.show();
+            }
+        }
+    });
+}
 
-            // ordering:  false,
-            order: [[0, "asc"]],
-            rowReorder: true, // allows to re-order
-            columnDefs: [
-                { orderable: true, className: "reorder", targets: 0 },
-                { orderable: false, targets: "_all" }, // disable ordering for columns
-            ],
-            orderClasses: true, // highlight the columns which are used to order the content
-
-            columns: [
-                { data: "name", title: filter },
-                {
-                    data: "rrank",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        if (type === "display") {
-                            switch (data) {
-                                case 1:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
-                                    break;
-                                case 2:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
-                                    break;
-                                case 3:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
-                                    break;
-                                case 4:
-                                case 5:
-                                case 6:
-                                    return `<span class="primary-dark bg-transparent fw-semibold">${data}</span>`;
-                                    break;
-                                default:
-                                    return `<span class="primary-dark bg-transparent">${data}</span>`;
-                            }
-                        }
-                        return data;
-                    },
-                },
-
-                // speed columns
-                {
-                    data: "s1",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-                {
-                    data: "s2",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-                {
-                    data: "s3",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-                {
-                    data: "s4",
-                    class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
-                    },
-                },
-
-                // boulder columns
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.a, row.az, row.at);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.b, row.bz, row.bt);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.c, row.cz, row.ct);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.d, row.dz, row.dt);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.e, row.ez, row.et);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.f, row.fz, row.ft);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.g, row.gz, row.gt);
-                    },
-                },
-                {
-                    data: null,
-                    class: "dt-center",
-                    render: function (row) {
-                        return boulder(row.h, row.hz, row.ht);
-                    },
-                },
-
-                // lead columns
-                {
-                    data: "l1",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l2",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l3",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l4",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l5",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-                {
-                    data: "l6",
-                    class: "dt-center",
-                    render: function (data, type) {
-                        return leed(data, type);
-                    },
-                },
-
-                // category
-                { data: "category", visible: false },
-
-                // results
-            ],
-
-            initComplete: function () {
-                // calculate time intervals for the page rotating and updates
-                let api = this.api();
-                let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
-
-                if (tableInfo.pages > 1) {
-                    // more than one page
-                    let timePerPage = dataRefreshInterval / tableInfo.pages;
-                    if (timePerPage < minPageDisplay) {
-                        dataRefreshInterval = minPageDisplay * tableInfo.pages;
-                        timePerPage = minPageDisplay;
-                    } else {
-                        timePerPage = timePerPage.toFixed();
-                    }
-
-                    // set interval for flipping pages
-                    setInterval(function () {
-                        if (api.page.info().page == api.page.info().pages - 1) {
-                            api.page("first").draw("page");
-                        } else {
-                            api.page("next").draw("page");
-                        }
-                    }, timePerPage);
-                }
-
-                // set interval for data refresh
-                setInterval(function () {
-                    //console.log("Table refreshed: " + new Date().getTime());
-                    api.ajax.reload();
-                }, dataRefreshInterval);
-            },
-        });
-
-    // hide search option
-    //document.getElementById("results_filter").style.display = "none";
-});
 
 // formating speed results
 function speed(data, type) {
@@ -278,11 +170,11 @@ function speed(data, type) {
     return number;
 }
 
-// formating lee results
+// formating lead results
 function leed(data, type) {
     if (type === "display") {
         if (data == 99) {
-            return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+            return `<div class="primary-dark bg-transparent style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
             return `<span class="primary-dark bg-transparent">${data}</span>`;
         }
@@ -294,17 +186,65 @@ function leed(data, type) {
 function boulder(tries = 0, zone = 0, top = 0) {
     if (top > 0) {
         if (top == 1) {
-            return `<div class="text-secondary text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+            return `<div class="text-secondary  style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
-            return `<div class="badge bg-secondary text-wrap pt-4" style="width: 2rem;">${top}</div>`;
+            return `<div class="badge bg-secondary pt-4 fs-5" style="width: 3rem;">${top}</div>`;
         }
     } else if (zone > 0) {
-        return `<div class="badge secondary-light text-white text-wrap pt-2" style="width: 2rem;">${zone}</div>`;
+        return `<div class="badge secondary-light text-white pt-2 fs-5" style="width: 2.9rem;">${zone}</div>`;
     } else {
         // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
         return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
     }
 }
+
+/* Helper functions --------------------------------------------------------------*/
+
+// create & return new html elements
+function maker(tag, parent, cls, html) {
+    const el = document.createElement(tag);
+    el.classList.add(cls);
+    el.textContent = html;
+    return parent.appendChild(el);
+}
+
+function resolveAfter1Second(x) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(x);
+      }, 1000);
+    });
+  }
+async function delay() {
+    const x = await resolveAfter1Second(10);
+    console.log(x); // 10
+  }
+
+
+
+/*  Not in use - for testing purpose only 
+*   -----------------------------------------
+*/
+
+
+// for testing purpose only
+function outputData() {
+    output.innerHTML = '';
+    const el = maker('h2', output, 'text-primary','In progress:');
+    maker('span',el,'text-secondary',setting.data.inProgress[0][2]);
+    maker('span',output,'text-secondary',`next up: ${setting.data.nextUp[0][2]}`);
+    maker('h3',output,'comp','schedule:');
+    const list = maker('ul',output,'list','');
+    setting.data.schedule.forEach(category => {
+        console.log (category);
+        if (category){ 
+            const compEnd = new Date(category.to).toLocaleTimeString();
+            const compStart = new Date(category.start).toLocaleTimeString();
+            const val = maker('li',list,'value',`${category.name} from ${compStart} till ${compEnd}`);
+        }
+    })
+}
+
 
 function resetProgress(max) {
     let el = document.getElementById("updateProgressBar");
@@ -314,6 +254,53 @@ function resetProgress(max) {
     el.ariaValueNow = 0;
     //console.log(el.ariaValueMax); // 6
 }
+
+function resetCategoryOld() {
+    //myModal.show();
+    modalHeader.innerText = '';
+    modalBody.innerText = '';
+    modalHeader.innerText = '';
+    let currentTitle = '';
+    let bodyTitle = '';
+    let nextTitle = '';
+    let newDate = new Date();
+    if (setting.data.inProgress[0][2] == "") {
+        // nothing in progress
+        forceModal = true;
+        if (setting.data.nextUp[0][2] == "") {
+            // competition finished, display Congratulation to all competitors
+            currentTitle = 'The competition is over :(';
+            bodyTitle = 'Well done all and thx for coming';
+            newDate = new Date();
+            nextTitle = 'UJ Team';
+        } else {
+            // display what is next up and count down to the start of it
+            currentTitle = 'Competition break, next category';
+            bodyTitle = setting.data.nextUp[0][2].toLocaleUpperCase();
+            newDate = new Date(setting.data.nextUp[0][0]);
+            nextTitle = 'Send hard, try harder and HAVE FUN';
+        }
+    } else {
+        // comp in progress
+        forceModal = false;
+        currentTitle = setting.data.inProgress[0][2].toLocaleUpperCase();
+        bodyTitle = 'Time left';
+        newDate = new Date(setting.data.inProgress[0][1]);
+        if (setting.data.nextUp[0][2] == "") {
+            // this is the last category, hide what is next up
+            nextTitle = '';
+        } else {
+            // display what is next
+            const nextStart = new Date(setting.data.nextUp[0][0]).toLocaleTimeString();
+            nextTitle = `Next category ${setting.data.nextUp[0][2].toLocaleUpperCase()} at ${nextStart}`;
+        } 
+    }
+    maker('h1', modalHeader, 'text-white',currentTitle );
+    maker('h1', modalBody, 'text-white',bodyTitle);
+    maker('h4', modalFooter, 'text-secondary',nextTitle);  
+    resetCountDownTimer (newDate);
+}
+
 
 /* Resources:
 
