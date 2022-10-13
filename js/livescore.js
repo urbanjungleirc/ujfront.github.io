@@ -162,7 +162,7 @@ function speed(data, type) {
         let fclasses = "";
         if (data > 0) {
             if (data < 6) {
-                fclasses = "text-primary fw-bold";
+                fclasses = "text-speed fw-bold";
             } else if (data < 10) {
                 fclasses = "text-primary";
             }
@@ -176,7 +176,8 @@ function speed(data, type) {
 function lead(data, type) {
     if (type === "display") {
         if (data == 30) {
-            return `<div class="primary-dark bg-transparent style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+            // flash
+            return `<div class="text-lead bg-transparent style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
             return `<span class="primary-dark bg-transparent">${data}</span>`;
         }
@@ -188,12 +189,14 @@ function lead(data, type) {
 function boulder(tries = 0, zone = 0, top = 0) {
     if (top > 0) {
         if (top == 1) {
-            return `<div class="text-secondary  style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
+            // flash
+            return `<div class="text-boulder style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
-            return `<div class="badge bg-secondary pt-4 fs-5" style="width: 3rem;">${top}</div>`;
+            // topped in x attempts
+            return `<div class="badge bg-boulder text-black pt-4 fs-5" style="width: 3rem;">${top}</div>`;
         }
     } else if (zone > 0) {
-        return `<div class="badge secondary-light text-white pt-2 fs-5" style="width: 2.9rem;">${zone}</div>`;
+        return `<div class="badge bg-boulder text-white pt-2 fs-5" style="width: 2.9rem;">${zone}</div>`;
     } else {
         // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
         return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;

@@ -11,16 +11,14 @@ $(document).ready(function () {
 
     let table = $("#results")
         .on("init.dt", function () {
-            console.log(
-                `Table initialisation complete: ${new Date().getTime()}`
-            );
+            console.log(`Table initialisation complete: ${new Date().getTime()}`);
         })
-        // .on("xhr.dt", function (e, settings, json, xhr) {
-        //     //$("#status").html(json.status);
-        //     let el = document.getElementById("updatedAt");
-        //     let d = new Date();
-        //     el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
-        // })
+        .on("xhr.dt", function (e, settings, json, xhr) {
+            //$("#status").html(json.status);
+            let el = document.getElementById("updatedAt");
+            let d = new Date();
+            el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
+        })
         .dataTable({
             ajax: {
                 url: scoreUrl,
@@ -36,11 +34,11 @@ $(document).ready(function () {
             pagingType: "numbers",
             renderer: "bootstrap",
 
-            // // search: {
-            // //     search: filter,
-            // // },
+            // search: {
+            //     search: filter,
+            // },
 
-            // // ordering:  false,
+            // ordering:  false,
             order: [[0, "asc"]],
             rowReorder: true, // allows to re-order
             columnDefs: [
@@ -248,75 +246,75 @@ $(document).ready(function () {
 
             ],
 
-            // initComplete: function () {
-            //     // calculate time intervals for the page rotating and updates
-            //     let api = this.api();
-            //     let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
+            initComplete: function () {
+                // calculate time intervals for the page rotating and updates
+                let api = this.api();
+                let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
 
-            //     if (tableInfo.pages > 1) {
-            //         // more than one page
-            //         let timePerPage = dataRefreshInterval / tableInfo.pages;
-            //         if (timePerPage < minPageDisplay) {
-            //             dataRefreshInterval = minPageDisplay * tableInfo.pages;
-            //             timePerPage = minPageDisplay;
-            //         } else {
-            //             timePerPage = timePerPage.toFixed();
-            //         }
+                if (tableInfo.pages > 1) {
+                    // more than one page
+                    let timePerPage = dataRefreshInterval / tableInfo.pages;
+                    if (timePerPage < minPageDisplay) {
+                        dataRefreshInterval = minPageDisplay * tableInfo.pages;
+                        timePerPage = minPageDisplay;
+                    } else {
+                        timePerPage = timePerPage.toFixed();
+                    }
 
-            //         // set interval for flipping pages
-            //         setInterval(function () {
-            //             if (api.page.info().page == api.page.info().pages - 1) {
-            //                 api.page("first").draw("page");
-            //             } else {
-            //                 api.page("next").draw("page");
-            //             }
-            //         }, timePerPage);
-            //     }
+                    // set interval for flipping pages
+                    setInterval(function () {
+                        if (api.page.info().page == api.page.info().pages - 1) {
+                            api.page("first").draw("page");
+                        } else {
+                            api.page("next").draw("page");
+                        }
+                    }, timePerPage);
+                }
 
-            //     // set interval for data refresh
-            //     setInterval(function () {
-            //         //console.log("Table refreshed: " + new Date().getTime());
-            //         api.ajax.reload();
-            //     }, dataRefreshInterval);
-            // },
+                // set interval for data refresh
+                setInterval(function () {
+                    //console.log("Table refreshed: " + new Date().getTime());
+                    api.ajax.reload();
+                }, dataRefreshInterval);
+            },
 
             // // setting Search Panels
-            // language: {
-            //     searchPanes: {
-            //         clearMessage: 'Clear selections',
-            //         collapse: {0: 'Filter', _: 'Filters (%d)'}
-            //     }
-            // },
-            // buttons: [
-            //     'searchPanes',
-            //     // {
-            //     //     text: 'Order by Name',
-            //     //     action: function ( e, dt, node, config ) {
-            //     //         dt.order([0, 'asc']).draw();
-            //     //     }
-            //     // },
-            //     // {
-            //     //     text: 'Final ranking',
-            //     //     action: function ( e, dt, node, config ) {
-            //     //         dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
-            //     //     }
-            //     // }
-            // ],
-            // dom: 'Bfrtip',
-            // columnDefs: [
-            //     {
-            //         searchPanes: {
-            //             show: true
-            //         },
-            //         targets: [25,26] // 25 = category, 26 = gender
-            //     },
-            //     {
-            //         searchPanes: {
-            //             show: false
-            //         },
-            //         targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,27,28,29,30]
-            //     }
-            // ]            
+            language: {
+                searchPanes: {
+                    clearMessage: 'Clear selections',
+                    collapse: {0: 'Filter', _: 'Filters (%d)'}
+                }
+            },
+            buttons: [
+                'searchPanes',
+                // {
+                //     text: 'Order by Name',
+                //     action: function ( e, dt, node, config ) {
+                //         dt.order([0, 'asc']).draw();
+                //     }
+                // },
+                // {
+                //     text: 'Final ranking',
+                //     action: function ( e, dt, node, config ) {
+                //         dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
+                //     }
+                // }
+            ],
+            dom: 'Bfrtip',
+            columnDefs: [
+                {
+                    searchPanes: {
+                        show: true
+                    },
+                    targets: [3,4] //  = category,  = gender
+                },
+                {
+                    searchPanes: {
+                        show: false
+                    },
+                    targets: [0,1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]
+                },
+            ]            
         });
 
     // hide search option

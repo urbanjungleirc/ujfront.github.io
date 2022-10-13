@@ -52,7 +52,7 @@
     <div class="container-fluid bg-light">
 
 
-        <div class="row d-flex align-items-end text-white primary-dark mb-2 py-3">
+        <div class="row d-flex align-items-end text-rumble bg-rumble-purple-dark mb-2 py-3">
             <div class="col-8">
                 <h1 class="">Rumble In The Jungle 
                     <small class="text-primary">LIVESCORE</small>
@@ -60,7 +60,7 @@
             </div>
             <div class="col-4">
                 <div onclick="myModal.show()">
-                    <h1 class="h1 text-end text-primary" id="timer">
+                    <h1 class="h1 text-end text-rumble" id="timer">
                         Time left <span data-hours class="text-white fw-bold"></span>h
                         <span data-minutes class="text-white fw-bold"></span>m
                         <span data-seconds class="text-white fw-bold"></span>s
@@ -71,19 +71,23 @@
 
         <!-- the table -->
         <div class="row justify-content-center px-1">
-            <div class="card bg-primary bg-opacity-100 border-0 mx-0 px-1" style="border-radius: .5rem;">
+            <div class="card bg-rumble-purple border-0 mx-0 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
                     <div class="table-responsive">
+                        <!-- <table id="results" class="table table-striped-columns bg-white align-bottom fs-1 pe-1"> -->
                         <table id="results" class="table table-striped-columns bg-white align-bottom fs-1 pe-1">
                             <thead>
-                                <tr class="bg-primary bg-opacity-100 primary-dark ">
+                                <!-- <tr class="bg-primary bg-opacity-100 primary-dark ">
                                     <th rowspan="2"></th>
-                                    
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2"></th>
                                     <th colspan="4" class="text-center">Speed</th>
                                     <th colspan="8" class="text-center">Boulder</th>
                                     <th colspan="6" class="text-center">Lead</th>
-                                </tr>
-                                <tr class="bg-primary bg-opacity-50">
+                                </tr> -->
+                                <tr class="bg-rumble-purple text-white">
                                     <th>1</th>
                                     <th>2</th>
                                     <th>3</th>
@@ -117,8 +121,6 @@
                                     <th>2</th>
                                     <th>3</th>
                                     <th>4</th>
-
-
                                 </tr>
                             </thead>
                         </table>
