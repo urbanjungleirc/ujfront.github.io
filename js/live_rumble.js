@@ -1,5 +1,11 @@
+/*  Using Google Script Api to retrieve JSON data
+    how to creat the api with formated json in google script
+        youtube: https://www.youtube.com/watch?v=uJDLT8nh2ps
+        script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
+*/
 
 
+//* set the table
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
 
@@ -17,7 +23,7 @@ $(document).ready(function () {
         })
         .dataTable({
             ajax: {
-                url: score,
+                url: scoreUrl,
                 cache: true,
                 data: function (d) {
                     d.format = "json";
@@ -30,9 +36,9 @@ $(document).ready(function () {
             pagingType: "numbers",
             renderer: "bootstrap",
 
-            search: {
-                search: filter,
-            },
+            // search: {
+            //     search: filter,
+            // },
 
             // ordering:  false,
             order: [[0, "asc"]],
@@ -44,7 +50,7 @@ $(document).ready(function () {
             orderClasses: true, // highlight the columns which are used to order the content
 
             columns: [
-                { data: "name", title: filter },
+                { data: "name"},
                 {
                     data: "rrank",
                     class: "dt-center",
@@ -71,6 +77,7 @@ $(document).ready(function () {
                         }
                         return data;
                     },
+                    visible: false
                 },
 
                 // speed columns
@@ -207,6 +214,11 @@ $(document).ready(function () {
 
                 // category
                 { data: "category", visible: false },
+                { data: "gender", visible: false, title: "Gender" },
+                { data: "tops", visible: false },
+                { data: "zones", visible: false },
+                { data: "top_attempts", visible: false },
+                { data: "zone_attempts", visible: false },
 
                 // results
             ],

@@ -37,12 +37,13 @@ let timerInModal = timezz(document.querySelector("#timer2"), {
 readSetting();
 function readSetting(){
     //output.innerHTML = 'loading setting...';
+    console.log("loading data...");
     fetch (settingUrl)
     .then (res => res.json())
     .then (data => {
         console.log (data);
         setting.data = data;
-        //outputData();
+        outputData();
         findCurrentNext();
         resetCategory();
     })
@@ -65,7 +66,7 @@ function findCurrentNext() {
             if (nextCatID == -1 ) {
                 if (compStart.valueOf() > dNow.valueOf()){nextCatID = ind;}
             }
-            //console.log (`ID ${ind} - ${currentCatID} / ${nextCatID}`);
+            console.log (`ID ${ind} - ${currentCatID} / ${nextCatID}`);
         }
     })
     console.log (`current ${currentCatID} next ${nextCatID}`);
