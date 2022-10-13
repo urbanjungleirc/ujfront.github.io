@@ -37,13 +37,13 @@ let timerInModal = timezz(document.querySelector("#timer2"), {
 readSetting();
 function readSetting(){
     //output.innerHTML = 'loading setting...';
-    console.log("loading data...");
+    console.log("loading setting data...");
     fetch (settingUrl)
     .then (res => res.json())
     .then (data => {
         console.log (data);
         setting.data = data;
-        outputData();
+        //outputData();
         findCurrentNext();
         resetCategory();
     })
@@ -69,7 +69,7 @@ function findCurrentNext() {
             console.log (`ID ${ind} - ${currentCatID} / ${nextCatID}`);
         }
     })
-    console.log (`current ${currentCatID} next ${nextCatID}`);
+    console.log (`findCurrentNext() -> current category: ${currentCatID} next: ${nextCatID}`);
 }
 
 function resetCategory() {
@@ -112,6 +112,7 @@ function resetCategory() {
             nextTitle = `Next category ${setting.data.schedule[nextCatID].name.toLocaleUpperCase()} at ${nextStart}`;
         } 
     }
+    console.log(`resetCategory() -> currentTitle: ${currentTitle}, nextTitle: ${nextTitle}`);
     maker('h1', modalHeader, 'text-white',currentTitle );
     maker('h1', modalBody, 'text-white',bodyTitle);
     maker('h4', modalFooter, 'text-secondary',nextTitle);  
@@ -172,9 +173,9 @@ function speed(data, type) {
 }
 
 // formating lead results
-function leed(data, type) {
+function lead(data, type) {
     if (type === "display") {
-        if (data == 99) {
+        if (data == 30) {
             return `<div class="primary-dark bg-transparent style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
             return `<span class="primary-dark bg-transparent">${data}</span>`;
