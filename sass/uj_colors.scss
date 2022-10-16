@@ -15,10 +15,16 @@ $danger:        #f44336;
 $light:         #F9F8F9;
 $dark:          #1d1e25;
 
+// pagination 
+// https://getbootstrap.com/docs/5.2/components/pagination/#variables
+$pagination-color:        gray;
+$pagination-focus-color:  gray;
+$pagination-active-color: $dark;
+$pagination-active-bg:    $light;
+$pagination-active-border-color: #dee2e6;
 
 // import bootstrap
 @import '../node_modules/bootstrap/scss/bootstrap.scss';
-
 
 // custom styles
 
@@ -54,26 +60,33 @@ $dark:          #1d1e25;
 }
 
 .bg-rumble {
-  background-color: #B3AD40;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#B3AD40, var(--bs-bg-opacity)) !important;
 }
 .bg-lead {
-  background-color: #4AF092;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#4AF092, var(--bs-bg-opacity)) !important;
 }
 .bg-speed {
-  background-color: #00DDFF;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#00DDFF, var(--bs-bg-opacity)) !important;
 }
 .bg-boulder {
-  background-color: #FF5487;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#FF5487, var(--bs-bg-opacity)) !important;
 }
 
 .bg-rumble-purple-dark {
-  background-color: #351942;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#351942, var(--bs-bg-opacity)) !important;
 }
 .bg-rumble-purple {
-  background-color: #4F2563;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#4F2563, var(--bs-bg-opacity)) !important;
 }
 .bg-rumble-white {
-  background-color: #FAFAFA;
+  --bs-bg-opacity: 1;
+  background-color: rgba(#FAFAFA, var(--bs-bg-opacity)) !important;
 }
 
 
@@ -113,3 +126,9 @@ $dark:          #1d1e25;
     color: $black;
     background-color: $white;
 }
+
+
+/*
+ * DataTables style pagination controls
+ * source: https://datatables.net/blog/2014-06-06#Paging-controls
+ */

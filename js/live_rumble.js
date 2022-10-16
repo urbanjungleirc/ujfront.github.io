@@ -6,6 +6,7 @@
 
 
 //* set the table
+
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
 
@@ -29,6 +30,7 @@ $(document).ready(function () {
                 dataSrc: "data",
             },
 
+            // paging setup
             lengthChange: false,
             pageLength: rowsPerPage,
             pagingType: "numbers",
@@ -38,18 +40,18 @@ $(document).ready(function () {
             //     search: filter,
             // },
 
-            // ordering:  false,
-            order: [[0, "asc"]],
-            rowReorder: true, // allows to re-order
-            columnDefs: [
-                { orderable: true, className: "reorder", targets: 0 },
-                { orderable: false, targets: "_all" }, // disable ordering for columns
-            ],
-            orderClasses: true, // highlight the columns which are used to order the content
+            //ordering:  false,
+            //rowReorder: true, // allows to re-order
+            // columnDefs: [
+            //     { orderable: true, targets: 1 },
+            //     { orderable: false, targets: "_all" }, // disable ordering for columns
+            // ],
+            order: [[1, "asc"]],
+            //orderClasses: true, // highlight the columns which are used to order the content
 
             columns: [
 							
-                { data: "id", visible: false},
+                { data: "id", visible: false, orderable: false },
                 { data: "name", title: "Name"},
                 { data: "bornYear", visible: false},
                 { data: "gender", title: "Gender", visible: false},
@@ -61,7 +63,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return speed(data, type);
                     },
-                    title: "1"
+                    title: "1", orderable: false 
                 },
                 {
                     data: "s2",
@@ -69,7 +71,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return speed(data, type);
                     },
-                    title: "2"
+                    title: "2", orderable: false 
                 },
                 {
                     data: "s3",
@@ -77,7 +79,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return speed(data, type);
                     },
-                    title: "3"
+                    title: "3", orderable: false 
                 },
                 {
                     data: "s4",
@@ -85,7 +87,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return speed(data, type);
                     },
-                    title: "4"
+                    title: "4", orderable: false 
                 },
                 // Boulder columns
                 {
@@ -94,7 +96,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.a, row.az, row.at);
                     },
-                    title: "A"
+                    title: "A", orderable: false 
                 },
                 {
                     data: null,
@@ -102,7 +104,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.b, row.bz, row.bt);
                     }, 
-                    title: "B"
+                    title: "B", orderable: false 
                 },
                 {
                     data: null,
@@ -110,7 +112,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.c, row.cz, row.ct);
                     }, 
-                    title: "C"
+                    title: "C", orderable: false 
                 },
                 {
                     data: null,
@@ -118,7 +120,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.d, row.dz, row.dt);
                     },
-                    title: "D"
+                    title: "D", orderable: false 
                 },
                 {
                     data: null,
@@ -126,7 +128,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.e, row.ez, row.et);
                     },
-                    title: "E"
+                    title: "E", orderable: false 
                 },
                 {
                     data: null,
@@ -134,7 +136,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.f, row.fz, row.ft);
                     },
-                    title: "F"
+                    title: "F", orderable: false 
                 },
                 {
                     data: null,
@@ -142,7 +144,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.g, row.gz, row.gt);
                     },
-                    title: "G"
+                    title: "G", orderable: false 
                 },
                 {
                     data: null,
@@ -150,7 +152,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.h, row.hz, row.ht);
                     },
-                    title: "H"
+                    title: "H", orderable: false 
                 },     
                 // lead columns
                 {
@@ -159,7 +161,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     }, 
-                    title: "1"
+                    title: "1", orderable: false 
                 },
                 {
                     data: "l2",
@@ -167,7 +169,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     },
-                    title: "2"
+                    title: "2", orderable: false 
                 },
                 {
                     data: "l3",
@@ -175,7 +177,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     },
-                    title: "3"
+                    title: "3", orderable: false 
                 },
                 {
                     data: "l4",
@@ -183,7 +185,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     },
-                    title: "4"
+                    title: "4", orderable: false 
                 },
                 {
                     data: "l5",
@@ -191,7 +193,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     },
-                    title: "5"
+                    title: "5", orderable: false 
                 },
                 {
                     data: "l6",
@@ -199,20 +201,20 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     },
-                    title: "6"
+                    title: "6", orderable: false 
                 },
 
-                { data: "sscore", visible: false},
-                { data: "srank", visible: false},
-                { data: "btops", visible: false},
-                { data: "bzones", visible: false},
-                { data: "btopattemtps", visible: false},
-                { data: "bzoneattempts", visible: false},
-                { data: "brank", visible: false},
-                { data: "ltops", visible: false},
-                { data: "lmoves", visible: false},
-                { data: "lrank", visible: false},
-                { data: "rscore", visible: false},
+                { data: "sscore", visible: false},          // 23
+                { data: "srank", visible: true},           // 24
+                { data: "btops", visible: false},           // 25
+                { data: "bzones", visible: false},          // 26
+                { data: "btopattemtps", visible: false},    // 27
+                { data: "bzoneattempts", visible: false},   // 28
+                { data: "brank", visible: true},           // 29
+                { data: "ltops", visible: false},           // 30
+                { data: "lmoves", visible: false},          // 31
+                { data: "lrank", visible: true},           // 32
+                { data: "rscore", visible: false},          // 33
                 {
                     data: "rrank",
                     class: "dt-center",
@@ -239,8 +241,8 @@ $(document).ready(function () {
                         }
                         return data;
                     },
-                    visible: false
-                },
+                    visible: true
+                },                                          // 34
 
                 
 
@@ -278,7 +280,7 @@ $(document).ready(function () {
                 }, dataRefreshInterval);
             },
 
-            // // setting Search Panels
+            // setting Search Panels
             language: {
                 searchPanes: {
                     clearMessage: 'Clear selections',
@@ -287,26 +289,51 @@ $(document).ready(function () {
             },
             buttons: [
                 'searchPanes',
-                // {
-                //     text: 'Order by Name',
-                //     action: function ( e, dt, node, config ) {
-                //         dt.order([0, 'asc']).draw();
-                //     }
-                // },
-                // {
-                //     text: 'Final ranking',
-                //     action: function ( e, dt, node, config ) {
-                //         dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
-                //     }
-                // }
+                {
+                    text: 'Order by Name',
+                    action: function ( e, dt, node, config ) {
+                        dt.order([1, 'asc']).draw();
+                    }
+                },
+                {
+                    text: 'Speed',
+                    action: function ( e, dt, node, config ) {
+                        //dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
+                        dt.order([24, 'asc']).draw();
+                    },
+                    className: 'text-speed'
+                },
+                {
+                    text: 'Boulder',
+                    action: function ( e, dt, node, config ) {
+                        dt.order([29, 'asc']).draw();
+                    },
+                    className: 'text-boulder'
+                },
+                {
+                    text: 'Lead',
+                    action: function ( e, dt, node, config ) {
+                        dt.order([32, 'asc']).draw();
+                    },
+                    className: 'text-lead'
+                },
+                {
+                    text: 'Rumble',
+                    action: function ( e, dt, node, config ) {
+                        dt.order([34, 'asc']).draw();
+                    },
+                    className: 'text-rumble'
+                },
+
             ],
-            dom: 'Bfrtip',
+            //dom: 'Bfrtip',
+            dom: 'rt<"nav nav-fill" <"nav-item" B><"nav-item" i><"nav-item" p> >',
             columnDefs: [
                 {
                     searchPanes: {
                         show: true
                     },
-                    targets: [3,4] //  = category,  = gender
+                    targets: [3,4] //  3 = genger, 4 = category
                 },
                 {
                     searchPanes: {
@@ -317,6 +344,15 @@ $(document).ready(function () {
             ]            
         });
 
-    // hide search option
-    document.getElementById("results_filter").style.display = "none";
 });
+
+/* default class for buttons 
+   https://datatables.net/forums/discussion/comment/149769/#Comment_149769
+*/
+$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-light';
+
+/* default class for pagination
+    https://datatables.net/forums/discussion/comment/101733/#Comment_101733
+    https://github.com/DataTables/DataTablesSrc/blob/master/js/ext/ext.classes.js#L7
+*/
+//$.fn.dataTable.ext.classes.sPageButton = 'list-group-item list-group-item-dark';
