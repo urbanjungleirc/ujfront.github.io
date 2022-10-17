@@ -175,24 +175,26 @@ function speed(data, type) {
 // highligt the fastest time on speed
 function comparedSpeed(active, other1, other2, other3) {
 
-    var number = $.fn.dataTable.render.number(",", ".", 3).display(active);
-   
-    if (isNaN(active)) {
-        return active;
-    } else {
+    if (active) {
         let fclasses = "";
-        if (number != 300) {
-            console.log(`comparing ${number}`);
+        if (isNaN(active)) {
+            //return active.toUpperCase();
+            return active;
+        } else {
+            //console.log(`comparing ${active} and ${other1} and ${other2} and ${other3}`);
             // compare & format
-            let time1 = (isNaN(other1)) ? 300 : other1;
-            let time2 = (isNaN(other2)) ? 300 : other2;
-            let time3 = (isNaN(other3)) ? 300 : other3;
-            const max = Math.max(time1, time2, time3);
-            if (number == max) {
+            let time1 = typeof other1 == "string" ? 300 : other1;
+            let time2 = typeof other2 == "string" ? 300 : other2;
+            let time3 = typeof other3 == "string" ? 300 : other3;
+            const fastest = Math.min(active, time1, time2, time3);
+            const number = $.fn.dataTable.render.number(",", ".", 3).display(active);
+            if (active == fastest) {
                 fclasses = "text-speed fw-bold";    
             }
-        }
-        return `<span class="${fclasses}">${number}</span>`;
+            return `<span class="${fclasses}">${number}</span>`;
+        }        
+    } else {
+        return "";
     } 
 
     
