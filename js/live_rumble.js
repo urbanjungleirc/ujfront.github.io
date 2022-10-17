@@ -58,34 +58,34 @@ $(document).ready(function () {
                 { data: "category", title: "Category", visible: false },
                 // speed columns
                 {
-                    data: "s1",
+                    data: null,
                     class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
+                    render: function (row) {
+                        return comparedSpeed(row.s1, row.s2, row.s3, row.s4);
                     },
                     title: "1", orderable: false 
                 },
                 {
-                    data: "s2",
+                    data: null,
                     class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
+                    render: function (row) {
+                        return comparedSpeed(row.s2, row.s1, row.s3, row.s4);
                     },
                     title: "2", orderable: false 
                 },
                 {
-                    data: "s3",
+                    data: null,
                     class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
+                    render: function (row) {
+                        return comparedSpeed(row.s3, row.s1, row.s2, row.s4);
                     },
                     title: "3", orderable: false 
                 },
                 {
-                    data: "s4",
+                    data: null,
                     class: "dt-body-right dt-head-center",
-                    render: function (data, type) {
-                        return speed(data, type);
+                    render: function (row) {
+                        return comparedSpeed(row.s4, row.s1, row.s2, row.s3);
                     },
                     title: "4", orderable: false 
                 },
@@ -205,15 +205,15 @@ $(document).ready(function () {
                 },
 
                 { data: "sscore", visible: false},          // 23
-                { data: "srank", visible: true},           // 24
+                { data: "srank", visible: false},           // 24
                 { data: "btops", visible: false},           // 25
                 { data: "bzones", visible: false},          // 26
                 { data: "btopattemtps", visible: false},    // 27
                 { data: "bzoneattempts", visible: false},   // 28
-                { data: "brank", visible: true},           // 29
+                { data: "brank", visible: false},           // 29
                 { data: "ltops", visible: false},           // 30
                 { data: "lmoves", visible: false},          // 31
-                { data: "lrank", visible: true},           // 32
+                { data: "lrank", visible: false},           // 32
                 { data: "rscore", visible: false},          // 33
                 {
                     data: "rrank",
@@ -241,7 +241,7 @@ $(document).ready(function () {
                         }
                         return data;
                     },
-                    visible: true
+                    visible: false
                 },                                          // 34
 
                 

@@ -172,6 +172,33 @@ function speed(data, type) {
     return number;
 }
 
+// highligt the fastest time on speed
+function comparedSpeed(active, other1, other2, other3) {
+
+    var number = $.fn.dataTable.render.number(",", ".", 3).display(active);
+   
+    if (isNaN(active)) {
+        return active;
+    } else {
+        let fclasses = "";
+        if (number != 300) {
+            console.log(`comparing ${number}`);
+            // compare & format
+            let time1 = (isNaN(other1)) ? 300 : other1;
+            let time2 = (isNaN(other2)) ? 300 : other2;
+            let time3 = (isNaN(other3)) ? 300 : other3;
+            const max = Math.max(time1, time2, time3);
+            if (number == max) {
+                fclasses = "text-speed fw-bold";    
+            }
+        }
+        return `<span class="${fclasses}">${number}</span>`;
+    } 
+
+    
+}
+
+
 // formating lead results
 function lead(data, type) {
     if (type === "display") {
@@ -192,11 +219,12 @@ function boulder(tries = 0, zone = 0, top = 0) {
             // flash
             return `<div class="text-boulder style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
-            // topped in x attempts
-            return `<div class="badge bg-boulder text-black pt-4 fs-5" style="width: 3rem;">${top}</div>`;
+            // topped in X attempts
+            return `<div class="badge bg-boulder text-white pt-4 fs-5" style="width: 3rem;">${top}</div>`;
         }
     } else if (zone > 0) {
-        return `<div class="badge bg-boulder text-white pt-2 fs-5" style="width: 2.9rem;">${zone}</div>`;
+        // zone in X attempts
+        return `<div class="badge bg-dark bg-opacity-50 text-white pt-2 fs-5" style="width: 2.9rem;">${zone}</div>`;
     } else {
         // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
         return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
