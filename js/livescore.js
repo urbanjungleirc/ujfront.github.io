@@ -34,7 +34,9 @@ let timerInModal = timezz(document.querySelector("#timer2"), {
 });
 
 // read data from setting sheet and iniciate Modal/timer
-readSetting();
+if (allowModalTimer) {
+    readSetting();
+}
 function readSetting(){
     //output.innerHTML = 'loading setting...';
     console.log("loading setting data...");

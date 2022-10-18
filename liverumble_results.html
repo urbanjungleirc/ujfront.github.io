@@ -23,24 +23,32 @@
 
     <!-- Modal timer-->
     <div class="modal fade" id="modalTimer" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="modalTimerLabel" aria-hidden="true" >
-        <div class="modal-dialog modal-dialog-centered modal-xl border-secondary border-5">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen border-secondary border-5">
             <div class="modal-content text-center">
                 <div class="modal-header text-secondary">
-                    <h1>Rumble In The Jungle</h1>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body bg-rumble-purple">
-                    <div id="modalTimerHeader" class="m-5"></div>
-                    <div class="m-5">
+                <div class="modal-body bg-rumble-purple d-flex justify-content-center">
+                    <div class="card mb-3 p-5 bg-rumble-purple-dark " style="width: 500px;">
+                        <img src="assets/UrbanJungle_Logo_transparent_with_shadow.png" class="card-img-top" alt="...">                        
+                        <div class="card-body">
+                            <div class="h1 text-white text-center">RESULTS</div>
+                        </div>
+                    </div>
+
+                    <div id="modalTimerHeader" class="m-5" hidden></div>
+                    <div class="m-5" hidden>
                         <div id="modalTimerBody"></div>
                         <div class="h1 text-black-50 text-center" style="font-size: 6em;" id="timer2">
                             <span data-minutes class="text-white fw-bold"></span>m
                             <span data-seconds class="text-white fw-bold"></span>s
-                        </div>           
+                        </div>
                     </div>     
                 </div>
                 <div class="modal-footer text-secondary">
-                    <div id="modalTimerFooter"></div>
+                    <div id="modalTimerFooter" hidden></div>
+                    <div></div>
                 </div>
             </div>
         </div>
@@ -51,15 +59,15 @@
     <div class="container-fluid ">
 
 
-        <div class="row d-flex align-items-end text-white bg-rumble-purple-dark mb-2 py-3">
+        <div class="row d-flex align-items-end text-white bg-rumble-purple-dark mb-2 py-3" onclick="myModal.show()">
             <div class="col-8">
                 <h1 class="">Rumble In The Jungle 
-                    <small class="text-white-50">LIVESCORE</small>
-                    <small id="updatedAt" class="text-white-50"></small></h1>
+                    <small class="text-white-50">Results</small>
+                    <small id="updatedAt" class="text-white-50" hidden></small></h1>
             </div>
             <div class="col-4">
-                <div onclick="myModal.show()">
-                    <h1 class="h1 text-end text-white-50" id="timer">
+                <div>
+                    <h1 class="h1 text-end text-white-50" id="timer" hidden>
                         Time left <span data-hours class="text-white fw-bold"></span>h
                         <span data-minutes class="text-white fw-bold"></span>m
                         <span data-seconds class="text-white fw-bold"></span>s
@@ -81,7 +89,10 @@
                                     <th colspan="4" class="text-center bg-speed border-dark border-opacity-25 border border-end-0 rounded-start"></th>
                                     <th colspan="8" class="text-center bg-boulder border-dark border-opacity-25 border-bottom border-top"></th>
                                     <th colspan="6" class="text-center bg-lead border border-dark border-opacity-25  border-start-0 rounded-end"></th>
-                                    <th colspan="10" class="text-center"></th>
+                                    <th colspan="2" class="text-center bg-speed border-dark border-opacity-25 border border-end-0 rounded-start"></th>
+                                    <th colspan="5" class="text-center bg-boulder border-dark border-opacity-25 border-bottom border-top"></th>
+                                    <th colspan="3" class="text-center bg-lead border border-dark border-opacity-25  border-start-0"></th>
+                                    <th colspan="2" class="text-center bg-rumble border-dark border-opacity-25 border border-end-0 rounded-end"></th>
                                 </tr>
                                 <tr class="bg-rumble-white text-black">
                                     <th>id</th>
@@ -137,17 +148,14 @@
             Default setting
             -------------------------------------
         */
-
-        // const scoreUrl = "https://script.google.com/macros/s/AKfycbyUXxaevlA-4_yhSS_-BvAmNiE1xf0tV2EEZ0U2r5qQA_JaYSGqhQ4ExjNiE_WvJli2/exec"; // old
         const scoreUrl = "https://script.google.com/macros/s/AKfycby5_YrDysnN2wZMLkaMNwKLpz-a7_jbEC3aLpHjBkI6KJgfUHe0Pa8ju4y-3USr15IUNw/exec";
         const settingUrl = "https://script.google.com/macros/s/AKfycby5_YrDysnN2wZMLkaMNwKLpz-a7_jbEC3aLpHjBkI6KJgfUHe0Pa8ju4y-3USr15IUNw/exec?setting";
         const minPageDisplay = 10000; // minimum time for a page to be displayed
-        let dataRefreshInterval = 2 * 60000; // frequency for data refresh (1min = 60000)
+        let dataRefreshInterval = 60 * 60000; // frequency for data refresh (1min = 60000)
         const rowsPerPage = 10; // number of rows per page
         const filter = ""; // filtering data - enter category
         const catTimeEnd = "2022-10-22 20:15";
-        const allowModalTimer = true;
-
+        const allowModalTimer = false;
     </script>
 
     <!-- Bootstrap -->
@@ -169,7 +177,7 @@
 
     <!-- custom java -->
     <script src="js/livescore.js"></script>
-    <script src="js/live_rumble.js"></script>
+    <script src="js/live_rumble_results.js"></script>
 
 </body>
 
