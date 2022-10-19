@@ -300,6 +300,7 @@ $(document).ready(function () {
                     action: function ( e, dt, node, config ) {
                         //dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
                         dt.order([24, 'asc']).draw();
+                        showHideColumns('speed');
                     },
                     className: 'text-speed'
                 },
@@ -307,6 +308,7 @@ $(document).ready(function () {
                     text: 'Boulder',
                     action: function ( e, dt, node, config ) {
                         dt.order([29, 'asc']).draw();
+                        showHideColumns('boulder');
                     },
                     className: 'text-boulder'
                 },
@@ -314,6 +316,7 @@ $(document).ready(function () {
                     text: 'Lead',
                     action: function ( e, dt, node, config ) {
                         dt.order([32, 'asc']).draw();
+                        showHideColumns('lead');
                     },
                     className: 'text-lead'
                 },
@@ -321,6 +324,7 @@ $(document).ready(function () {
                     text: 'Rumble',
                     action: function ( e, dt, node, config ) {
                         dt.order([34, 'asc']).draw();
+                        showHideColumns('rumble');
                     },
                     className: 'text-rumble'
                 },
@@ -350,6 +354,49 @@ $(document).ready(function () {
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
 */
 $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-light';
+
+
+/* hide and show chosen discipline
+*/
+function showHideColumns(discipline){
+
+    let table = $('#results').DataTable();
+
+    // hide all results for all disciplines
+    for ( var i=23 ; i<35 ; i++ ) {
+        table.column(i).visible( false, false );
+    }
+    
+    // display chosen 
+    switch(discipline) {
+        case "speed":
+            table.column(23).visible(true, false);
+            table.column(24).visible(true, false);
+            break;
+        case "boulder":
+            table.column(25).visible(true, false);
+            table.column(26).visible(true, false);
+            table.column(27).visible(true, false);
+            table.column(28).visible(true, false);
+            table.column(29).visible(true, false);
+            break;
+        case "lead":
+            table.column(30).visible(true, false);
+            table.column(31).visible(true, false);
+            table.column(32).visible(true, false);            
+            break;
+        case "rumble":
+            table.column(33).visible(true, false);
+            table.column(34).visible(true, false);
+            break;
+    }
+
+    // adjust column sizing and redraw
+    table.columns.adjust().draw(false); 
+
+
+    // table.column( 0 ).visible() === true ? 'visible' : 'not visible'
+}
 
 /* default class for pagination
     https://datatables.net/forums/discussion/comment/101733/#Comment_101733
