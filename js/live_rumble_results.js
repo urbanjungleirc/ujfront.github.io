@@ -204,10 +204,10 @@ $(document).ready(function () {
                     title: "6", orderable: false , visible: false
                 },
 
-                { data: "sscore", title: "Time", visible: false, orderable: false},          // 23
+                
+                // speed results (23-24)
                 { 
-                    data: "srank", title: "Rank", visible: false, orderable: false, 
-                    class: "dt-center",
+                    data: "srank", title: "Rank", visible: false, orderable: false, class: "dt-center",
                     render: function (data, type) {
                         if (type === "display") {
                             switch (data) {
@@ -227,11 +227,10 @@ $(document).ready(function () {
                         }
                         return data;
                     }
-                },           // 24
-                { data: "btops", title: "Tops", visible: false, orderable: false},           // 25
-                { data: "bzones", title: "Zones", visible: false, orderable: false},          // 26
-                { data: "btopattemtps", title: "att top", visible: false, orderable: false},    // 27
-                { data: "bzoneattempts", title: "att zone", visible: false, orderable: false},   // 28
+                },
+                { data: "sscore", title: "Time", visible: false, orderable: false, class: "dt-center",},
+
+                // boulder results (25-29)
                 { data: "brank", title: "Rank", visible: false, orderable: false, class: "dt-center",
                     render: function (data, type) {
                         if (type === "display") {
@@ -252,9 +251,13 @@ $(document).ready(function () {
                         }
                         return data;
                     }
-                },           // 29
-                { data: "ltops", title: "Tops", visible: false, orderable: false},           // 30
-                { data: "lmoves", title: "Moves", visible: false, orderable: false},          // 31
+                },           
+                { data: "btops", title: "Tops", visible: false, orderable: false, class: "dt-center"},           
+                { data: "bzones", title: "Zones", visible: false, orderable: false, class: "dt-center"},         
+                { data: "btopattemtps", title: "att top", visible: false, orderable: false, class: "dt-center"}, 
+                { data: "bzoneattempts", title: "att zone", visible: false, orderable: false, class: "dt-center"},
+
+                // lead results (30 - 32)
                 { data: "lrank", title: "Rank", visible: false, orderable: false, 
                     class: "dt-center",
                     render: function (data, type) {
@@ -277,9 +280,11 @@ $(document).ready(function () {
                         return data;
                     }
                 },           // 32
-                { data: "rscore", title: "Score", visible: false, orderable: false},          // 33
-                { data: "rrank", title: "Rank", visible: false, orderable: false, 
-                    class: "dt-center",
+                { data: "ltops", title: "Tops", visible: false, orderable: false, class: "dt-center"},           // 30
+                { data: "lmoves", title: "Moves", visible: false, orderable: false, class: "dt-center"},          // 31
+
+                // rumble results 33,34
+                { data: "rrank", title: "Rank", visible: false, orderable: false, class: "dt-center",
                     render: function (data, type) {
                         if (type === "display") {
                             switch (data) {
@@ -302,7 +307,8 @@ $(document).ready(function () {
                         }
                         return data;
                     }
-                }                                       // 34
+                }, 
+                { data: "rscore", title: "Score", visible: false, orderable: false, class: "dt-center"},
             ],
 
             initComplete: function () {
@@ -363,13 +369,14 @@ $(document).ready(function () {
                     text: 'Order by Name',
                     action: function ( e, dt, node, config ) {
                         dt.order([1, 'asc']).draw();
+                        showHideColumns('name');
                     }
                 },
                 {
                     text: 'Speed',
                     action: function ( e, dt, node, config ) {
                         //dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
-                        dt.order([24, 'asc']).draw();
+                        dt.order([23, 'asc']).draw();
                         showHideColumns('speed');
                     },
                     className: 'text-speed'
@@ -377,7 +384,7 @@ $(document).ready(function () {
                 {
                     text: 'Boulder',
                     action: function ( e, dt, node, config ) {
-                        dt.order([29, 'asc']).draw();
+                        dt.order([25, 'asc']).draw();
                         showHideColumns('boulder');
                     },
                     className: 'text-boulder'
@@ -385,7 +392,7 @@ $(document).ready(function () {
                 {
                     text: 'Lead',
                     action: function ( e, dt, node, config ) {
-                        dt.order([32, 'asc']).draw();
+                        dt.order([30, 'asc']).draw();
                         showHideColumns('lead');
                     },
                     className: 'text-lead'
@@ -393,7 +400,7 @@ $(document).ready(function () {
                 {
                     text: 'Rumble',
                     action: function ( e, dt, node, config ) {
-                        dt.order([34, 'asc']).draw();
+                        dt.order([33, 'asc']).draw();
                         showHideColumns('rumble');
                     },
                     className: 'text-rumble'
@@ -466,8 +473,10 @@ function showHideColumns(discipline){
         case "rumble":
             table.column(33).visible(true, false);
             table.column(34).visible(true, false);
+        default:
             break;
-    }
+    
+        }
 
     // adjust column sizing and redraw
     table.columns.adjust().draw(false); 
