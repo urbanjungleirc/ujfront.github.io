@@ -227,11 +227,12 @@ $(document).ready(function () {
                                     
                                     break;
                                 case 2:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><img src="assets/rumble_medal_2.jpg" class="rounded mx-auto d-block img-thumbnail" alt="..."></img></div>`;
+                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="..."></img></div>`;
                                     //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
                                     break;
                                 case 3:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
+                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="..."></img></div>`;    
+                                    //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
                                     break;
                                 case 4:
                                 case 5:
