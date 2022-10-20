@@ -204,17 +204,17 @@ $(document).ready(function () {
                     title: "6", orderable: false , visible: false
                 },
 
-                { data: "sscore", title: "Time", visible: true, orderable: false},          // 23
-                { data: "srank", title: "Rank", visible: true, orderable: false},           // 24
-                { data: "btops", title: "Tops", visible: true, orderable: false},           // 25
-                { data: "bzones", title: "Zones", visible: true, orderable: false},          // 26
-                { data: "btopattemtps", title: "att top", visible: true, orderable: false},    // 27
-                { data: "bzoneattempts", title: "att zone", visible: true, orderable: false},   // 28
-                { data: "brank", title: "Rank", visible: true, orderable: false},           // 29
-                { data: "ltops", title: "Tops", visible: true, orderable: false},           // 30
-                { data: "lmoves", title: "Moves", visible: true, orderable: false},          // 31
-                { data: "lrank", title: "Rank", visible: true, orderable: false},           // 32
-                { data: "rscore", title: "Score", visible: true, orderable: false},          // 33
+                { data: "sscore", title: "Time", visible: false, orderable: false},          // 23
+                { data: "srank", title: "Rank", visible: false, orderable: false},           // 24
+                { data: "btops", title: "Tops", visible: false, orderable: false},           // 25
+                { data: "bzones", title: "Zones", visible: false, orderable: false},          // 26
+                { data: "btopattemtps", title: "att top", visible: false, orderable: false},    // 27
+                { data: "bzoneattempts", title: "att zone", visible: false, orderable: false},   // 28
+                { data: "brank", title: "Rank", visible: false, orderable: false},           // 29
+                { data: "ltops", title: "Tops", visible: false, orderable: false},           // 30
+                { data: "lmoves", title: "Moves", visible: false, orderable: false},          // 31
+                { data: "lrank", title: "Rank", visible: false, orderable: false},           // 32
+                { data: "rscore", title: "Score", visible: false, orderable: false},          // 33
                 {
                     data: "rrank",
                     class: "dt-center",
@@ -222,10 +222,13 @@ $(document).ready(function () {
                         if (type === "display") {
                             switch (data) {
                                 case 1:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
+                                    //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
+                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><img src="assets/champion.png" class="rounded mx-auto d-block" alt="..."></img></div>`;
+                                    
                                     break;
                                 case 2:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
+                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><img src="assets/rumble_medal_2.jpg" class="rounded mx-auto d-block img-thumbnail" alt="..."></img></div>`;
+                                    //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
                                     break;
                                 case 3:
                                     return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
@@ -241,7 +244,7 @@ $(document).ready(function () {
                         }
                         return data;
                     },
-                    title: "Rank", visible: true, orderable: false
+                    title: "Rank", visible: false, orderable: false
                 },                                          // 34
 
                 
@@ -330,7 +333,6 @@ $(document).ready(function () {
                 },
 
             ],
-            //dom: 'Bfrtip',
             dom: 'rt<"nav nav-fill" <"nav-item" B><"nav-item" i><"nav-item" p> >',
             columnDefs: [
                 {
@@ -345,10 +347,19 @@ $(document).ready(function () {
                     },
                     targets: [0,1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]
                 },
-            ]            
+            ],
+            // stateSave: false,
+            // stateSaveParams: function (settings, data) {
+            //     // if (data.search.search) {
+            //     //     console.log( 'Saved filter was: '+data.search.search );
+            //     // }
+            //     //console.log (data);
+            //     console.log (data.searchPanes.selectionList);
+            // }          
         });
-
 });
+
+
 
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
