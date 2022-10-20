@@ -285,13 +285,13 @@ $(document).ready(function () {
                             switch (data) {
                                 case 1:
                                     //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
-                                    return `<img src="assets/rumble_champion.png" class="rounded mx-auto d-block" alt="..."></img>`;
+                                    return `<img src="assets/rumble_champion.png" class="rounded mx-auto d-block" alt="1"></img>`;
                                 case 2:
                                     //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
-                                    return `<img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="..."></img>`;
+                                    return `<img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="2"></img>`;
                                 case 3:
                                     //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
-                                    return `<img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="..."></img>`;    
+                                    return `<img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="3"></img>`;    
                                 case 4:
                                 case 5:
                                 case 6:
@@ -345,7 +345,20 @@ $(document).ready(function () {
                 }
             },
             buttons: [
-                'searchPanes',
+                // 'pdf', 
+                // {
+                //     extend: 'print',
+                //     text: 'Print',
+                //     exportOptions: {
+                //         columns: ':visible',
+                //         modifier: {
+                //             order:  'current',  // 'current', 'applied', 'index',  'original'
+                //             page:   'all',      // 'all',     'current'
+                //             search: 'applied',     // 'none',    'applied', 'removed'
+                //         }
+                //     }, 
+                // },
+                'searchPanes',  
                 {
                     text: 'Order by Name',
                     action: function ( e, dt, node, config ) {
