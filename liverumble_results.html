@@ -26,15 +26,14 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen border-secondary border-5">
             <div class="modal-content text-center">
                 <div class="modal-header text-secondary">
-
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body bg-rumble-purple d-flex justify-content-center">
-                    <div class="card mb-3 p-5 bg-rumble-purple-dark " style="width: 500px;">
-                        <img src="assets/rumble_belt.png" class="card-img-top" alt="...">                        
-                        <div class="card-body">
+                    <div class="card mb-3 p-5 bg-rumble-purple-dark">
+                        <img src="assets/rumble_belt.png" class="card-img-top m-auto" alt="...">                        
+                        <!-- <div class="card-body">
                             <div class="h1 text-white text-center">RESULTS</div>
-                        </div>
+                            </div> -->
                     </div>
 
                     <div id="modalTimerHeader" class="m-5" hidden></div>
@@ -44,11 +43,10 @@
                             <span data-minutes class="text-white fw-bold"></span>m
                             <span data-seconds class="text-white fw-bold"></span>s
                         </div>
-                    </div>     
+                    </div>
                 </div>
                 <div class="modal-footer text-secondary">
                     <div id="modalTimerFooter" hidden></div>
-                    <div></div>
                 </div>
             </div>
         </div>
@@ -58,7 +56,7 @@
     <!-- main container -->
     <div class="container-xxl ">
 
-
+        <!-- title bar -->
         <div class="row d-flex align-items-end text-white bg-rumble-purple-dark mb-2 py-3" onclick="myModal.show()">
             <div class="col-8">
                 <h1 class="">Rumble In The Jungle 
@@ -80,19 +78,18 @@
         <div class="row justify-content-center px-1">
             <div class="card border-0 mx-0 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <!-- <table id="results" class="table table-striped-columns bg-white align-bottom fs-1 pe-1"> -->
-                        <table id="results" class="table table-striped-columns bg-white align-bottom fs-1 pe-2 rounded">
+                    <div class="table-responsive" style="width: 100%;"> 
+                        <table id="results" class="table table-striped-columns bg-white align-bottom fs-1 pe-2 rounded" style="width: 100%;">
                             <thead>
                                 <tr>
-                                    <th colspan="5" class="text-center"></th>
-                                    <th colspan="4" class="text-center bg-speed border-dark border-opacity-25 border border-end-0 rounded-start"></th>
-                                    <th colspan="8" class="text-center bg-boulder border-dark border-opacity-25 border-bottom border-top"></th>
-                                    <th colspan="6" class="text-center bg-lead border border-dark border-opacity-25  border-start-0 rounded-end"></th>
-                                    <th colspan="2" class="text-center bg-speed border-dark border-opacity-25 border border-end-0 rounded-start"></th>
-                                    <th colspan="5" class="text-center bg-boulder border-dark border-opacity-25 border-bottom border-top"></th>
-                                    <th colspan="3" class="text-center bg-lead border border-dark border-opacity-25  border-start-0"></th>
-                                    <th colspan="2" class="text-center bg-rumble border-dark border-opacity-25 border border-end-0 rounded-end"></th>
+                                    <th colspan="5" class="text-center"></th>                                                                         <!-- personal data including name -->
+                                    <th colspan="4" class="text-center bg-speed border-dark border-opacity-25 border border-end-0 rounded-start"></th>  <!-- speed -->
+                                    <th colspan="8" class="text-center bg-boulder border-dark border-opacity-25 border-bottom border-top"></th>         <!-- boulder -->
+                                    <th colspan="6" class="text-center bg-lead  border-dark border-opacity-25 border border-start-0 rounded-end"></th>  <!-- lead -->
+                                    <th colspan="2" class="text-center bg-speed border-dark border-opacity-25 border rounded"></th>  <!-- speed results -->
+                                    <th colspan="5" class="text-center bg-boulder border-dark border-opacity-25 border rounded"></th>         <!-- boulder results -->
+                                    <th colspan="3" class="text-center bg-lead border-dark border-opacity-25 border rounded"></th>              <!-- lead reasults -->
+                                    <th colspan="2" class="text-center bg-rumble border-dark border-opacity-25 border rounded"></th>   <!-- rumble results -->
                                 </tr>
                                 <tr class="bg-rumble-white text-black">
                                     <th>id</th>
