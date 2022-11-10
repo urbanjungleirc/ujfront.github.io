@@ -204,48 +204,111 @@ $(document).ready(function () {
                     title: "6", orderable: false , visible: false
                 },
 
-                { data: "sscore", title: "Time", visible: true, orderable: false},          // 23
-                { data: "srank", title: "Rank", visible: true, orderable: false},           // 24
-                { data: "btops", title: "Tops", visible: true, orderable: false},           // 25
-                { data: "bzones", title: "Zones", visible: true, orderable: false},          // 26
-                { data: "btopattemtps", title: "att top", visible: true, orderable: false},    // 27
-                { data: "bzoneattempts", title: "att zone", visible: true, orderable: false},   // 28
-                { data: "brank", title: "Rank", visible: true, orderable: false},           // 29
-                { data: "ltops", title: "Tops", visible: true, orderable: false},           // 30
-                { data: "lmoves", title: "Moves", visible: true, orderable: false},          // 31
-                { data: "lrank", title: "Rank", visible: true, orderable: false},           // 32
-                { data: "rscore", title: "Score", visible: true, orderable: false},          // 33
-                {
-                    data: "rrank",
+                
+                // speed results (23-24)
+                { 
+                    data: "srank", title: "Rank", visible: false, orderable: false, class: "dt-center",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            switch (data) {
+                                case 1:
+                                    return `<img src="assets/rumble_first.png" class="rounded mx-auto d-block" alt="..."></img>`;
+                                case 2:
+                                    return `<img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="..."></img>`;
+                                case 3:
+                                    return `<img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="..."></img>`;    
+                                case 4:
+                                case 5:
+                                case 6:
+                                    return `<span class="fw-semibold">${data}</span>`;
+                                default:
+                                    return data;
+                            }
+                        }
+                        return data;
+                    }
+                },
+                { data: "sscore", title: "Time", visible: false, orderable: false, class: "dt-center",},
+
+                // boulder results (25-29)
+                { data: "brank", title: "Rank", visible: false, orderable: false, class: "dt-center",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            switch (data) {
+                                case 1:
+                                    return `<img src="assets/rumble_first.png" class="rounded mx-auto d-block" alt="..."></img>`;
+                                case 2:
+                                    return `<img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="..."></img>`;
+                                case 3:
+                                    return `<img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="..."></img>`;    
+                                case 4:
+                                case 5:
+                                case 6:
+                                    return `<span class="fw-semibold">${data}</span>`;
+                                default:
+                                    return data;
+                            }
+                        }
+                        return data;
+                    }
+                },           
+                { data: "btops", title: "Tops", visible: false, orderable: false, class: "dt-center"},           
+                { data: "bzones", title: "Zones", visible: false, orderable: false, class: "dt-center"},         
+                { data: "btopattemtps", title: "att top", visible: false, orderable: false, class: "dt-center"}, 
+                { data: "bzoneattempts", title: "att zone", visible: false, orderable: false, class: "dt-center"},
+
+                // lead results (30 - 32)
+                { data: "lrank", title: "Rank", visible: false, orderable: false, 
                     class: "dt-center",
                     render: function (data, type) {
                         if (type === "display") {
                             switch (data) {
                                 case 1:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
-                                    break;
+                                    return `<img src="assets/rumble_first.png" class="rounded mx-auto d-block" alt="..."></img>`;
                                 case 2:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
-                                    break;
+                                    return `<img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="..."></img>`;
                                 case 3:
-                                    return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
-                                    break;
+                                    return `<img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="..."></img>`;    
                                 case 4:
                                 case 5:
                                 case 6:
-                                    return `<span class="primary-dark bg-transparent fw-semibold">${data}</span>`;
-                                    break;
+                                    return `<span class="fw-semibold">${data}</span>`;
                                 default:
-                                    return `<span class="primary-dark bg-transparent">${data}</span>`;
+                                    return data;
                             }
                         }
                         return data;
-                    },
-                    title: "Rank", visible: true, orderable: false
-                },                                          // 34
+                    }
+                },           // 32
+                { data: "ltops", title: "Tops", visible: false, orderable: false, class: "dt-center"},           // 30
+                { data: "lmoves", title: "Moves", visible: false, orderable: false, class: "dt-center"},          // 31
 
-                
-
+                // rumble results 33,34
+                { data: "rrank", title: "Rank", visible: false, orderable: false, class: "dt-center",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            switch (data) {
+                                case 1:
+                                    //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-trophy-fill"></i></div>`;
+                                    return `<img src="assets/rumble_champion.png" class="rounded mx-auto d-block" alt="1"></img>`;
+                                case 2:
+                                    //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award-fill"></i></div>`;
+                                    return `<img src="assets/rumble_second.png" class="rounded mx-auto d-block" alt="2"></img>`;
+                                case 3:
+                                    //return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-award"></i></div>`;
+                                    return `<img src="assets/rumble_third.png" class="rounded mx-auto d-block" alt="3"></img>`;    
+                                case 4:
+                                case 5:
+                                case 6:
+                                    return `<span class="fw-semibold">${data}</span>`;
+                                default:
+                                    return data;
+                            }
+                        }
+                        return data;
+                    }
+                }, 
+                { data: "rscore", title: "Score", visible: false, orderable: false, class: "dt-center"},
             ],
 
             initComplete: function () {
@@ -288,18 +351,32 @@ $(document).ready(function () {
                 }
             },
             buttons: [
-                'searchPanes',
+                // 'pdf', 
+                // {
+                //     extend: 'print',
+                //     text: 'Print',
+                //     exportOptions: {
+                //         columns: ':visible',
+                //         modifier: {
+                //             order:  'current',  // 'current', 'applied', 'index',  'original'
+                //             page:   'all',      // 'all',     'current'
+                //             search: 'applied',     // 'none',    'applied', 'removed'
+                //         }
+                //     }, 
+                // },
+                'searchPanes',  
                 {
                     text: 'Order by Name',
                     action: function ( e, dt, node, config ) {
                         dt.order([1, 'asc']).draw();
+                        showHideColumns('name');
                     }
                 },
                 {
                     text: 'Speed',
                     action: function ( e, dt, node, config ) {
                         //dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
-                        dt.order([24, 'asc']).draw();
+                        dt.order([23, 'asc']).draw();
                         showHideColumns('speed');
                     },
                     className: 'text-speed'
@@ -307,7 +384,7 @@ $(document).ready(function () {
                 {
                     text: 'Boulder',
                     action: function ( e, dt, node, config ) {
-                        dt.order([29, 'asc']).draw();
+                        dt.order([25, 'asc']).draw();
                         showHideColumns('boulder');
                     },
                     className: 'text-boulder'
@@ -315,7 +392,7 @@ $(document).ready(function () {
                 {
                     text: 'Lead',
                     action: function ( e, dt, node, config ) {
-                        dt.order([32, 'asc']).draw();
+                        dt.order([30, 'asc']).draw();
                         showHideColumns('lead');
                     },
                     className: 'text-lead'
@@ -323,14 +400,13 @@ $(document).ready(function () {
                 {
                     text: 'Rumble',
                     action: function ( e, dt, node, config ) {
-                        dt.order([34, 'asc']).draw();
+                        dt.order([33, 'asc']).draw();
                         showHideColumns('rumble');
                     },
                     className: 'text-rumble'
                 },
 
             ],
-            //dom: 'Bfrtip',
             dom: 'rt<"nav nav-fill" <"nav-item" B><"nav-item" i><"nav-item" p> >',
             columnDefs: [
                 {
@@ -345,10 +421,19 @@ $(document).ready(function () {
                     },
                     targets: [0,1,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]
                 },
-            ]            
+            ],
+            // stateSave: false,
+            // stateSaveParams: function (settings, data) {
+            //     // if (data.search.search) {
+            //     //     console.log( 'Saved filter was: '+data.search.search );
+            //     // }
+            //     //console.log (data);
+            //     console.log (data.searchPanes.selectionList);
+            // }          
         });
-
 });
+
+
 
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
@@ -388,8 +473,10 @@ function showHideColumns(discipline){
         case "rumble":
             table.column(33).visible(true, false);
             table.column(34).visible(true, false);
+        default:
             break;
-    }
+    
+        }
 
     // adjust column sizing and redraw
     table.columns.adjust().draw(false); 
