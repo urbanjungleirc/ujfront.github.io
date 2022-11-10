@@ -6,14 +6,25 @@
 // red #f23827
 
 // custom variables
-$primary:       #70aa3e;
-$secondary:     #6f38a6;
-$info:          #252730;
-$success:       #57ae4b;
-$warning:       #d49d13;
-$danger:        #f44336;
-$light:         #F9F8F9;
-$dark:          #1d1e25;
+// $primary:       #70aa3e;
+// $secondary:     #6f38a6;
+// $info:          #252730;
+// $success:       #57ae4b;
+// $warning:       #d49d13;
+// $danger:        #f44336;
+// $light:         #F9F8F9;
+// $dark:          #1d1e25;
+
+$white: #ffffff;
+$primary:       #3e0776;
+$secondary:     #8b52e7;
+$info:          #d9a3d7;
+$success:       #0da262;
+$warning:       #dfcc0e;
+$danger:        #ec2705;
+$light:         #d7ebf7;
+$dark:          #27143d;
+
 
 // change pagination style (colours)
 // https://getbootstrap.com/docs/5.2/components/pagination/#variables
