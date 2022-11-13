@@ -49,19 +49,19 @@ $(document).ready(function () {
 
             // ordering:  false,
             order: [[0, "asc"]],
-            rowReorder: true, // allows to re-order
-            columnDefs: [
-                { orderable: true, className: "reorder", targets: 0 },
-                { orderable: false, targets: "_all" }, // disable ordering for columns
-            ],
-            orderClasses: true, // highlight the columns which are used to order the content
+            // rowReorder: true, // allows to re-order
+            // columnDefs: [
+            //     { orderable: true, className: "reorder", targets: 0 },
+            //     { orderable: false, targets: "_all" }, // disable ordering for columns
+            // ],
+            // orderClasses: true, // highlight the columns which are used to order the content
 
             columns: [
-                { data: "name"},
-                { data: "tops"},
-                { data: "zones" },
-                { data: "top_attempts" },
-                { data: "zone_attempts" },
+                { data: "name", title: "Name", orderable: false},
+                { data: "tops", title: "Tops", orderable: false},
+                { data: "zones", title: "Zones", orderable: false},
+                { data: "top_attempts", title: "att to Top", orderable: false},
+                { data: "zone_attempts", title: "att to Zone", orderable: false},
 
                 // hidden columns
                 { data: "category", visible: false },
@@ -111,16 +111,20 @@ $(document).ready(function () {
                     text: 'Order by Name',
                     action: function ( e, dt, node, config ) {
                         dt.order([0, 'asc']).draw();
-                    }
+                        showHideColumns('name');
+                    },
+                    //className: 'btn-outline-primary'
                 },
                 {
                     text: 'Final ranking',
                     action: function ( e, dt, node, config ) {
                         dt.order([[1, 'desc'],[ 2, 'desc'], [3, 'asc'],[ 4, 'asc']]).draw();
-                    }
+                        showHideColumns('boulder');
+                    },
+                    //className: 'btn-primary'
                 }
             ],
-            dom: 'Bfrtip',
+            dom: 'rt<"nav nav-fill" <"nav-item" B><"nav-item" i><"nav-item" p> >',
             columnDefs: [
                 {
                     searchPanes: {
@@ -138,63 +142,47 @@ $(document).ready(function () {
             
         });
 
-    // hide search option
-    document.getElementById("results_filter").style.display = "none";
 });
 
-// formating speed results
-function speed(data, type) {
-    var number = $.fn.dataTable.render.number(",", ".", 3).display(data);
+/* default class for buttons 
+   https://datatables.net/forums/discussion/comment/149769/#Comment_149769
+*/
+$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
-    if (type === "display") {
-        let fclasses = "";
-        if (data > 0) {
-            if (data < 6) {
-                fclasses = "text-primary fw-bold";
-            } else if (data < 10) {
-                fclasses = "text-primary";
-            }
-        }
-        return `<span class="${fclasses}">${number}</span>`;
+
+/* hide and show chosen discipline
+*/
+function showHideColumns(discipline){
+
+    let table = $('#results').DataTable();
+
+    // hide all results for all disciplines
+    for ( var i=1 ; i<5 ; i++ ) {
+        table.column(i).visible( false, false );
     }
-    return number;
-}
-
-// formating lee results
-function leed(data, type) {
-    if (type === "display") {
-        if (data == 99) {
-            return `<div class="primary-dark bg-transparent text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
-        } else {
-            return `<span class="primary-dark bg-transparent">${data}</span>`;
+    
+    // display chosen 
+    switch(discipline) {
+        case "speed":
+            table.column(23).visible(true, false);
+            table.column(24).visible(true, false);
+            break;
+        case "boulder":
+            table.column(1).visible(true, false);
+            table.column(2).visible(true, false);
+            table.column(3).visible(true, false);
+            table.column(4).visible(true, false);
+            break;
+        default:
+            break;
+    
         }
-    }
-    return data;
-}
 
-// formating boulder results
-function boulder(tries = 0, zone = 0, top = 0) {
-    if (top > 0) {
-        if (top == 1) {
-            return `<div class="text-secondary text-wrap style="width: 2rem;"><i class="bi bi-lightning-fill"></i></div>`;
-        } else {
-            return `<div class="badge bg-secondary text-wrap pt-4" style="width: 2rem;">${top}</div>`;
-        }
-    } else if (zone > 0) {
-        return `<div class="badge secondary-light text-white text-wrap pt-2" style="width: 2rem;">${zone}</div>`;
-    } else {
-        // return `<div class="badge bg-transparent text-dark text-wrap pt-2" style="width: 2rem;">${tries}</div>`;
-        return `<div class="bg-transparent secondary-dark fs-5 fw-semibold">${tries}</div>`;
-    }
-}
+    // adjust column sizing and redraw
+    table.columns.adjust().draw(false); 
 
-function resetProgress(max) {
-    let el = document.getElementById("updateProgressBar");
-    //console.log(el.ariaValueMax); // 7
-    el.ariaValueMax = max;
-    el.ariaValueMin = 0;
-    el.ariaValueNow = 0;
-    //console.log(el.ariaValueMax); // 6
+
+    // table.column( 0 ).visible() === true ? 'visible' : 'not visible'
 }
 
 /* Resources:

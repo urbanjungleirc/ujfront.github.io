@@ -26,6 +26,16 @@ $danger:        #ea1349;
 $light:         #dee5d8;
 $dark:          #0d4014;
 
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
 
 // change pagination style (colours)
 // https://getbootstrap.com/docs/5.2/components/pagination/#variables

@@ -304,10 +304,11 @@ $(document).ready(function () {
                 //     text: 'Final ranking',
                 //     action: function ( e, dt, node, config ) {
                 //         dt.order([[27, 'desc'],[ 28, 'desc'], [29, 'asc'],[ 30, 'asc']]).draw(); //27 = tops, 28 = zones, 29 top attemts, 30 zone attempts
-                //     }
+                //     },
+                //     className: 'text-primary'
                 // }
             ],
-            dom: 'Bfrtip',
+            dom: 'rt<"nav nav-fill" <"nav-item" B><"nav-item" i><"nav-item" p> >',
             columnDefs: [
                 {
                     searchPanes: {
@@ -328,3 +329,9 @@ $(document).ready(function () {
     // hide search option
     document.getElementById("results_filter").style.display = "none";
 });
+
+/* default class for buttons 
+   https://datatables.net/forums/discussion/comment/149769/#Comment_149769
+*/
+$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-light';
+
