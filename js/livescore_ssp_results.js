@@ -58,10 +58,10 @@ $(document).ready(function () {
 
             columns: [
                 { data: "name", title: "Name", orderable: false},
-                { data: "tops", title: "Tops", orderable: false},
-                { data: "zones", title: "Zones", orderable: false},
-                { data: "top_attempts", title: "att to Top", orderable: false},
-                { data: "zone_attempts", title: "att to Zone", orderable: false},
+                { data: "tops", title: "Tops", orderable: false, visible: false },
+                { data: "zones", title: "Zones", orderable: false, visible: false },
+                { data: "top_attempts", title: "att to Top", orderable: false, visible: false },
+                { data: "zone_attempts", title: "att to Zone", orderable: false, visible: false },
 
                 // hidden columns
                 { data: "category", visible: false },

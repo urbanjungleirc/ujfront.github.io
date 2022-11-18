@@ -235,6 +235,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.v, row.vz, row.vt);
                     },
+                    visible: false
                 },
                 {
                     data: null,
@@ -242,6 +243,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.w, row.wz, row.wt);
                     },
+                    visible: false
                 },
 
                 // hidden columns
