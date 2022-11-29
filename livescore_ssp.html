@@ -15,12 +15,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
 
-    <!-- <style>
-        body {
-            font-size: 30em;
-        }
-    </style> -->
-
 </head>
 
 <body class="bg-light">
@@ -35,7 +29,7 @@
                     <h1>UJ Super Social Pumpfest</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body bg-secondary">
+                <div class="modal-body bg-danger">
                     <div id="modalTimerHeader" class="m-5"></div>
                     <div class="m-5">
                         <div id="modalTimerBody"></div>
@@ -45,7 +39,7 @@
                         </div>           
                     </div>     
                 </div>
-                <div class="modal-footer text-secondary">
+                <div class="modal-footer text-danger">
                     <div id="modalTimerFooter"></div>
                     <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
                 </div>
@@ -59,13 +53,13 @@
         <!-- heading -->
         <div class="row d-flex align-items-end text-bg-dark mb-2 py-3">
             <div class="col-8">
-                <h1 class="">Super Social Pumpfest 
-                    <small class="text-primary">LIVESCORE</small>
-                    <small id="updatedAt" class="text-primary"></small></h1>
+                <h1 class="">Super Social Pumpfest
+                    <small class="text-white-50">LIVESCORE</small>
+                    <small id="updatedAt" class="text-white"></small></h1>
             </div>
             <div class="col-4">
                 <div onclick="myModal.show()">
-                    <h1 class="h1 text-end text-primary" id="timer">
+                    <h1 class="h1 text-end text-white-50" id="timer">
                         Time left <span data-hours class="text-white fw-bold"></span>h
                         <span data-minutes class="text-white fw-bold"></span>m
                         <span data-seconds class="text-white fw-bold"></span>s
