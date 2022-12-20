@@ -59,11 +59,20 @@ $pagination-active-border-color: #dee2e6;
 
 // import bootstrap
 @import '../node_modules/bootstrap/scss/bootstrap.scss';
-@import "../node_modules/bootstrap/scss/functions";
-@import "../node_modules/bootstrap/scss/variables";
-@import "../node_modules/bootstrap/scss/maps";
-@import "../node_modules/bootstrap/scss/mixins";
-@import "../node_modules/bootstrap/scss/utilities";
+
+.btn-bd-primary {
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-bg: shade-color($primary, 10%);
+  --bs-btn-border-color: $primary;
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: shade-color($primary, 90%);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-focus-shadow-rgb: var(--bd-primary-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: shade-color(var(--bs-primary), 20%);
+  --bs-btn-active-border-color: shade-color(var(--bs-primary), 20%);
+}    
 
 // custom styles
 .primary-dark {
