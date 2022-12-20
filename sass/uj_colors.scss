@@ -29,19 +29,19 @@
 // Maroon primary
 $white:         #ffffff;
 $primary:       #ae222a;
-$secondary:     #d65a59;
-$info:          #a8a74e;
+$secondary:     #999999;
+$info:          #1c121b;
 $success:       #63a623;
-$warning:       #fec171;
-$danger:        #f01367;
-$light:         #dfe5e2;
-$dark:          #0f1012;
-$accent-light:  #ae7989;
-$accent-dark:   #581538;
+$warning:       #e7750d;
+$danger:        #f44336;
+$light:         #F3F7F4;
+$dark:          #1C121B;
+$accent-light:  #9791A5;
+$accent-dark:   #C24657;
 
 
 $theme-colors: (
-  "primary":    $primary,
+  "primary":    $primary, 
   "secondary":  $secondary,
   "success":    $success,
   "info":       $info,
