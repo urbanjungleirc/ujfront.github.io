@@ -1,0 +1,88 @@
+// Maroon primary
+$white:         #ffffff;
+$primary:       #d83c2e;
+$secondary:     #999999;
+$info:          #24232e;
+$success:       #768d46;
+$warning:       #f37c0e;
+$danger:        #f44336;
+$light:         #FBF9FA;
+$dark:          #24232e;
+$accent-light:  #AA9EA8;
+$accent-dark:   #9A6A6B;
+
+
+$theme-colors: (
+  "primary":    $primary, 
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark, 
+  "white":      $white,
+);
+
+// change pagination style (colours)
+// https://getbootstrap.com/docs/5.2/components/pagination/#variables
+$pagination-color:        gray;
+$pagination-focus-color:  gray;
+$pagination-active-color: $dark;
+$pagination-active-bg:    $light;
+$pagination-active-border-color: #dee2e6;
+
+// import bootstrap
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+.btn-bd-primary {
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-border-radius: .5rem;
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: #{shade-color($primary, 10%)};
+  --bs-btn-hover-border-color: #{shade-color($primary, 10%)};
+  --bs-btn-focus-shadow-rgb: var(--primary-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: #{shade-color($primary, 20%)};
+  --bs-btn-active-border-color: #{shade-color($primary, 20%)};
+}
+
+// custom styles
+.text-round1 {
+  color: $yellow-600;
+}
+.text-round2 {
+  color: $blue-600;
+}
+.text-round3 {
+  color: $red-600;
+}
+.text-round4 {
+  color: $green-600;
+}
+.bg-round1 {
+  --bs-bg-opacity: 1;
+  background-color: rgba($yellow-600, var(--bs-bg-opacity)) !important;
+}
+.bg-round2 {
+  --bs-bg-opacity: 1;
+  background-color: rgba($blue-600, var(--bs-bg-opacity)) !important;
+}
+.bg-round3 {
+  --bs-bg-opacity: 1;
+  background-color: rgba($red-600, var(--bs-bg-opacity)) !important;
+}
+.bg-round4 {
+  --bs-bg-opacity: 1;
+  background-color: rgba($green-600, var(--bs-bg-opacity)) !important;
+}
+
+
+
+/*
+ * DataTables style pagination controls
+ * source: https://datatables.net/blog/2014-06-06#Paging-controls
+ */
