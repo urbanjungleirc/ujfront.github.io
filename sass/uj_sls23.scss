@@ -52,32 +52,32 @@ $pagination-active-border-color: #dee2e6;
 
 // custom styles
 .text-round1 {
-  color: $yellow-600;
+  color: $yellow-500;
 }
 .text-round2 {
-  color: $blue-600;
+  color: $blue-500;
 }
 .text-round3 {
-  color: $red-600;
+  color: $red-500;
 }
 .text-round4 {
-  color: $green-600;
+  color: $green-500;
 }
 .bg-round1 {
   --bs-bg-opacity: 1;
-  background-color: rgba($yellow-600, var(--bs-bg-opacity)) !important;
+  background-color: rgba($yellow-500, var(--bs-bg-opacity)) !important;
 }
 .bg-round2 {
   --bs-bg-opacity: 1;
-  background-color: rgba($blue-600, var(--bs-bg-opacity)) !important;
+  background-color: rgba($blue-500, var(--bs-bg-opacity)) !important;
 }
 .bg-round3 {
   --bs-bg-opacity: 1;
-  background-color: rgba($red-600, var(--bs-bg-opacity)) !important;
+  background-color: rgba($red-500, var(--bs-bg-opacity)) !important;
 }
 .bg-round4 {
   --bs-bg-opacity: 1;
-  background-color: rgba($green-600, var(--bs-bg-opacity)) !important;
+  background-color: rgba($green-500, var(--bs-bg-opacity)) !important;
 }
 
 
