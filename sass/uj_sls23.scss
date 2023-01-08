@@ -10,6 +10,7 @@ $light:         #FBF9FA;
 $dark:          #24232e;
 $accent-light:  #AA9EA8;
 $accent-dark:   #9A6A6B;
+$round1:        yellow;
 
 
 $theme-colors: (
@@ -22,6 +23,7 @@ $theme-colors: (
   "light":      $light,
   "dark":       $dark, 
   "white":      $white,
+  "round1":     $round1,
 );
 
 // change pagination style (colours)
@@ -51,9 +53,9 @@ $pagination-active-border-color: #dee2e6;
 }
 
 // custom styles
-.text-round1 {
-  color: $yellow-500;
-}
+// .text-round1 {
+//   color: $yellow-500;
+// }
 .text-round2 {
   color: $blue-500;
 }
@@ -63,10 +65,10 @@ $pagination-active-border-color: #dee2e6;
 .text-round4 {
   color: $green-500;
 }
-.bg-round1 {
-  --bs-bg-opacity: 1;
-  background-color: rgba($yellow-500, var(--bs-bg-opacity)) !important;
-}
+// .bg-round1 {
+//   --bs-bg-opacity: 1;
+//   background-color: rgba($yellow-500, var(--bs-bg-opacity)) !important;
+// }
 .bg-round2 {
   --bs-bg-opacity: 1;
   background-color: rgba($blue-500, var(--bs-bg-opacity)) !important;
