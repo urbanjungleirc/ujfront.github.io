@@ -60,35 +60,42 @@ $pagination-active-border-color: #dee2e6;
 }
 
 // custom styles
-// .text-round1 {
-//   color: $yellow-500;
-// }
-// .text-round2 {
-//   color: $blue-500;
-// }
-// .text-round3 {
-//   color: $red-500;
-// }
-// .text-round4 {
-//   color: $green-500;
-// }
-// .bg-round1 {
-//   --bs-bg-opacity: 1;
-//   background-color: rgba($yellow-500, var(--bs-bg-opacity)) !important;
-// }
-// .bg-round2 {
-//   --bs-bg-opacity: 1;
-//   background-color: rgba($blue-500, var(--bs-bg-opacity)) !important;
-// }
-// .bg-round3 {
-//   --bs-bg-opacity: 1;
-//   background-color: rgba($red-500, var(--bs-bg-opacity)) !important;
-// }
-// .bg-round4 {
-//   --bs-bg-opacity: 1;
-//   background-color: rgba($green-500, var(--bs-bg-opacity)) !important;
-// }
-
+.blue-hold { 
+  color: $white;
+  background-color: $blue-600;  
+ }
+.red-hold {
+  color: $white;
+  background-color: $red-600; 
+}
+.yellow-hold {
+  color: $black;
+  background-color: $yellow-400; 
+}
+.pink-hold {
+  color: $black; 
+  background-color: $pink-400; 
+}
+.orange-hold {
+  color: $black;
+  background-color: $orange-500;
+}
+.green-hold {
+  color: $black;
+  background-color: #60B36F;
+}
+.black-hold {
+  color: $white;
+  background-color: $black;
+}
+.purple-hold {
+  color: $white;
+  background-color: $purple-700;
+}
+.white-hold {
+  color: $black;
+  background-color: $white;
+}
 
 
 /*
