@@ -1,4 +1,4 @@
-// Maroon primary
+// sls 2023 colours
 $white:         #ffffff;
 $primary:       #d83c2e;
 $secondary:     #999999;
@@ -10,8 +10,10 @@ $light:         #FBF9FA;
 $dark:          #24232e;
 $accent-light:  #AA9EA8;
 $accent-dark:   #9A6A6B;
-$round1:        yellow;
-
+$round1:        #ffeb3b;
+$round2:        #2196f3;
+$round3:        #f44336;
+$round4:        #4caf50;
 
 $theme-colors: (
   "primary":    $primary, 
@@ -23,7 +25,12 @@ $theme-colors: (
   "light":      $light,
   "dark":       $dark, 
   "white":      $white,
+  "accent-light":$accent-light,
+  "accent-dark":$accent-dark,
   "round1":     $round1,
+  "round2":     $round2,
+  "round3":     $round3,
+  "round4":     $round4,
 );
 
 // change pagination style (colours)
@@ -56,31 +63,31 @@ $pagination-active-border-color: #dee2e6;
 // .text-round1 {
 //   color: $yellow-500;
 // }
-.text-round2 {
-  color: $blue-500;
-}
-.text-round3 {
-  color: $red-500;
-}
-.text-round4 {
-  color: $green-500;
-}
+// .text-round2 {
+//   color: $blue-500;
+// }
+// .text-round3 {
+//   color: $red-500;
+// }
+// .text-round4 {
+//   color: $green-500;
+// }
 // .bg-round1 {
 //   --bs-bg-opacity: 1;
 //   background-color: rgba($yellow-500, var(--bs-bg-opacity)) !important;
 // }
-.bg-round2 {
-  --bs-bg-opacity: 1;
-  background-color: rgba($blue-500, var(--bs-bg-opacity)) !important;
-}
-.bg-round3 {
-  --bs-bg-opacity: 1;
-  background-color: rgba($red-500, var(--bs-bg-opacity)) !important;
-}
-.bg-round4 {
-  --bs-bg-opacity: 1;
-  background-color: rgba($green-500, var(--bs-bg-opacity)) !important;
-}
+// .bg-round2 {
+//   --bs-bg-opacity: 1;
+//   background-color: rgba($blue-500, var(--bs-bg-opacity)) !important;
+// }
+// .bg-round3 {
+//   --bs-bg-opacity: 1;
+//   background-color: rgba($red-500, var(--bs-bg-opacity)) !important;
+// }
+// .bg-round4 {
+//   --bs-bg-opacity: 1;
+//   background-color: rgba($green-500, var(--bs-bg-opacity)) !important;
+// }
 
 
 
