@@ -15,38 +15,41 @@
 // $light:         #F9F8F9;
 // $dark:          #1d1e25;
 
-// second version
-$white:         #f5f5f6;
-$primary:       #256c2c;
-$secondary:     #8f3a9c;
-$info:          #38656b;
-$success:       #209825;
-$warning:       #f2c025;
-$danger:        #ea1349;
-$light:         #dee5d8;
-$dark:          #0d4014;
+// Dark Green primary - second version
+// $white:         #f5f5f6;
+// $primary:       #256c2c;
+// $secondary:     #8f3a9c;
+// $info:          #38656b;
+// $success:       #209825;
+// $warning:       #f2c025;
+// $danger:        #ea1349;
+// $light:         #dee5d8;
+// $dark:          #0d4014;
 
-// new bright green colour - to be work on 
-// $white:         #ffffff;
-// $primary:       #68f24d;
-// $secondary:     #04a451;
-// $info:          #f1ac2f;
-// $success:       #04c202;
-// $warning:       #ffca2d;
-// $danger:        #ff034f;
-// $light:         #dedad6;
-// $dark:          #1e1d1d;
+// Maroon primary
+$white:         #ffffff;
+$primary:       #ae222a;
+$secondary:     #999999;
+$info:          #1c121b;
+$success:       #63a623;
+$warning:       #e7750d;
+$danger:        #f44336;
+$light:         #F3F7F4;
+$dark:          #1C121B;
+$accent-light:  #9791A5;
+$accent-dark:   #C24657;
 
 
 $theme-colors: (
-  "primary":    $primary,
+  "primary":    $primary, 
   "secondary":  $secondary,
   "success":    $success,
   "info":       $info,
   "warning":    $warning,
   "danger":     $danger,
   "light":      $light,
-  "dark":       $dark
+  "dark":       $dark, 
+  "white":      $white,
 );
 
 // change pagination style (colours)
@@ -58,7 +61,22 @@ $pagination-active-bg:    $light;
 $pagination-active-border-color: #dee2e6;
 
 // import bootstrap
-@import '../node_modules/bootstrap/scss/bootstrap.scss';
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+.btn-bd-primary {
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-border-radius: .5rem;
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: #{shade-color($primary, 10%)};
+  --bs-btn-hover-border-color: #{shade-color($primary, 10%)};
+  --bs-btn-focus-shadow-rgb: var(--primary-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: #{shade-color($primary, 20%)};
+  --bs-btn-active-border-color: #{shade-color($primary, 20%)};
+}
 
 // custom styles
 .primary-dark {

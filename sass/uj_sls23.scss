@@ -1,0 +1,104 @@
+// sls 2023 colours
+$white:         #ffffff;
+$primary:       #d83c2e;
+$secondary:     #999999;
+$info:          #24232e;
+$success:       #768d46;
+$warning:       #f37c0e;
+$danger:        #f44336;
+$light:         #FBF9FA;
+$dark:          #24232e;
+$accent-light:  #AA9EA8;
+$accent-dark:   #9A6A6B;
+$round1:        #ffeb3b;
+$round2:        #2196f3;
+$round3:        #f44336;
+$round4:        #4caf50;
+
+$theme-colors: (
+  "primary":    $primary, 
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark, 
+  "white":      $white,
+  "accent-light":$accent-light,
+  "accent-dark":$accent-dark,
+  "round1":     $round1,
+  "round2":     $round2,
+  "round3":     $round3,
+  "round4":     $round4,
+);
+
+// change pagination style (colours)
+// https://getbootstrap.com/docs/5.2/components/pagination/#variables
+$pagination-color:        gray;
+$pagination-focus-color:  gray;
+$pagination-active-color: $dark;
+$pagination-active-bg:    $light;
+$pagination-active-border-color: #dee2e6;
+
+// import bootstrap
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+.btn-bd-primary {
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-border-radius: .5rem;
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: #{shade-color($primary, 10%)};
+  --bs-btn-hover-border-color: #{shade-color($primary, 10%)};
+  --bs-btn-focus-shadow-rgb: var(--primary-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: #{shade-color($primary, 20%)};
+  --bs-btn-active-border-color: #{shade-color($primary, 20%)};
+}
+
+// custom styles
+.blue-hold { 
+  color: $white;
+  background-color: $blue-600;  
+ }
+.red-hold {
+  color: $white;
+  background-color: $red-600; 
+}
+.yellow-hold {
+  color: $black;
+  background-color: $yellow-400; 
+}
+.pink-hold {
+  color: $black; 
+  background-color: $pink-400; 
+}
+.orange-hold {
+  color: $black;
+  background-color: $orange-500;
+}
+.green-hold {
+  color: $black;
+  background-color: #60B36F;
+}
+.black-hold {
+  color: $white;
+  background-color: $black;
+}
+.purple-hold {
+  color: $white;
+  background-color: $purple-700;
+}
+.white-hold {
+  color: $black;
+  background-color: $white;
+}
+
+
+/*
+ * DataTables style pagination controls
+ * source: https://datatables.net/blog/2014-06-06#Paging-controls
+ */
