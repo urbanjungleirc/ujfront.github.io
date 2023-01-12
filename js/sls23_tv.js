@@ -52,13 +52,6 @@ $(document).ready(function () {
             pagingType: "numbers",
             renderer: "bootstrap",
 
-            searchCols: [
-                { "search": "Male" },
-                null,
-                null,
-                null,
-                null
-              ],
             // search: {
             //     search: "Male",
             // },
@@ -101,6 +94,14 @@ $(document).ready(function () {
                 }, 
                 { data: "name", title: "Name", orderable: false },
                 { data: "score", title: "Score", orderable: false },
+            ],
+
+            searchCols: [
+                { search: "Male" },
+                null,
+                null,
+                null,
+                null
             ],
 
             initComplete: function () {
