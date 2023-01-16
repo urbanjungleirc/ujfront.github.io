@@ -2,17 +2,20 @@
     Default setting
     -------------------------------------
 */
-const scoreUrl = "https://script.google.com/macros/s/AKfycbxscrr-fPwL6d-M1jiA_6YaN-HGZHLDmGmGQ6oIF_Kyh8bPdPMK6W9OMNG8aqfIiIrVTQ/exec";
+//const scoreUrl = "https://script.google.com/macros/s/AKfycbxscrr-fPwL6d-M1jiA_6YaN-HGZHLDmGmGQ6oIF_Kyh8bPdPMK6W9OMNG8aqfIiIrVTQ/exec"; // public copy data
+const scoreUrl = "https://script.google.com/a/macros/urbanjungleirc.com/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec" // test data
 
-const minPageDisplay = 5000;               // minimum time for a page to be displayed
-const maxPageDisplay = 10000;               // maximum time for a page to be displayed
+const minPageDisplay = 3000;               // minimum time for a page to be displayed
+const maxPageDisplay = 5000;               // maximum time for a page to be displayed
 let dataRefreshInterval = 2 * 60000;        // frequency for full data refresh (1min = 60000)
 let categoryTimeInterval = 60000;           // time for one category to be desplayed
+let iPageInterval = "";
 
 const rowsPerPage = 2;                         // number of rows per page
-let currentCategory = "advanced";                       // filtering data - enter category
+let currentCategoryIndex = 0;                       // filtering data - enter category
 const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
 const competitionEndTime = "2023-03-21 16:30";
+
 
 
 //* set default timers
@@ -28,59 +31,27 @@ let timer = timezz(document.querySelector("#timer"), {
 let tblMale = $("#tableMale");
 
 $(document).ready(function () {
+    console.clear();
     console.log(`Table initialisation start: ${new Date().getTime()}`);
 });
 
 $("#tableMale")
     .on("init.dt", function () {
+        //  fired when DataTables has been fully initialised and data loaded
         console.log(`Table initialisation complete: ${new Date().getTime()}`);        
+        startPageRotations();
     })
     .on("xhr.dt", function (e, settings, json, xhr) {
+        // fired when an Ajax request is completed
         //$("#status").html(json.status);
         let el = document.getElementById("updatedAt");
         let d = new Date();
         el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
-        console.log ('xhr event completed');
-
-        // // let api = tblMale.DataTable().api();
-        // let tableInfo = tblMale.DataTable().page.info(); // https://datatables.net/reference/api/page.info()
-        // let timePerPage = maxPageDisplay;
-
-        // if (tableInfo.pages > 1) {
-        //     // more than one page
-        //     timePerPage = dataRefreshInterval / tableInfo.pages;
-        //     if (timePerPage < minPageDisplay) {
-        //         dataRefreshInterval = minPageDisplay * tableInfo.pages;
-        //         timePerPage = minPageDisplay;
-        //     } else if (timePerPage > maxPageDisplay) {
-        //         timePerPage = maxPageDisplay;
-        //     } else {
-        //         timePerPage = timePerPage.toFixed();
-        //     }
-
-        //     // set interval for flipping pages
-        //     const iPageInterval = setInterval(function () {
-        //         if (tblMale.DataTable().page.info().page == tblMale.DataTable().page.info().pages - 1) {
-        //             // last page - cancel page change, reset category & refresh all data
-        //             clearInterval(iPageInterval);
-        //             changeCategory();
-        //             console.log('setting a new category')
-        //             tblMale.DataTable().columns(1).search(`\\b${currentCategory}\\b`, true );
-        //             tblMale.DataTable().ajax.reload(); // reload full data table
-        //             //api.page("first").draw("page");
-        //         } else {
-        //             tblMale.DataTable().page("next").draw("page");
-        //         }
-        //     }, timePerPage);
-        // } else {
-        //     delaySeconds((timePerPage/1000).toFixed());
-        //     changeCategory();
-        //     tblMale.DataTable().ajax.reload(); // reload full data table
-        // }        
+        console.log ('xhr event completed');        
     })
     .on('search.dt', function () { 
         // fired when the table is filtered
-        document.querySelector("#maleCategory").innerHTML = currentCategory.toLocaleUpperCase() + '<span class="badge bg-secondary">Male</span>';
+        document.querySelector("#maleCategory").innerHTML = categories[currentCategoryIndex].toLocaleUpperCase() + '<span class="badge bg-secondary">Male</span>';
     })
     .on("page.dt", function () { 
         // fired when the table's paging is updated
@@ -140,14 +111,14 @@ $("#tableMale")
 
         searchCols: [
             { search: `\\bmale\\b`, regex:  true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
-            { search: `\\b${currentCategory}\\b`, regex: true }, 
+            { search: `\\b${categories[currentCategoryIndex]}\\b`, regex: true }, 
             null,
             null,
             null
         ],
 
         order: [[2, "asc"]],
-        initComplete: changePages,
+        // initComplete: startPageRotations,
         // initComplete: function () {
             // calculate time intervals for the page rotating and updates
 
@@ -174,7 +145,7 @@ $("#tableMale")
             //             clearInterval(iPageInterval);
             //             changeCategory();
             //             console.log('setting a new category')
-            //             api.columns(1).search(`\\b${currentCategory}\\b`, true );
+            //             api.columns(1).search(`\\b${currentCategoryIndex}\\b`, true );
             //             api.ajax.reload(); // reload full data table
             //             //api.page("first").draw("page");
             //         } else {
@@ -182,7 +153,7 @@ $("#tableMale")
             //         }
             //     }, timePerPage);
             // } else {
-            //     delaySeconds((timePerPage/1000).toFixed());
+            //     delayXSeconds((timePerPage/1000).toFixed());
             //     changeCategory();
             //     api.ajax.reload(null, true); // reload full data table
             // }
@@ -197,13 +168,11 @@ $("#tableMale")
         dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',
         
     }).on( 'draw.dt', function () {
-            console.log( 'Redraw occurred at: '+new Date().getTime() );
+            //console.log( 'Redraw occurred at: '+new Date().getTime() );
         })
 
 
-
-// how to:  https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
-function changePages () {
+function startPageRotations() {
     // calculate time intervals for the page rotating and updates
     let tableInfo = tblMale.DataTable().page.info(); // https://datatables.net/reference/api/page.info()
     let timePerPage = maxPageDisplay;
@@ -219,37 +188,45 @@ function changePages () {
         } else {
             timePerPage = timePerPage.toFixed();
         }
-
+        console.log ("startPageRotation - x pages, timePerPage: " + timePerPage)
         // set interval for flipping pages
-        const iPageInterval = setInterval(function () {
-            if (tblMale.DataTable().page.info().page == tblMale.DataTable().page.info().pages - 1) {
-                // last page - cancel page change, reset category & refresh all data
-                clearInterval(iPageInterval);
-                changeCategory();
-                console.log('setting a new category')
-                tblMale.DataTable().columns(1).search(`\\b${currentCategory}\\b`, true );
-                tblMale.DataTable().ajax.reload(); // reload full data table
-                //api.page("first").draw("page");
-            } else {
-                tblMale.DataTable().page("next").draw("page");
-            }
-        }, timePerPage);
+        iPageInterval = setInterval( changePages, timePerPage);
     } else {
-        delaySeconds((timePerPage/1000).toFixed());
+        console.log ("startPageRotation - ONE page, timePerPage: " + (timePerPage/1000).toFixed())
+        //delayXSeconds((timePerPage/1000).toFixed());
+        clearInterval(iPageInterval);
         changeCategory();
         tblMale.DataTable().ajax.reload(); // reload full data table
+        iPageInterval = setInterval( changePages, timePerPage);
     } 
+}
+
+// how to:  https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
+function changePages () {
+    if (tblMale.DataTable().page.info().page == tblMale.DataTable().page.info().pages - 1) {
+        // last page - cancel page change, reset category & refresh all data
+        clearInterval(iPageInterval);
+        changeCategory();
+        console.log('setting a new category & restarting pageChange')
+        tblMale.DataTable().columns(1).search(`\\b${categories[currentCategoryIndex]}\\b`, true );
+        tblMale.DataTable().ajax.reload(); // reload full data table
+        //api.page("first").draw("page");
+        startPageRotations();
+        return;
+    } else {
+        tblMale.DataTable().page("next").draw("page");
+    }
 }
 
 
 function changeCategory() {
-    let iCurrent = categories.indexOf(currentCategory);
-    if (iCurrent == categories.length) {
-        currentCategory = categories[0];
+    //let iCurrent = categories.indexOf(currentCategoryIndex);
+    if (currentCategoryIndex == categories.length) {
+        currentCategoryIndex = 0;
     } else {
-        currentCategory = categories[iCurrent+1];
+        currentCategoryIndex = currentCategoryIndex +1 ;
     }
-    console.log ('Next category - ' + currentCategory);
+    console.log ('Next category - ' + categories[currentCategoryIndex]);
 }
 
 
@@ -267,7 +244,7 @@ function resolveAfter1Second(x) {
       }, 1000);
     });
   }
-async function delaySeconds(y) {
+async function delayXSeconds(y) {
     const x = await resolveAfter1Second(y);
     console.log(x); // 10
   }
