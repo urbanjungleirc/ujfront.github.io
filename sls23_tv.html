@@ -13,6 +13,21 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/2.0.2/css/searchPanes.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+    <style>
+        /* ENDLESS ROTATE */
+        .rotate{
+        animation: rotate 5s linear infinite; 
+        }
+        @keyframes rotate{
+        to{ transform: rotate(360deg); }
+        }
+        /* SPINNER */
+        .spinner{
+        display:inline-block; width: 50px; height: 50px;
+        border-radius: 50%;
+        box-shadow: inset -2px 0 0 2px rgb(255, 217, 0);
+        }
+    </style>
 
 </head>
 
@@ -20,27 +35,12 @@
 
     <div class="output"></div>
 
-    <!-- Modal timer-->
-    <div class="modal fade" id="modalTimer" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-labelledby="modalTimerLabel" aria-hidden="true" >
-        <div class="modal-dialog modal-dialog-centered modal-xl border-secondary border-5">
-            <div class="modal-content text-center">
-                <div class="modal-header text-secondary">
-                    <h1>Rumble In The Jungle</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body bg-dark">
-                    <div id="modalTimerHeader" class="m-5"></div>
-                    <div class="m-5">
-                        <div id="modalTimerBody"></div>
-                        <div class="h1 text-black-50 text-center" style="font-size: 6em;" id="timer2">
-                            <span data-minutes class="text-white fw-bold"></span>m
-                            <span data-seconds class="text-white fw-bold"></span>s
-                        </div>           
-                    </div>     
-                </div>
-                <div class="modal-footer text-secondary">
-                    <div id="modalTimerFooter"></div>
-                </div>
+    <!-- Spinner-->
+    <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-hidden="true" >
+        <div class="modal-dialog modal-dialog-centered modal">
+            <div class="modal-content p-3" style="background-color: transparent !important; border: none !important;">
+                    <!-- <span class="rotate spinner"></span> -->
+                    <img src="/assets/sls23_logo.png" alt="" class="rotate">
             </div>
         </div>
     </div>
@@ -58,7 +58,7 @@
                     <small id="updatedAt" class="text-white-50"></small></h1>
             </div>
             <div class="col-4">
-                <div onclick="myModal.show()">
+                <div>
                     <h1 class="h1 text-end text-white-50" id="timer">
                         Time left 
                         <span data-days class="text-white fw-bold"></span>d
@@ -72,13 +72,13 @@
         <div class="row bg-primary bg-opacity-10 text-primary mb-2 py-1">
             <div class="row align-items-center">
                 <div class="col">
-                    <h2 class="text-accent-dark fs-bold"><i class="bi bi-gender-male"></i></h2>
+                    <h2 class="text-accent-dark fs-1"><i class="bi bi-gender-male"></i></h2>
                 </div>
                 <div class="col text-center">
-                    <h2 id="activeCategory" class="text-accent-dark">Category</h2>
+                    <h2 id="activeCategory" class="text-accent-dark fs-1">Category</h2>
                 </div>
                 <div class="col text-end">
-                    <h2 class="text-accent-dark fs-bold"><i class="bi bi-gender-female"></i></h2>
+                    <h2 class="text-accent-dark fs-1"><i class="bi bi-gender-female"></i></h2>
                 </div>
             </div>
         </div>        
@@ -91,7 +91,7 @@
             <div class="col card bg-white border border-1 border-primary border-opacity-25 mx-1 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
                     <div class="table-responsive" style="width: 100%;">
-                        <table id="tableMale" class="table table-striped bg-white align-bottom fs-1 pe-2 rounded" style="width: 100%;">
+                        <table id="tableMale" class="table bg-white align-bottom fs-1 pe-2 rounded" style="width: 100%;">
                         </table>
                     </div>
                 </div>

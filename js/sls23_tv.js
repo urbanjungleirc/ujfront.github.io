@@ -11,11 +11,15 @@ let dataRefreshInterval = 2 * 60000;        // frequency for full data refresh (
 let categoryTimeInterval = 60000;           // time for one category to be desplayed
 let firstPageCallDone = false;
 
-const rowsPerPage = 3;                         // number of rows per page
+const rowsPerPage = 4;                         // number of rows per page
 let currentCategoryIndex = 0;                       // filtering data - enter category
 const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
 const competitionEndTime = "2023-03-21 16:30";
 
+// setting up Modal element
+let mySpinner = new bootstrap.Modal(document.getElementById('modalSpinner'), {
+    keyboard: false
+  });
 
 
 //* set default timers
@@ -32,34 +36,23 @@ let tblMale = $("#tableMale");
 let tblFemale = $("#tableFemale");
 let pageTimer = new Timer (pageFlipper,600000);
 
-$(document).ready(function () {
-    console.clear();
-    console.log(`Table initialisation start: ${new Date().getTime()}`);
-});
+// $(document).ready(function () {
+//     console.clear();
+//     console.log(`Table initialisation start: ${new Date().getTime()}`);
+// });
 
 $("#tableMale")
-    .on("init.dt", function () {
+    .one("init.dt", function () {
         //  fired when DataTables has been fully initialised and data loaded
-        console.log(`Table initialisation complete: ${new Date().getTime()}`);
-        startPageRotations();
+        // console.log(`Table initialisation complete: ${new Date().getTime()}`);
+        
+    })
+    .on("preXhr.dt", function (e, settings, json, xhr) {
+        // fired when an Ajax request is completed
+        mySpinner.show();
     })
     .on("xhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
-        //$("#status").html(json.status);
-        let el = document.getElementById("updatedAt");
-        let d = new Date();
-        el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
-        console.log ('xhr event completed');        
-        if (firstPageCallDone) {startPageRotations();}
-    })
-    .on('search.dt', function () { 
-        // fired when the table is filtered
-        
-    })
-    .on("page.dt", function () { 
-        // fired when the table's paging is updated
-        var info = tblMale.DataTable().page.info();
-        console.log ( `${categories[currentCategoryIndex]}  page ${info.page+1} of ${info.pages}` );
     })
     .dataTable({
         ajax: {
@@ -72,8 +65,8 @@ $("#tableMale")
         },
 
         columns: [
-            { data: "gender", visible: true, title: "Gender"},
-            { data: "category", visible: true, title: "Category"},
+            { data: "gender", visible: false, title: "Gender"},
+            { data: "category", visible: false, title: "Category"},
             {
                 data: "rank",
                 class: "dt-center",
@@ -98,7 +91,16 @@ $("#tableMale")
                 }, orderable: false 
             }, 
             { data: "name", title: "Name", orderable: false },
-            { data: "score", title: "Score", orderable: false },
+            { data: "score", title: "Score", orderable: false, class: "dt-right"  },
+            {
+                data: null,
+                class: "dt-right",
+                render: function (row,type) {
+                    if (type === "display") { return sends(row);}
+                    return;
+                }, orderable: false, title: "", defaultContent: ""
+            },     
+
         ],
 
         //* paging setup
@@ -112,6 +114,7 @@ $("#tableMale")
             { search: `\^\\b${categories[currentCategoryIndex]}\$\\b`, regex: true }, 
             null,
             null,
+            null,
             null
         ],
 
@@ -119,25 +122,23 @@ $("#tableMale")
         dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',
         
     }).on( 'draw.dt', function () {
-            //console.log( 'Redraw occurred at: '+new Date().getTime() );
-})
+            //console.log( 'Redraw occurred at: '+new Date().getTime() );   
+        })
 
 // Female table setup
 $("#tableFemale")
-    .on("init.dt", function () {
+    .one("init.dt", function () {
         //  fired when DataTables has been fully initialised and data loaded
-        console.log(`Female table initialisation complete: ${new Date().getTime()}`);
+        //console.log(`Female table initialisation complete: ${new Date().getTime()}`);
+        startPageRotations();
     })
     .on("xhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
-    })
-    .on('search.dt', function () { 
-        // fired when the table is filtered        
-    })
-    .on("page.dt", function () { 
-        // fired when the table's paging is updated
-        var info = tblFemale.DataTable().page.info();
-        console.log ( `Female category - ${categories[currentCategoryIndex]}  page ${info.page+1} of ${info.pages}` );
+        let el = document.getElementById("updatedAt");
+        let d = new Date();
+        el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
+        //console.log ('xhr event completed');        
+        if (firstPageCallDone) {startPageRotations();}
     })
     .dataTable({
         ajax: {
@@ -150,8 +151,8 @@ $("#tableFemale")
         },
 
         columns: [
-            { data: "gender", visible: true, title: "Gender"},
-            { data: "category", visible: true, title: "Category"},
+            { data: "gender", visible: false, title: "Gender"},
+            { data: "category", visible: false, title: "Category"},
             {
                 data: "rank",
                 class: "dt-center",
@@ -176,7 +177,16 @@ $("#tableFemale")
                 }, orderable: false 
             }, 
             { data: "name", title: "Name", orderable: false },
-            { data: "score", title: "Score", orderable: false },
+            { data: "score", title: "Score", orderable: false, class: "dt-right" },
+            {
+                data: null,
+                class: "dt-right",
+                render: function (row,type) {
+                    if (type === "display") { return sends(row);}
+                    return;
+                }, orderable: false, title: "", defaultContent: ""
+            },     
+
         ],
 
         //* paging setup
@@ -190,29 +200,29 @@ $("#tableFemale")
             { search: `\^\\b${categories[currentCategoryIndex]}\$\\b`, regex: true }, 
             null,
             null,
+            null, 
             null
         ],
 
         order: [[2, "asc"]],      
-        dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',
-        
-    }).on( 'draw.dt', function () {
-            //console.log( 'Redraw occurred at: '+new Date().getTime() );
-})
+        dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',   
+    })
 
 function startPageRotations() {
     // calculate time intervals for the page rotating and updates
     firstPageCallDone = true;
-    let tableInfo = tblMale.DataTable().page.info(); // https://datatables.net/reference/api/page.info()
     let timePerPage = maxPageDisplay;
+    // set the time interval based on gender with more competitors
+    let numberOfPages = tblMale.DataTable().page.info().pages; 
+    if (numberOfPages < tblFemale.DataTable().page.info().pages) {
+        numberOfPages = tblFemale.DataTable().page.info().pages;
+    }
 
-    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
-
-    if (tableInfo.pages > 1) {
+    if (numberOfPages > 1) {
         // more than one page
-        timePerPage = dataRefreshInterval / tableInfo.pages;
+        timePerPage = dataRefreshInterval / numberOfPages;
         if (timePerPage < minPageDisplay) {
-            dataRefreshInterval = minPageDisplay * tableInfo.pages;
+            dataRefreshInterval = minPageDisplay * numberOfPages;
             timePerPage = minPageDisplay;
         } else if (timePerPage > maxPageDisplay) {
             timePerPage = maxPageDisplay;
@@ -223,18 +233,41 @@ function startPageRotations() {
     } else {
         console.log ("startPageRotation - ONE page, timePerPage: " + timePerPage)
     }
+
+    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
+    mySpinner.hide();
     pageTimer.reset(timePerPage);
 }
 
 function pageFlipper () {
-    // flipping through MALE
-    if (tblMale.DataTable().page.info().page < tblMale.DataTable().page.info().pages - 1 ) {
-        tblMale.DataTable().page("next").draw("page");
+
+    let masterTbl = null;
+    let secondaryTbl = null;
+
+    if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
+        masterTbl = tblMale.DataTable();
+        secondaryTbl = tblFemale.DataTable();    
     } else {
-        // last page - cancel page change, reset category & refresh all data       
+        masterTbl = tblFemale.DataTable();
+        secondaryTbl = tblMale.DataTable();    
+    }
+
+    if (masterTbl.page.info().page < masterTbl.page.info().pages - 1 ) {
+        // flipping through next page in master table
+        masterTbl.page("next").draw("page");
+        if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1 ) {
+            // flipping to the next page in secondary table
+            secondaryTbl.page("next").draw("page");
+        } else {
+            // moving to first page in secondary table
+            secondaryTbl.page("first").draw("page");
+        }
+    } else {
+        // last page on master table -> cancel page change, reset category & refresh all data       
         console.log ("last page, calling data update");
         changeCategory();
         tblMale.DataTable().ajax.reload(); // reload full data table
+        tblFemale.DataTable().ajax.reload();
     }
 }
 
@@ -291,4 +324,41 @@ function Timer(fn, t) {
         t = newT;
         return this.stop().start();
     }
+}
+
+function sends(row) {
+    const routes = ["a", "b", "c", "d"];
+    let ticks = "";
+    // let tick = 0;
+    // let bonus = 0;
+
+    for (i=1; i<5;i++) {
+        ticks = `${ticks}<span class="text-round${i}">`;
+        for (const element of routes) {
+            //console.log(element);
+            // tick = typeof row['r' + i + '_' + element] === "number" ? row['r' + i + '_' + element] : 0;
+            // bonus = typeof row['r' + i + '_' + element + '_bonus'] === "number" ? row['r' + i + '_' + element + '_bonus'] : 0;     
+            //console.log(row['r' + i + '_' + element] + ' --- ' + row['r' + i + '_' + element + '_bonus']); 
+            //console.log (tick + ' --- ' + bonus);
+            ticks = ticks + tickIcon (row['r' + i + '_' + element], row['r' + i + '_' + element + '_bonus']); // row.r1_a + row.r1_a_bonus
+        }
+        ticks = ticks + '</span>';
+    }
+    return `<div class="fs-sm">${ticks}</div>`;
+
+}
+
+function tickIcon (tick=0, bonus=0) {
+    switch (tick + bonus) {
+        case 20:
+        case 25:    
+            return `<i class="bi bi-file-break"></i>`;
+        case 60:
+            return `<i class="bi bi-file-fill"></i>`;
+        case 70:
+            return `<i class="bi bi-lightning-fill"></i>`;
+        default:
+            return `<i class="bi bi-file"></i>`;
+    }
+
 }
