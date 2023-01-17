@@ -29,6 +29,7 @@ let timer = timezz(document.querySelector("#timer"), {
 * dataTable setup
 */
 let tblMale = $("#tableMale");
+let tblFemale = $("#tableFemale");
 let pageTimer = new Timer (pageFlipper,600000);
 
 $(document).ready(function () {
@@ -119,8 +120,85 @@ $("#tableMale")
         
     }).on( 'draw.dt', function () {
             //console.log( 'Redraw occurred at: '+new Date().getTime() );
-        })
+})
 
+// Female table setup
+$("#tableFemale")
+    .on("init.dt", function () {
+        //  fired when DataTables has been fully initialised and data loaded
+        console.log(`Female table initialisation complete: ${new Date().getTime()}`);
+    })
+    .on("xhr.dt", function (e, settings, json, xhr) {
+        // fired when an Ajax request is completed
+    })
+    .on('search.dt', function () { 
+        // fired when the table is filtered        
+    })
+    .on("page.dt", function () { 
+        // fired when the table's paging is updated
+        var info = tblFemale.DataTable().page.info();
+        console.log ( `Female category - ${categories[currentCategoryIndex]}  page ${info.page+1} of ${info.pages}` );
+    })
+    .dataTable({
+        ajax: {
+            url: scoreUrl,
+            cache: true,
+            data: function (d) {
+                d.format = "json";
+            },
+            dataSrc: "data",
+        },
+
+        columns: [
+            { data: "gender", visible: true, title: "Gender"},
+            { data: "category", visible: true, title: "Category"},
+            {
+                data: "rank",
+                class: "dt-center",
+                render: function (data, type) {
+                    if (type === "display") {
+                        switch (data) {
+                            case 1:
+                            case 2:
+                            case 3:
+                                return `<span class="text-primary bg-transparent fw-semibold">${data}</span>`;
+                                break;
+                            case 4:
+                            case 5:
+                            case 6:
+                                return `<span class="text-black bg-transparent fw-semibold">${data}</span>`;
+                                break;
+                            default:
+                                return `<span class="text-black bg-transparent">${data}</span>`;
+                        }
+                    }
+                    return data;
+                }, orderable: false 
+            }, 
+            { data: "name", title: "Name", orderable: false },
+            { data: "score", title: "Score", orderable: false },
+        ],
+
+        //* paging setup
+        lengthChange: false,
+        pageLength: rowsPerPage,
+        pagingType: "numbers",
+        renderer: "bootstrap",
+
+        searchCols: [
+            { search: `\\bfemale\\b`, regex: true },
+            { search: `\^\\b${categories[currentCategoryIndex]}\$\\b`, regex: true }, 
+            null,
+            null,
+            null
+        ],
+
+        order: [[2, "asc"]],      
+        dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',
+        
+    }).on( 'draw.dt', function () {
+            //console.log( 'Redraw occurred at: '+new Date().getTime() );
+})
 
 function startPageRotations() {
     // calculate time intervals for the page rotating and updates
@@ -128,7 +206,7 @@ function startPageRotations() {
     let tableInfo = tblMale.DataTable().page.info(); // https://datatables.net/reference/api/page.info()
     let timePerPage = maxPageDisplay;
 
-    document.querySelector("#maleCategory").innerHTML = categories[currentCategoryIndex].toLocaleUpperCase() + '<span class="badge bg-secondary">Male</span>';
+    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
 
     if (tableInfo.pages > 1) {
         // more than one page
@@ -149,6 +227,7 @@ function startPageRotations() {
 }
 
 function pageFlipper () {
+    // flipping through MALE
     if (tblMale.DataTable().page.info().page < tblMale.DataTable().page.info().pages - 1 ) {
         tblMale.DataTable().page("next").draw("page");
     } else {
@@ -167,6 +246,7 @@ function changeCategory() {
     }
     // apply filter
     tblMale.DataTable().columns(1).search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true );
+    tblFemale.DataTable().columns(1).search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true );
     console.log ('category changed to ' + categories[currentCategoryIndex].toLocaleUpperCase());
 }
 

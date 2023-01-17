@@ -16,7 +16,7 @@
 
 </head>
 
-<body class="bg-dark">
+<body class="bg-light">
 
     <div class="output"></div>
 
@@ -50,8 +50,8 @@
     <div class="container-fluid">
 
 
-        <!-- nav bar -->
-        <div class="row d-flex align-items-end text-white bg-primary mb-2 py-3">
+        <!-- main bar -->
+        <div class="row d-flex align-items-center text-white bg-primary mb-0 py-2">
             <div class="col-8">
                 <h1><img src="/assets/sls23_logo.png" alt="SLS23" width="50" height="50"> Summer Lead Series 2023
                     <small class="text-white-50">LIVESCORE</small>
@@ -68,25 +68,36 @@
                 </div>
             </div>
         </div>
-
+        <!-- sub-bar -->
+        <div class="row bg-primary bg-opacity-10 text-primary mb-2 py-1">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="text-accent-dark fs-bold"><i class="bi bi-gender-male"></i></h2>
+                </div>
+                <div class="col text-center">
+                    <h2 id="activeCategory" class="text-accent-dark">Category</h2>
+                </div>
+                <div class="col text-end">
+                    <h2 class="text-accent-dark fs-bold"><i class="bi bi-gender-female"></i></h2>
+                </div>
+            </div>
+        </div>        
         <!-- the table -->
         <div class="row justify-content-center px-1">
             <!-- <div class="progress" style="height: 5px;">
                     <div id="updateProgressBar" class="progress-bar" role="progressbar" style="width: 25%;"
                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                </div> -->
-            <div class="col card bg-white border-0 mx-1 px-1" style="border-radius: .5rem;">
+            </div> -->           
+            <div class="col card bg-white border border-1 border-primary border-opacity-25 mx-1 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
-                    <h2 id="maleCategory" class="card-title m-3 text-accent-dark d-flex justify-content-between align-items-center">Category<span class="badge bg-secondary">Male</span></h2>
                     <div class="table-responsive" style="width: 100%;">
                         <table id="tableMale" class="table table-striped bg-white align-bottom fs-1 pe-2 rounded" style="width: 100%;">
                         </table>
                     </div>
                 </div>
             </div>
-            <div class="col card border-0 mx-1 px-1" style="border-radius: .5rem;">
+            <div class="col card bg-white border border-1 border-primary border-opacity-25 mx-1 px-1" style="border-radius: .5rem;">
                 <div class="card-body p-0">
-                    <h2 id="femaleCategory" class="card-title m-3 text-accent-dark d-flex justify-content-between align-items-center">Category<span class="badge bg-secondary">Female</span></h2>
                     <div class="table-responsive" style="width: 100%;">
                         <table id="tableFemale" class="table table-striped bg-white align-bottom fs-1 pe-2 rounded" style="width: 100%;">
                         </table>
