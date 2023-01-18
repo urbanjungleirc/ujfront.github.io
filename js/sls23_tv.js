@@ -5,13 +5,13 @@
 //const scoreUrl = "https://script.google.com/macros/s/AKfycbxscrr-fPwL6d-M1jiA_6YaN-HGZHLDmGmGQ6oIF_Kyh8bPdPMK6W9OMNG8aqfIiIrVTQ/exec"; // public copy data
 const scoreUrl = "https://script.google.com/a/macros/urbanjungleirc.com/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec" // test data
 
-const minPageDisplay = 3000;               // minimum time for a page to be displayed
-const maxPageDisplay = 5000;               // maximum time for a page to be displayed
-let dataRefreshInterval = 2 * 60000;        // frequency for full data refresh (1min = 60000)
-let categoryTimeInterval = 60000;           // time for one category to be desplayed
+const minPageDisplay = 10000;               // minimum time for a page to be displayed
+const maxPageDisplay = 20000;               // maximum time for a page to be displayed
+let dataRefreshInterval = 2 * 60000;        // frequency for full data refresh
+//let categoryTimeInterval = 60000;           // time for one category to be desplayed
 let firstPageCallDone = false;
 
-const rowsPerPage = 4;                         // number of rows per page
+const rowsPerPage = 8;                         // number of rows per page
 let currentCategoryIndex = 0;                       // filtering data - enter category
 const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
 const competitionEndTime = "2023-03-21 16:30";
@@ -333,7 +333,7 @@ function sends(row) {
     // let bonus = 0;
 
     for (i=1; i<5;i++) {
-        ticks = `${ticks}<span class="text-round${i}">`;
+        ticks = `${ticks}<span class="text-round${i}" style>`;
         for (const element of routes) {
             //console.log(element);
             // tick = typeof row['r' + i + '_' + element] === "number" ? row['r' + i + '_' + element] : 0;
@@ -343,8 +343,9 @@ function sends(row) {
             ticks = ticks + tickIcon (row['r' + i + '_' + element], row['r' + i + '_' + element + '_bonus']); // row.r1_a + row.r1_a_bonus
         }
         ticks = ticks + '</span>';
+        if (i == 2) {ticks = ticks + "</br>"}
     }
-    return `<div class="fs-sm">${ticks}</div>`;
+    return `<div class="fs-4">${ticks}</div>`;
 
 }
 
