@@ -287,7 +287,7 @@ function changeCategory() {
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
 */
-$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-light';
+$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-primary';
 
 
 //* helper functions/objects
