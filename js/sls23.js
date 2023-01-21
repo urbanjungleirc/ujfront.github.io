@@ -51,8 +51,7 @@ $("#tableMale")
         // fired when an Ajax request is completed
         let el = document.getElementById("updatedAt");
         moment.locale('au');
-        el.innerText = " from " + moment().format('LLL'); 
-        //document.getElementById("refreshButton").innerHTML = `${moment().format('LLL')} <i class="bi bi-arrow-clockwise"></i>`;
+        el.innerText = moment().format('Do MMM YY, h:mm a'); 
         mySpinner.hide();
     })
     .dataTable({
