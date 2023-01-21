@@ -20,17 +20,17 @@ let timer = timezz(document.querySelector("#timer"), {
     stopOnZero: true
 });
 
-//* update width of select element based on the longest value
-let select = document.getElementById("categorySelect");
-let options = select.options;
-let width = 0;
-for (let i = 0; i < options.length; i++) {
-    let optionWidth = options[i].text.length;
-    if (optionWidth > width) {
-        width = optionWidth;
-    }
-}
-select.style.width = (width * 10 + 26) + "px";
+// //* update width of select element based on the longest value
+// let select = document.getElementById("categorySelect");
+// let options = select.options;
+// let width = 0;
+// for (let i = 0; i < options.length; i++) {
+//     let optionWidth = options[i].text.length;
+//     if (optionWidth > width) {
+//         width = optionWidth;
+//     }
+// }
+// select.style.width = (width * 10 + 26) + "px";
 
 
 /** 
@@ -51,7 +51,8 @@ $("#tableMale")
         // fired when an Ajax request is completed
         let el = document.getElementById("updatedAt");
         moment.locale('au');
-        el.innerText = " @ " + moment().format('LLL'); 
+        el.innerText = " from " + moment().format('LLL'); 
+        //document.getElementById("refreshButton").innerHTML = `${moment().format('LLL')} <i class="bi bi-arrow-clockwise"></i>`;
         mySpinner.hide();
     })
     .dataTable({
