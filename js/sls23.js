@@ -95,7 +95,7 @@ $("#tableMale")
             { data: "score", title: "Score", orderable: true, class: "dt-right align-middle details-control ", 
                 render: function (data, type) {
                     if (type === "display") {
-                        return `<a href="http://" target="_blank" rel="noopener noreferrer" >${data}</a>`; //class="btn btn-outline-primary"
+                        return `<a href="#" rel="noopener noreferrer" >${data}</a>`; //class="btn btn-outline-primary"
                     }
                     else { return data;}
                 } 
