@@ -42,17 +42,9 @@ let pageTimer = new Timer (pageFlipper,600000);
 // });
 
 $("#tableMale")
-    .one("init.dt", function () {
-        //  fired when DataTables has been fully initialised and data loaded
-        // console.log(`Table initialisation complete: ${new Date().getTime()}`);
-        
-    })
     .on("preXhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
         mySpinner.show();
-    })
-    .on("xhr.dt", function (e, settings, json, xhr) {
-        // fired when an Ajax request is completed
     })
     .dataTable({
         ajax: {
@@ -88,10 +80,10 @@ $("#tableMale")
                         }
                     }
                     return data;
-                }, orderable: false 
+                }, orderable: false, class: "align-middle"
             }, 
-            { data: "name", title: "Name", orderable: false },
-            { data: "score", title: "Score", orderable: false, class: "dt-right"  },
+            { data: "name", title: "Name", orderable: false, class: "align-middle" },
+            { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
             {
                 data: null,
                 class: "dt-right",
@@ -118,26 +110,34 @@ $("#tableMale")
             null
         ],
 
+        language: {
+            info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
+            infoFiltered: " (filtered from a total of _MAX_ participants)", 
+            infoEmpty: "No competitors found", 
+            lengthMenu: "Display _MENU_ competitors"
+        },
+
+
         order: [[2, "asc"]],      
-        dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',
+        dom: 'rt<"d-flex justify-content-between my-2" <"p-1 pt-0" i><"p-1" p> >',
+        initComplete: function(settings, json) {
+            // $('.page_link').addClass('btn-primary');
+          }
         
-    }).on( 'draw.dt', function () {
-            //console.log( 'Redraw occurred at: '+new Date().getTime() );   
-        })
+    })
 
 // Female table setup
 $("#tableFemale")
     .one("init.dt", function () {
         //  fired when DataTables has been fully initialised and data loaded
-        //console.log(`Female table initialisation complete: ${new Date().getTime()}`);
         startPageRotations();
     })
     .on("xhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
+        // updates time and start Restarts Page Roatation
         let el = document.getElementById("updatedAt");
-        let d = new Date();
-        el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
-        //console.log ('xhr event completed');        
+        moment.locale('au');
+        el.innerText = " @ " + moment().format('LT'); 
         if (firstPageCallDone) {startPageRotations();}
     })
     .dataTable({
@@ -174,10 +174,10 @@ $("#tableFemale")
                         }
                     }
                     return data;
-                }, orderable: false 
+                }, orderable: false, class: "align-middle"
             }, 
-            { data: "name", title: "Name", orderable: false },
-            { data: "score", title: "Score", orderable: false, class: "dt-right" },
+            { data: "name", title: "Name", orderable: false, class: "align-middle" },
+            { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
             {
                 data: null,
                 class: "dt-right",
@@ -189,12 +189,6 @@ $("#tableFemale")
 
         ],
 
-        //* paging setup
-        lengthChange: false,
-        pageLength: rowsPerPage,
-        pagingType: "numbers",
-        renderer: "bootstrap",
-
         searchCols: [
             { search: `\\bfemale\\b`, regex: true },
             { search: `\^\\b${categories[currentCategoryIndex]}\$\\b`, regex: true }, 
@@ -204,9 +198,25 @@ $("#tableFemale")
             null
         ],
 
+        //* paging setup
+        lengthChange: false,
+        pageLength: rowsPerPage,
+        pagingType: "numbers",
+        renderer: "bootstrap",
+
+        language: {
+            info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
+            infoFiltered: " (filtered from a total of _MAX_ participants)", 
+            infoEmpty: "No competitors found", 
+            lengthMenu: "Display _MENU_ competitors"
+        },
+
+
         order: [[2, "asc"]],      
-        dom: 'rt<"nav nav-fill" <"nav-item" B> <"nav-item" i><"nav-item" p> >',   
+        dom: 'rt<"d-flex justify-content-between my-2" <"p-1 pt-0" i><"p-1" p> >',   
     })
+
+
 
 function startPageRotations() {
     // calculate time intervals for the page rotating and updates
@@ -238,6 +248,7 @@ function startPageRotations() {
     mySpinner.hide();
     pageTimer.reset(timePerPage);
 }
+
 
 function pageFlipper () {
 
@@ -287,7 +298,7 @@ function changeCategory() {
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
 */
-$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-primary';
+$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 
 //* helper functions/objects
@@ -333,7 +344,7 @@ function sends(row) {
     // let bonus = 0;
 
     for (i=1; i<5;i++) {
-        ticks = `${ticks}<span class="text-round${i}" style>`;
+        ticks = `${ticks}<span class="text-round${i}" >`;
         for (const element of routes) {
             //console.log(element);
             // tick = typeof row['r' + i + '_' + element] === "number" ? row['r' + i + '_' + element] : 0;
@@ -353,9 +364,17 @@ function tickIcon (tick=0, bonus=0) {
     switch (tick + bonus) {
         case 20:
         case 25:    
-            return `<i class="bi bi-file-break"></i>`;
-        case 60:
+            return `<i class="bi bi-file-break"></i>`;           
+        case 50:
             return `<i class="bi bi-file-fill"></i>`;
+        case 60:
+            if (tick==50) {    
+                // tick with bonus
+                return `<i class="bi bi-file-fill"></i>`;
+            } else {
+                // flash without bonus
+                return `<i class="bi bi-lightning-fill"></i>`;
+            }
         case 70:
             return `<i class="bi bi-lightning-fill"></i>`;
         default:
