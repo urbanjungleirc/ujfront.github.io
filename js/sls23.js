@@ -95,7 +95,8 @@ $("#tableMale")
             { data: "score", title: "Score", orderable: true, class: "dt-right align-middle details-control ", 
                 render: function (data, type) {
                     if (type === "display") {
-                        return `<a href="#" rel="noopener noreferrer" >${data}</a>`; //class="btn btn-outline-primary"
+                        //return `<a href="#" rel="noopener noreferrer" >${data}</a>`; //class="btn btn-outline-primary"
+                        return `<span class="btn btn-sm btn-outline-primary border-0">${data}</span>`; //class="btn btn-outline-primary"
                     }
                     else { return data;}
                 } 
@@ -198,20 +199,46 @@ function tickIcon (tick=0, bonus=0) {
     switch (tick + bonus) {
         case 20:
         case 25:    
-            return `<i class="bi bi-file-break"></i>`;           
+            //return `<i class="bi bi-file-break"></i>`;           
+            return  `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                        <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                        <rect style="stroke:none"
+                            id="rect1119"
+                            width="10.507964"
+                            height="7.2642632"
+                            x="2.8761711"
+                            y="7.7501478" />
+                    </svg>`;
         case 50:
-            return `<i class="bi bi-file-fill"></i>`;
+            //return `<i class="bi bi-file-fill"></i>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                    </svg>`;
         case 60:
             if (tick==50) {    
                 // tick with bonus
-                return `<i class="bi bi-file-fill"></i>`;
+                // return `<i class="bi bi-file-fill"></i>`;
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+            </svg>`;
+
             } else {
                 // flash without bonus
-                return `<i class="bi bi-lightning-fill"></i>`;
+                // return `<i class="bi bi-lightning-fill"></i>`;
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                            <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                        </svg>`
             }
         case 70:
-            return `<i class="bi bi-lightning-fill"></i>`;
+            // return `<i class="bi bi-lightning-fill"></i>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                        <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                    </svg>`
         default:
-            return `<i class="bi bi-file"></i>`;
+            //return `<i class="bi bi-file"></i>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                        <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                    </svg>`
+
     }
 }
