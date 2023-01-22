@@ -126,7 +126,7 @@ $("#tableMale")
 
         order: [[2, "asc"]],      
 
-        dom: 'rt<"row row-cols-1 text-center mb-3" <"col mb-0" p><"col text-secondary mb-3" i> <"col" l> >',
+        dom: 'rt<"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',
         
         
     })
