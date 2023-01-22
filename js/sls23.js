@@ -121,7 +121,7 @@ $("#tableMale")
         //* paging setup
         lengthChange: true,
         pageLength: rowsPerPage,
-        pagingType: "numbers",
+        pagingType: "first_last_numbers",
         renderer: "bootstrap",
 
         order: [[2, "asc"]],      
