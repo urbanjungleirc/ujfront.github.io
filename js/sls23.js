@@ -51,7 +51,7 @@ $("#tableMale")
         // fired when an Ajax request is completed
         let el = document.getElementById("updatedAt");
         moment.locale('au');
-        el.innerText = moment().format('Do MMM YY, h:mm a'); 
+        el.innerText = moment().format('D MMM YY, HH:mm'); 
         mySpinner.hide();
     })
     .dataTable({
@@ -103,13 +103,13 @@ $("#tableMale")
             
         ],
 
-        searchCols: [
-            { search: `\\bmale\\b`, regex: true },
-            null, 
-            null,
-            null,
-            null
-        ],
+        // searchCols: [
+        //     { search: `\\bmale\\b`, regex: true },
+        //     null, 
+        //     null,
+        //     null,
+        //     null
+        // ],
 
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
@@ -121,7 +121,7 @@ $("#tableMale")
         //* paging setup
         lengthChange: true,
         pageLength: rowsPerPage,
-        pagingType: "first_last_numbers",
+        pagingType: "simple_numbers",
         renderer: "bootstrap",
 
         order: [[2, "asc"]],      
@@ -155,11 +155,26 @@ function refreshData() {
 }
 
 function changeGender(gender) {
-    tblMale.DataTable().columns(0).search(`\\b${gender}\\b`, true ).draw();
+    if (gender) {
+        tblMale.DataTable().columns(0).search(`\\b${gender}\\b`, true ).draw();
+    } 
+    else {
+        tblMale.DataTable().columns(0).search("").draw();
+    }
 }
 
 function changeCategory(e) {
-    tblMale.DataTable().columns(1).search(`\^\\b${categories[e.value]}\$\\b`, true ).draw();
+    switch (e.value) {
+        case 'tr':
+            tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
+            break;
+        case 'lead':
+            tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
+            break;
+        default:
+            tblMale.DataTable().columns(1).search(`\^\\b${categories[e.value]}\$\\b`, true ).draw();
+    }
+    
 }
 
 

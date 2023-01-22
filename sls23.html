@@ -85,6 +85,8 @@
         <div class="d-flex justify-content-between my-2">
             <div class="py-2">
                 <div class="btn-group" role="group" aria-label="Gender group">
+                    <input type="radio" class="btn-check" name="radioGender" id="btnradioBoth" autocomplete="off" checked onchange="changeGender()">
+                    <label class="btn btn-outline-primary" for="btnradioBoth"><i class="bi bi-gender-ambiguous"></i></label>          
                     <input type="radio" class="btn-check" name="radioGender" id="btnradioMale" autocomplete="off" onchange="changeGender('male')">
                     <label class="btn btn-outline-primary" for="btnradioMale"><i class="bi bi-gender-male"></i></label>          
                     <input type="radio" class="btn-check" name="radioGender" id="btnradioFemale" autocomplete="off" onchange="changeGender('female')">
@@ -96,22 +98,57 @@
             </div>
         </div>
 
-        <div class="row mt-0">
-            <div class="btn-group justify-content-center">           
-                <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off" value="0" onchange="changeCategory(this)">
-                <label class="btn btn-outline-primary" for="btnradioAdv">Advanced</label>          
-                <input type="radio" class="btn-check" name="radioCategory" id="btnradioInt" autocomplete="off" value="1" onchange="changeCategory(this)">
-                <label class="btn btn-outline-primary" for="btnradioInt">Intermediate</label>          
-                <input type="radio" class="btn-check" name="radioCategory" id="btnradioYou" autocomplete="off" value="2" onchange="changeCategory(this)">
-                <label class="btn btn-outline-primary" for="btnradioYou">Youth</label>          
+        <!-- <div class="row mt-0">
+            <div class="col-4 m-0 pe-0">
+                <div>
+                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioLead" autocomplete="off" value="lead" onchange="changeCategory(this)">
+                    <label class="btn btn-outline-primary" for="btnradioLead">Lead</label>
+                </div>
+                <div style="margin-top: -1px !important;">
+                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off" value="tr" onchange="changeCategory(this)">
+                    <label class="btn btn-outline-primary" for="btnradioTR">Top rope</label>
+                </div>    
             </div>
-        </div>
-        <div class="row pt-0 mb-3" style="margin-top: -1px !important;">
+            <div class="col m-0 ps-0">
+                <div>
+                    <div class="btn-group justify-content-center">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off" value="0" onchange="changeCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioAdv">Advanced</label>          
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioInt" autocomplete="off" value="1" onchange="changeCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioInt">Intermediate</label>          
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioYou" autocomplete="off" value="2" onchange="changeCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioYou">Youth</label>          
+                    </div>    
+                </div>
+                <div>
+                    <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioNov" autocomplete="off" value="3" onchange="changeCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioNov">Novice <small>- top rope</small></label>          
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioYouTR" autocomplete="off" value="4" onchange="changeCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioYouTR">Youth <small>- top rope</small></label>          
+                    </div>               
+                </div>
+            </div>
+        </div> -->
+
+        <div class="row mt-0 mb-3">        
             <div class="btn-group justify-content-center">
+                <input type="radio" class="btn-check"  name="radioCategory" id="btnradioLead" autocomplete="off" value="lead" onchange="changeCategory(this)">
+                <label class="btn btn-outline-primary" style="width: 104px !important;" for="btnradioLead">Lead</label>    
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off" value="0" onchange="changeCategory(this)">
+                <label class="btn btn-outline-dark" for="btnradioAdv">Advanced</label>          
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioInt" autocomplete="off" value="1" onchange="changeCategory(this)">
+                <label class="btn btn-outline-dark" for="btnradioInt">Intermediate</label>          
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioYou" autocomplete="off" value="2" onchange="changeCategory(this)">
+                <label class="btn btn-outline-dark" for="btnradioYou">Youth</label>          
+            </div>    
+            <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off" value="tr" onchange="changeCategory(this)">
+                <label class="btn btn-outline-primary" for="btnradioTR">Top Rope</label>    
                 <input type="radio" class="btn-check" name="radioCategory" id="btnradioNov" autocomplete="off" value="3" onchange="changeCategory(this)">
-                <label class="btn btn-outline-primary" for="btnradioNov">Novice</label>          
+                <label class="btn btn-outline-dark" for="btnradioNov">Novice <small>- top rope</small></label>          
                 <input type="radio" class="btn-check" name="radioCategory" id="btnradioYouTR" autocomplete="off" value="4" onchange="changeCategory(this)">
-                <label class="btn btn-outline-primary" for="btnradioYouTR">Youth (top rope)</label>          
+                <label class="btn btn-outline-dark" for="btnradioYouTR">Youth <small>- top rope</small></label>          
             </div>       
         </div>
 
