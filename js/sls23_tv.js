@@ -91,7 +91,7 @@ $("#tableMale")
             { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
             {
                 data: null,
-                class: "dt-right",
+                class: "dt-right py-0",
                 render: function (row,type) {
                     if (type === "display") { return sends(row);}
                     return;
@@ -190,7 +190,7 @@ $("#tableFemale")
             { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
             {
                 data: null,
-                class: "dt-right",
+                class: "dt-right py-0",
                 render: function (row,type) {
                     if (type === "display") { return sends(row);}
                     return;
@@ -316,7 +316,7 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 // shorten name 
 function shortName(fullName='') {
-    if (fullName.length > 14) {
+    if (fullName.length > 13) {
         let name = fullName.split(" ");
         let firstName = name[0];
         let middleInitials = "";
@@ -374,7 +374,7 @@ function sends(row) {
     // let bonus = 0;
 
     for (i=1; i<5;i++) {
-        ticks = `${ticks}<span class="text-round${i}" >`;
+        ticks = `${ticks}<span class=" p-0 text-round${i}" >`;
         for (const element of routes) {
             //console.log(element);
             // tick = typeof row['r' + i + '_' + element] === "number" ? row['r' + i + '_' + element] : 0;
@@ -386,7 +386,7 @@ function sends(row) {
         ticks = ticks + '</span>';
         if (i == 2) {ticks = ticks + "</br>"}
     }
-    return `<div class="fs-4">${ticks}</div>`;
+    return `<div class="fs-4 py-0">${ticks}</div>`;
 
 }
 
