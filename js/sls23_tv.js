@@ -11,7 +11,7 @@ let dataRefreshInterval = 2 * 60000;        // frequency for full data refresh
 //let categoryTimeInterval = 60000;           // time for one category to be desplayed
 let firstPageCallDone = false;
 
-const rowsPerPage = 8;                         // number of rows per page
+const rowsPerPage = 7;                         // number of rows per page
 let currentCategoryIndex = 0;                       // filtering data - enter category
 const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
 const competitionEndTime = "2023-03-21 16:30";
@@ -124,7 +124,7 @@ $("#tableMale")
 
 
         order: [[2, "asc"]],      
-        dom: 'rt<"d-flex justify-content-between my-2" <"p-1 pt-0" i><"p-1" p> >',
+        dom: 'rt<"d-flex justify-content-between mt-0 mb-2" <"p-1 pt-0" i><"p-1" p> >',
         // initComplete: function(settings, json) {
         //     // $('.page_link').addClass('btn-primary');
         //   }
@@ -223,7 +223,7 @@ $("#tableFemale")
 
 
         order: [[2, "asc"]],      
-        dom: 'rt<"d-flex justify-content-between my-2" <"p-1 pt-0" i><"p-1" p> >',   
+        dom: 'rt<"d-flex justify-content-between mt-0 mb-2" <"p-1 pt-0" i><"p-1" p> >',  
     })
 
 
@@ -316,7 +316,7 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 // shorten name 
 function shortName(fullName='') {
-    if (fullName.length > 13) {
+    if (fullName.length >= 15) {
         let name = fullName.split(" ");
         let firstName = name[0];
         let middleInitials = "";
