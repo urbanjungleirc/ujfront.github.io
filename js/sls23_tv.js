@@ -2,39 +2,44 @@
     Default setting
     -------------------------------------
 */
-const scoreUrl = "https://script.google.com/macros/s/AKfycbxscrr-fPwL6d-M1jiA_6YaN-HGZHLDmGmGQ6oIF_Kyh8bPdPMK6W9OMNG8aqfIiIrVTQ/exec"; // public copy data
+const scoreUrl =
+    "https://script.google.com/macros/s/AKfycbxscrr-fPwL6d-M1jiA_6YaN-HGZHLDmGmGQ6oIF_Kyh8bPdPMK6W9OMNG8aqfIiIrVTQ/exec"; // public copy data
 //const scoreUrl = "https://script.google.com/a/macros/urbanjungleirc.com/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec" // test data
 
-const minPageDisplay = 10000;               // minimum time for a page to be displayed
-const maxPageDisplay = 20000;               // maximum time for a page to be displayed
-let dataRefreshInterval = 2 * 60000;        // frequency for full data refresh
+const minPageDisplay = 10000; // minimum time for a page to be displayed
+const maxPageDisplay = 20000; // maximum time for a page to be displayed
+let dataRefreshInterval = 2 * 60000; // frequency for full data refresh
 //let categoryTimeInterval = 60000;           // time for one category to be desplayed
 let firstPageCallDone = false;
 
-const rowsPerPage = 7;                         // number of rows per page
-let currentCategoryIndex = 0;                       // filtering data - enter category
-const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
+const rowsPerPage = 7; // number of rows per page
+let currentCategoryIndex = 0; // filtering data - enter category
+const categories = [
+    "advanced",
+    "intermediate",
+    "youth",
+    "novice - top rope",
+    "youth - top rope",
+];
 const competitionEndTime = "2023-03-21 16:30";
 
 // setting up Modal element
-let mySpinner = new bootstrap.Modal(document.getElementById('modalSpinner'), {
-    keyboard: false
-  });
-
+let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
+    keyboard: false,
+});
 
 //* set default timers
 let timer = timezz(document.querySelector("#timer"), {
     date: competitionEndTime,
-    stopOnZero: true
+    stopOnZero: true,
 });
 
-
-/** 
-* dataTable setup
-*/
+/**
+ * dataTable setup
+ */
 let tblMale = $("#tableMale");
 let tblFemale = $("#tableFemale");
-let pageTimer = new Timer (pageFlipper,600000);
+let pageTimer = new Timer(pageFlipper, 600000);
 
 // $(document).ready(function () {
 //     console.clear();
@@ -57,8 +62,8 @@ $("#tableMale")
         },
 
         columns: [
-            { data: "gender", visible: false, title: "Gender"},
-            { data: "category", visible: false, title: "Category"},
+            { data: "gender", visible: false, title: "Gender" },
+            { data: "category", visible: false, title: "Category" },
             {
                 data: "rank",
                 class: "dt-center",
@@ -80,24 +85,41 @@ $("#tableMale")
                         }
                     }
                     return data;
-                }, orderable: false, class: "align-middle"
-            }, 
-            { data: "name", title: "Name", orderable: false, class: "align-middle", 
-                render: function (data, type) {
-                    if (type === "display") { return shortName(data);}
-                    return data;
-                }
+                },
+                orderable: false,
+                class: "align-middle",
             },
-            { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
+            {
+                data: "name",
+                title: "Name",
+                orderable: false,
+                class: "align-middle",
+                render: function (data, type) {
+                    if (type === "display") {
+                        return shortName(data);
+                    }
+                    return data;
+                },
+            },
+            {
+                data: "score",
+                title: "Score",
+                orderable: false,
+                class: "dt-right align-middle",
+            },
             {
                 data: null,
                 class: "dt-right py-1",
-                render: function (row,type) {
-                    if (type === "display") { return sends(row);}
+                render: function (row, type) {
+                    if (type === "display") {
+                        return sends(row);
+                    }
                     return;
-                }, orderable: false, title: "", defaultContent: ""
-            },     
-
+                },
+                orderable: false,
+                title: "",
+                defaultContent: "",
+            },
         ],
 
         //* paging setup
@@ -107,29 +129,27 @@ $("#tableMale")
         renderer: "bootstrap",
 
         searchCols: [
-            { search: `\\bmale\\b`, regex:  true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
-            { search: `\^\\b${categories[currentCategoryIndex]}\$\\b`, regex: true }, 
+            { search: `\\bmale\\b`, regex: true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
+            {
+                search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
+                regex: true,
+            },
             null,
             null,
             null,
-            null
+            null,
         ],
 
         language: {
-            info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
-            infoFiltered: " (filtered from a total of _MAX_ participants)", 
-            infoEmpty: "No competitors found", 
-            lengthMenu: "Display _MENU_ competitors"
+            info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
+            infoFiltered: "",
+            infoEmpty: "No competitors found",
+            lengthMenu: "Display _MENU_ competitors",
         },
 
-
-        order: [[2, "asc"]],      
-        dom: 'rt<"d-flex justify-content-between mt-0 mb-2" <"p-1 pt-0" i><"p-1" p> >',
-        // initComplete: function(settings, json) {
-        //     // $('.page_link').addClass('btn-primary');
-        //   }
-        
-    })
+        order: [[2, "asc"]],
+        dom: "irt",
+    });
 
 // Female table setup
 $("#tableFemale")
@@ -141,9 +161,11 @@ $("#tableFemale")
         // fired when an Ajax request is completed
         // updates time and start Restarts Page Roatation
         let el = document.getElementById("updatedAt");
-        moment.locale('au');
-        el.innerText = " @ " + moment().format('LT'); 
-        if (firstPageCallDone) {startPageRotations();}
+        moment.locale("au");
+        el.innerText = " @ " + moment().format("LT");
+        if (firstPageCallDone) {
+            startPageRotations();
+        }
     })
     .dataTable({
         ajax: {
@@ -156,8 +178,8 @@ $("#tableFemale")
         },
 
         columns: [
-            { data: "gender", visible: false, title: "Gender"},
-            { data: "category", visible: false, title: "Category"},
+            { data: "gender", visible: false, title: "Gender" },
+            { data: "category", visible: false, title: "Category" },
             {
                 data: "rank",
                 class: "dt-center",
@@ -179,33 +201,53 @@ $("#tableFemale")
                         }
                     }
                     return data;
-                }, orderable: false, class: "align-middle"
-            }, 
-            { data: "name", title: "Name", orderable: false, class: "align-middle", 
-                render: function (data, type) {
-                    if (type === "display") { return shortName(data);}
-                    return data;
-                }
+                },
+                orderable: false,
+                class: "align-middle",
             },
-            { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
+            {
+                data: "name",
+                title: "Name",
+                orderable: false,
+                class: "align-middle",
+                render: function (data, type) {
+                    if (type === "display") {
+                        return shortName(data);
+                    }
+                    return data;
+                },
+            },
+            {
+                data: "score",
+                title: "Score",
+                orderable: false,
+                class: "dt-right align-middle",
+            },
             {
                 data: null,
                 class: "dt-right py-1",
-                render: function (row,type) {
-                    if (type === "display") { return sends(row);}
+                render: function (row, type) {
+                    if (type === "display") {
+                        return sends(row);
+                    }
                     return;
-                }, orderable: false, title: "", defaultContent: ""
-            },     
-
+                },
+                orderable: false,
+                title: "",
+                defaultContent: "",
+            },
         ],
 
         searchCols: [
             { search: `\\bfemale\\b`, regex: true },
-            { search: `\^\\b${categories[currentCategoryIndex]}\$\\b`, regex: true }, 
+            {
+                search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
+                regex: true,
+            },
             null,
             null,
-            null, 
-            null
+            null,
+            null,
         ],
 
         //* paging setup
@@ -215,25 +257,22 @@ $("#tableFemale")
         renderer: "bootstrap",
 
         language: {
-            info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
-            infoFiltered: " (filtered from a total of _MAX_ participants)", 
-            infoEmpty: "No competitors found", 
-            lengthMenu: "Display _MENU_ competitors"
+            info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
+            infoFiltered: "",
+            infoEmpty: "No competitors found",
+            lengthMenu: "Display _MENU_ competitors",
         },
 
-
-        order: [[2, "asc"]],      
-        dom: 'rt<"d-flex justify-content-between mt-0 mb-2" <"p-1 pt-0" i><"p-1" p> >',  
-    })
-
-
+        order: [[2, "asc"]],
+        dom: "irt",
+    });
 
 function startPageRotations() {
     // calculate time intervals for the page rotating and updates
     firstPageCallDone = true;
     let timePerPage = maxPageDisplay;
     // set the time interval based on gender with more competitors
-    let numberOfPages = tblMale.DataTable().page.info().pages; 
+    let numberOfPages = tblMale.DataTable().page.info().pages;
     if (numberOfPages < tblFemale.DataTable().page.info().pages) {
         numberOfPages = tblFemale.DataTable().page.info().pages;
     }
@@ -254,29 +293,34 @@ function startPageRotations() {
         // console.log ("startPageRotation - ONE page, timePerPage: " + timePerPage)
     }
 
-    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
+    document.querySelector("#activeCategory").innerText =
+        categories[currentCategoryIndex].toLocaleUpperCase();
     mySpinner.hide();
     pageTimer.reset(timePerPage);
 }
 
-
-function pageFlipper () {
-
+function pageFlipper() {
     let masterTbl = null;
     let secondaryTbl = null;
 
-    if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
+    if (
+        tblMale.DataTable().page.info().pages >
+        tblFemale.DataTable().page.info().pages
+    ) {
         masterTbl = tblMale.DataTable();
-        secondaryTbl = tblFemale.DataTable();    
+        secondaryTbl = tblFemale.DataTable();
     } else {
         masterTbl = tblFemale.DataTable();
-        secondaryTbl = tblMale.DataTable();    
+        secondaryTbl = tblMale.DataTable();
     }
 
-    if (masterTbl.page.info().page < masterTbl.page.info().pages - 1 ) {
+    if (masterTbl.page.info().page < masterTbl.page.info().pages - 1) {
         // flipping through next page in master table
         masterTbl.page("next").draw("page");
-        if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1 ) {
+        if (
+            secondaryTbl.page.info().page <
+            secondaryTbl.page.info().pages - 1
+        ) {
             // flipping to the next page in secondary table
             secondaryTbl.page("next").draw("page");
         } else {
@@ -284,7 +328,7 @@ function pageFlipper () {
             secondaryTbl.page("first").draw("page");
         }
     } else {
-        // last page on master table -> cancel page change, reset category & refresh all data       
+        // last page on master table -> cancel page change, reset category & refresh all data
         // console.log ("last page, calling data update");
         changeCategory();
         tblMale.DataTable().ajax.reload(); // reload full data table
@@ -293,43 +337,66 @@ function pageFlipper () {
 }
 
 function changeCategory() {
-    if (currentCategoryIndex == categories.length-1) {
+    if (currentCategoryIndex == categories.length - 1) {
         currentCategoryIndex = 0;
     } else {
-        currentCategoryIndex = currentCategoryIndex +1 ;
+        currentCategoryIndex = currentCategoryIndex + 1;
     }
     // apply filter
-    tblMale.DataTable().columns(1).search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true );
-    tblFemale.DataTable().columns(1).search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true );
+    tblMale
+        .DataTable()
+        .columns(1)
+        .search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true);
+    tblFemale
+        .DataTable()
+        .columns(1)
+        .search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true);
     // console.log ('category changed to ' + categories[currentCategoryIndex].toLocaleUpperCase());
 }
-
 
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
 */
-$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
-
+$.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 
 //* helper functions/objects
 
-
-// shorten name 
-function shortName(fullName='') {
+// shorten name
+function shortName(fullName = "") {
+    const maxLetters = 14;
+    if (fullName.length > maxLetters) {
+        let name = fullName.split(" ");
+        if (name.length <= 2) {
+            return fullName.substring(0,maxLetters-1) + "...";
+        } else {
+            let firstName = name[0];
+            let middleInitials = "";
+            let lastName = name[name.length-1];
+            console.log(firstName + " " + lastName);
+            for (let i = 1; i <= name.length - 2; i++) {
+                middleInitials += name[i][0];
+            }
+            return `${firstName} ${middleInitials} ${lastName}`.substring(0,maxLetters-1) + "...";       
+        }
+    } else {
+        return fullName;
+    }
+}
+function firstNameWithInitials(fullName = "") {
     if (fullName.length >= 15) {
         let name = fullName.split(" ");
         let firstName = name[0];
         let middleInitials = "";
         let lastInitial = "";
         for (let i = 1; i <= name.length - 1; i++) {
-          middleInitials += name[i][0];
+            middleInitials += name[i][0];
         }
-      //   if (name.length > 2) {
-      //     lastInitial = name[name.length - 1][0];
-      //   }
-        console.log (`${firstName} ${middleInitials}${lastInitial}`);
+        //   if (name.length > 2) {
+        //     lastInitial = name[name.length - 1][0];
+        //   }
+        console.log(`${firstName} ${middleInitials}${lastInitial}`);
         return `${firstName} ${middleInitials}${lastInitial}`;
-      } else {
+    } else {
         return fullName;
     }
 }
@@ -339,63 +406,62 @@ function shortName(fullName='') {
  * @param t time interval for the function
  * @returns an object with events START / STOP / RESTART(newTimeInterval)
  * @description https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
-*/
+ */
 function Timer(fn, t) {
     var timerObj = setInterval(fn, t);
 
-    this.stop = function() {
+    this.stop = function () {
         if (timerObj) {
             clearInterval(timerObj);
             timerObj = null;
         }
         return this;
-    }
+    };
 
     // start timer using current settings (if it's not already running)
-    this.start = function() {
+    this.start = function () {
         if (!timerObj) {
             this.stop();
             timerObj = setInterval(fn, t);
         }
         return this;
-    }
+    };
 
     // start with new or original interval, stop current interval
-    this.reset = function(newT = t) {
+    this.reset = function (newT = t) {
         t = newT;
         return this.stop().start();
-    }
+    };
 }
 
 function sends(row) {
     const routes = ["a", "b", "c", "d"];
     let ticks = "";
-    // let tick = 0;
-    // let bonus = 0;
 
-    for (i=1; i<5;i++) {
+    for (i = 1; i < 5; i++) {
         ticks = `${ticks}<span class="p-0 m-0 text-round${i}" >`;
         for (const element of routes) {
-            //console.log(element);
-            // tick = typeof row['r' + i + '_' + element] === "number" ? row['r' + i + '_' + element] : 0;
-            // bonus = typeof row['r' + i + '_' + element + '_bonus'] === "number" ? row['r' + i + '_' + element + '_bonus'] : 0;     
-            //console.log(row['r' + i + '_' + element] + ' --- ' + row['r' + i + '_' + element + '_bonus']); 
-            //console.log (tick + ' --- ' + bonus);
-            ticks = ticks + tickIcon (row['r' + i + '_' + element], row['r' + i + '_' + element + '_bonus']); // row.r1_a + row.r1_a_bonus
+            ticks =
+                ticks +
+                tickIcon(
+                    row["r" + i + "_" + element],
+                    row["r" + i + "_" + element + "_bonus"]
+                );
         }
-        ticks = ticks + '</span>';
-        if (i == 2) {ticks = ticks + "</br>"}
+        ticks = ticks + "</span>";
+        if (i == 2) {
+            ticks = ticks + "</br>";
+        }
     }
     return `<div class="fs-6 py-0">${ticks}</div>`;
-
 }
 
-function tickIcon (tick=0, bonus=0) {
+function tickIcon(tick = 0, bonus = 0) {
     switch (tick + bonus) {
         case 20:
-        case 25:    
-            //return `<i class="bi bi-file-break"></i>`;           
-            return  `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+        case 25:
+            //return `<i class="bi bi-file-break"></i>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
                         <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
                         <rect style="stroke:none"
                             id="rect1119"
@@ -410,30 +476,28 @@ function tickIcon (tick=0, bonus=0) {
                         <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
                     </svg>`;
         case 60:
-            if (tick==50) {    
+            if (tick == 50) {
                 // tick with bonus
                 // return `<i class="bi bi-file-fill"></i>`;
                 return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
             </svg>`;
-
             } else {
                 // flash without bonus
                 // return `<i class="bi bi-lightning-fill"></i>`;
                 return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
                             <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
-                        </svg>`
+                        </svg>`;
             }
         case 70:
             // return `<i class="bi bi-lightning-fill"></i>`;
             return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
                         <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
-                    </svg>`
+                    </svg>`;
         default:
             //return `<i class="bi bi-file"></i>`;
             return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
                         <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-                    </svg>`
-
+                    </svg>`;
     }
 }
