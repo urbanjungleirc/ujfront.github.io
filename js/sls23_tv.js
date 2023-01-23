@@ -82,7 +82,12 @@ $("#tableMale")
                     return data;
                 }, orderable: false, class: "align-middle"
             }, 
-            { data: "name", title: "Name", orderable: false, class: "align-middle" },
+            { data: "name", title: "Name", orderable: false, class: "align-middle", 
+                render: function (data, type) {
+                    if (type === "display") { return shortName(data);}
+                    return data;
+                }
+            },
             { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
             {
                 data: null,
@@ -176,7 +181,12 @@ $("#tableFemale")
                     return data;
                 }, orderable: false, class: "align-middle"
             }, 
-            { data: "name", title: "Name", orderable: false, class: "align-middle" },
+            { data: "name", title: "Name", orderable: false, class: "align-middle", 
+                render: function (data, type) {
+                    if (type === "display") { return shortName(data);}
+                    return data;
+                }
+            },
             { data: "score", title: "Score", orderable: false, class: "dt-right align-middle"  },
             {
                 data: null,
@@ -239,9 +249,9 @@ function startPageRotations() {
         } else {
             timePerPage = timePerPage.toFixed();
         }
-        console.log ("startPageRotation - x pages, timePerPage: " + timePerPage)
+        // console.log ("startPageRotation - x pages, timePerPage: " + timePerPage)
     } else {
-        console.log ("startPageRotation - ONE page, timePerPage: " + timePerPage)
+        // console.log ("startPageRotation - ONE page, timePerPage: " + timePerPage)
     }
 
     document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
@@ -275,7 +285,7 @@ function pageFlipper () {
         }
     } else {
         // last page on master table -> cancel page change, reset category & refresh all data       
-        console.log ("last page, calling data update");
+        // console.log ("last page, calling data update");
         changeCategory();
         tblMale.DataTable().ajax.reload(); // reload full data table
         tblFemale.DataTable().ajax.reload();
@@ -291,7 +301,7 @@ function changeCategory() {
     // apply filter
     tblMale.DataTable().columns(1).search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true );
     tblFemale.DataTable().columns(1).search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true );
-    console.log ('category changed to ' + categories[currentCategoryIndex].toLocaleUpperCase());
+    // console.log ('category changed to ' + categories[currentCategoryIndex].toLocaleUpperCase());
 }
 
 
@@ -303,6 +313,26 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 //* helper functions/objects
 
+
+// shorten name 
+function shortName(fullName='') {
+    if (fullName.length > 14) {
+        let name = fullName.split(" ");
+        let firstName = name[0];
+        let middleInitials = "";
+        let lastInitial = "";
+        for (let i = 1; i <= name.length - 1; i++) {
+          middleInitials += name[i][0];
+        }
+      //   if (name.length > 2) {
+      //     lastInitial = name[name.length - 1][0];
+      //   }
+        console.log (`${firstName} ${middleInitials}${lastInitial}`);
+        return `${firstName} ${middleInitials}${lastInitial}`;
+      } else {
+        return fullName;
+    }
+}
 
 /** a timer object that offers a reset feature
  * @param fn function to execute
