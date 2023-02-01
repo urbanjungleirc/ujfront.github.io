@@ -1,4 +1,5 @@
-//* todo: page swap annimatins - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
+// todo: page swap annimations - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
+// or https://www.stechies.com/make-text-blink-javascript/#:~:text=Code%20Explanation&text=To%20make%20it%20blink%2C%20we,This%20makes%20the%20text%20blink.
 
 
 /*  -------------------------------------
@@ -53,6 +54,10 @@ $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
         mySpinner.show();
+    })
+    .on('page.dt', function () {
+        tblMale.fadeOut("fast");
+        tblMale.fadeIn("fast"); 
     })
     .dataTable({
         ajax: {
@@ -169,6 +174,10 @@ $("#tableFemale")
         if (firstPageCallDone) {
             startPageRotations();
         }
+    })
+    .on('page.dt', function () {
+        tblFemale.fadeOut("fast");
+        tblFemale.fadeIn("fast"); 
     })
     .dataTable({
         ajax: {
@@ -306,10 +315,7 @@ function pageFlipper() {
     let masterTbl = null;
     let secondaryTbl = null;
 
-    if (
-        tblMale.DataTable().page.info().pages >
-        tblFemale.DataTable().page.info().pages
-    ) {
+    if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
         masterTbl = tblMale.DataTable();
         secondaryTbl = tblFemale.DataTable();
     } else {
@@ -320,10 +326,7 @@ function pageFlipper() {
     if (masterTbl.page.info().page < masterTbl.page.info().pages - 1) {
         // flipping through next page in master table
         masterTbl.page("next").draw("page");
-        if (
-            secondaryTbl.page.info().page <
-            secondaryTbl.page.info().pages - 1
-        ) {
+        if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1) {
             // flipping to the next page in secondary table
             secondaryTbl.page("next").draw("page");
         } else {
