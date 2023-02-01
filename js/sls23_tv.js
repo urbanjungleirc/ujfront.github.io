@@ -1,3 +1,6 @@
+//* todo: page swap annimatins - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
+
+
 /*  -------------------------------------
     Default setting
     -------------------------------------
