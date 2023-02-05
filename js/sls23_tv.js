@@ -1,3 +1,7 @@
+// todo: page swap annimations - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
+// or https://www.stechies.com/make-text-blink-javascript/#:~:text=Code%20Explanation&text=To%20make%20it%20blink%2C%20we,This%20makes%20the%20text%20blink.
+
+
 /*  -------------------------------------
     Default setting
     -------------------------------------
@@ -50,6 +54,10 @@ $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
         mySpinner.show();
+    })
+    .on('page.dt', function () {
+        tblMale.fadeOut("fast");
+        tblMale.fadeIn("fast"); 
     })
     .dataTable({
         ajax: {
@@ -166,6 +174,10 @@ $("#tableFemale")
         if (firstPageCallDone) {
             startPageRotations();
         }
+    })
+    .on('page.dt', function () {
+        tblFemale.fadeOut("fast");
+        tblFemale.fadeIn("fast"); 
     })
     .dataTable({
         ajax: {
@@ -303,10 +315,7 @@ function pageFlipper() {
     let masterTbl = null;
     let secondaryTbl = null;
 
-    if (
-        tblMale.DataTable().page.info().pages >
-        tblFemale.DataTable().page.info().pages
-    ) {
+    if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
         masterTbl = tblMale.DataTable();
         secondaryTbl = tblFemale.DataTable();
     } else {
@@ -317,10 +326,7 @@ function pageFlipper() {
     if (masterTbl.page.info().page < masterTbl.page.info().pages - 1) {
         // flipping through next page in master table
         masterTbl.page("next").draw("page");
-        if (
-            secondaryTbl.page.info().page <
-            secondaryTbl.page.info().pages - 1
-        ) {
+        if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1) {
             // flipping to the next page in secondary table
             secondaryTbl.page("next").draw("page");
         } else {
@@ -479,9 +485,9 @@ function tickIcon(tick = 0, bonus = 0) {
             if (tick == 50) {
                 // tick with bonus
                 // return `<i class="bi bi-file-fill"></i>`;
-                return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
-            </svg>`;
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                        </svg>`;
             } else {
                 // flash without bonus
                 // return `<i class="bi bi-lightning-fill"></i>`;
