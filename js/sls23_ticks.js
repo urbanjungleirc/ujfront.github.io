@@ -3,6 +3,7 @@
     -------------------------------------
 */
 const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data
+const ticksUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks"; // public copy data
 const rowsPerPage = 10;                         // number of rows per page
 const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
 const competitionEndTime = "2023-03-21 16:30";
@@ -23,8 +24,11 @@ let timer = timezz(document.querySelector("#timer"), {
 * dataTable setup
 */
 
-
-$("#tableMale")
+$(document).ready(function() {
+    
+    // $.fn.dataTable.moment( 'hh:mm DD/MM/YYYY' );
+ 
+    $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
         mySpinner.show();
@@ -38,7 +42,7 @@ $("#tableMale")
     })
     .dataTable({
         ajax: {
-            url: scoreUrl,
+            url: ticksUrl,
             cache: true,
             data: function (d) {
                 d.format = "json";
@@ -47,57 +51,32 @@ $("#tableMale")
         },
 
         columns: [
-            { data: "gender", visible: false, title: "Gender"},
-            { data: "category", visible: false, title: "Category"},
-            {
-                data: "rank",
-                class: "dt-right",
-                render: function (data, type) {
-                    if (type === "display") {
-                        switch (data) {
-                            case 1:
-                            case 2:
-                            case 3:
-                                return `<span class="text-primary bg-transparent fw-semibold">${data}</span>`;
-                                break;
-                            case 4:
-                            case 5:
-                            case 6:
-                                return `<span class="text-black bg-transparent fw-semibold">${data}</span>`;
-                                break;
-                            default:
-                                return `<span class="text-black bg-transparent">${data}</span>`;
-                        }
-                    }
-                    return data;
-                }, orderable: true, class: "align-middle", title: "#"
-            }, 
-            { data: "name", title: "Name", orderable: true, class: "align-middle" },
-            { data: "score", title: "Score", orderable: true, class: "dt-right align-middle details-control ", 
-                render: function (data, type) {
-                    if (type === "display") {
-                        //return `<a href="#" rel="noopener noreferrer" >${data}</a>`; //class="btn btn-outline-primary"
-                        return `<span class="btn btn-sm btn-outline-primary border-0">${data}</span>`; //class="btn btn-outline-primary"
-                    }
-                    else { return data;}
-                } 
-            },
-            
+            { data: "name", title: "Name", orderable: true },
+            { data: "tick", title: "Tick", orderable: true },
+            { data: "bonus", title: "Bonus", orderable: true },
+            { data: "gender", visible: true, title: "Gender" },
+            { data: "category", visible: true, title: "Category" },
+            { data: "date", visible: true, title: "Date", type: "datetime",
+                render: DataTable.render.datetime('DD/MM/YYYY, h:mm:ss', 'hh:mm DD/MM/YYYY', 'en-au')
+            // render: function (data, type, row) {
+            //         if (type === 'sort' || type === 'type') {
+            //             //return $(data).text();
+            //             //return data.datetime('DD/MM/YYYY, h:mm:ss', 'h:mm DD/MM/YYYY', 'en-au');
+            //             return moment(data).format('h:mm DD/MM/YYYY');
+
+            //         }
+            //         return moment.utc(data);
+            //     }
+            },//render: ataTable.render.datetime('DD/MM/YYYY, h:mm:ss', 'h:mm DD/MM/YYYY', 'en-au')
         ],
 
-        // searchCols: [
-        //     { search: `\\bmale\\b`, regex: true },
-        //     null, 
-        //     null,
-        //     null,
-        //     null
-        // ],
+        order: [[5, "desc"]],
 
         language: {
-            info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
-            infoFiltered: "</br>(filtered from a total of _MAX_ participants)", 
-            infoEmpty: "No competitors found", 
-            lengthMenu: "Display _MENU_ competitors"
+            info: "Showing _START_ to _END_ of _TOTAL_ ticks", 
+            infoFiltered: "</br>(filtered from a total of _MAX_ ticks)", 
+            infoEmpty: "No ticks found", 
+            lengthMenu: "Display _MENU_ ticks"
         },
 
         //* paging setup
@@ -106,56 +85,16 @@ $("#tableMale")
         pagingType: "simple_numbers",
         renderer: "bootstrap",
 
-        order: [[2, "asc"]],      
-
-        dom: 'rt<"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',
-        
+        dom: '<"row my-3" f> rt <"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',    
     })
+
+} );
+
 
 let tblMale = $("#tableMale");
 
-// an event listener for displaying child rows
-$("#tableMale").on("click", "td.details-control", function () {
-    let tr = $(this).closest("tr");
-    let row = tblMale.DataTable().row(tr);
-    const bgClass = tr.is('.odd') ? 'odd' : 'even' ;
-    
-    if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass("shown");
-    } else {
-        console.log(tr.c)
-        row.child(sends(row.data()),bgClass).show();
-        tr.addClass("shown");
-    }
-});
-
-
 function refreshData() {
     tblMale.DataTable().ajax.reload();
-}
-
-function changeGender(gender) {
-    if (gender) {
-        tblMale.DataTable().columns(0).search(`\\b${gender}\\b`, true ).draw();
-    } 
-    else {
-        tblMale.DataTable().columns(0).search("").draw();
-    }
-}
-
-function changeCategory(e) {
-    switch (e.value) {
-        case 'tr':
-            tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
-            break;
-        case 'lead':
-            tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
-            break;
-        default:
-            tblMale.DataTable().columns(1).search(`\^\\b${categories[e.value]}\$\\b`, true ).draw();
-    }
-    
 }
 
 
