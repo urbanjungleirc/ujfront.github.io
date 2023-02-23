@@ -36,8 +36,8 @@ $(document).ready(function() {
     .on("xhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
         let el = document.getElementById("updatedAt");
-        moment.locale('au');
-        el.innerText = moment().format('D MMM YY, HH:mm'); 
+        let now = luxon.DateTime.local().setLocale('en-AU');
+        el.innerText = now.toFormat('d MMM yy, HH:mm');       
         mySpinner.hide();
     })
     .dataTable({
@@ -52,25 +52,24 @@ $(document).ready(function() {
 
         columns: [
             { data: "name", title: "Name", orderable: true },
-            { data: "tick", title: "Tick", orderable: true },
+            { data: "route", title: "Route", orderable: true },
+            // { data: "tick", title: "Tick", orderable: true },
+            { data: "tick", title: "Tick", orderable: true, 
+                render: function ( data, type, row ) {
+                    return `<div class="row row-cols-4 text-center g-0">${tickIcon(data)}</div>`;
+                }
+            },
             { data: "bonus", title: "Bonus", orderable: true },
             { data: "gender", visible: true, title: "Gender" },
             { data: "category", visible: true, title: "Category" },
-            { data: "date", visible: true, title: "Date", type: "datetime",
-                render: DataTable.render.datetime('DD/MM/YYYY, h:mm:ss', 'hh:mm DD/MM/YYYY', 'en-au')
-            // render: function (data, type, row) {
-            //         if (type === 'sort' || type === 'type') {
-            //             //return $(data).text();
-            //             //return data.datetime('DD/MM/YYYY, h:mm:ss', 'h:mm DD/MM/YYYY', 'en-au');
-            //             return moment(data).format('h:mm DD/MM/YYYY');
-
-            //         }
-            //         return moment.utc(data);
-            //     }
-            },//render: ataTable.render.datetime('DD/MM/YYYY, h:mm:ss', 'h:mm DD/MM/YYYY', 'en-au')
+            { data: "date", visible: true, title: "Date", 
+                render: function ( data, type, row ) {
+                    return modifyTime(data, type);
+                } 
+            },
         ],
 
-        order: [[5, "desc"]],
+        order: [[6, "desc"]],
 
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ ticks", 
@@ -106,6 +105,33 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 //* helper functions/objects
 
+function modifyTime (data,type){
+    // Parse the input date string using Luxon
+    var date = luxon.DateTime.fromFormat(data, 'd/M/yyyy, h:mm:ss a', {zone: 'Australia/Perth'}).setLocale('en-AU');
+    
+    
+    // Format the date and time in the user's local time zone using Luxon
+    var now = luxon.DateTime.local();
+    var dateString;
+    var diffDays = now.startOf('day').diff(date.startOf('day'), 'days').as('days');
+    if (diffDays === 0) {
+        dateString = 'today @ ' + date.toFormat('h:mm a');
+    } else if (diffDays === 1) {
+        dateString = 'yesterday @ ' + date.toFormat('h:mm a');
+    } else {
+        dateString = date.toFormat('dd/MMM/yyyy h:mm a');
+    }    
+
+    if (type === 'sort') {
+        // If sorting, return the date as a number (number of milliseconds since epoch)
+        return date.valueOf();
+    }
+    
+    // Otherwise, return the formatted date string
+    return dateString;
+}
+
+
 function sends(row) {
     const routes = ["a", "b", "c", "d"];
     let ticks = "";
@@ -125,7 +151,6 @@ function sends(row) {
                 <div class="col">R4</div>
             </div>
             <div class="row row-cols-4 text-center g-0">${ticks}</div>`;
-    
 
 }
 
