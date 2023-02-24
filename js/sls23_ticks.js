@@ -58,16 +58,35 @@ $(document).ready(function() {
                     return `R${nameParts[0]} ${nameParts[1]}`;
                 }
             },
-            // { data: "tick", title: "Tick", orderable: true },
             { data: "tick", title: "Tick", orderable: true, 
                 render: function ( data, type, row ) {
                     const roundID =  row.route.charAt(0);
                     return `<div class="text-center text-round${roundID} g-0">${tickIcon(data)}</div>`;
                 }
             },
-            { data: "bonus", title: "Bonus", orderable: true },
-            { data: "gender", visible: true, title: "Gender" },
-            { data: "category", visible: true, title: "Category" },
+            { data: "bonus", title: '<i class="bi bi-plus-circle"></i>', orderable: true },
+            { data: "gender", visible: true, title: '<i class="bi bi-gender-ambiguous">', 
+                render: function (data, type, row) {
+                    if (type==="display") {
+                        return data=="Male" ? '<i class="bi bi-gender-male">' : '<i class="bi bi-gender-female">';
+                    } 
+                    // else
+                    return data;
+                }
+            },
+            { data: "category", visible: true, title: "Category", 
+                render: function (data, type, row) {
+                    if (type==="display") {
+                        if (data.includes("rope")) {
+                            return data.replace(/top rope/g, "TR");
+                        } else {
+                            return data;
+                        }
+                    } 
+                    // else
+                    return data;
+                }
+            },
             { data: "date", visible: true, title: "Date", 
                 render: function ( data, type, row ) {
                     return modifyTime(data, type);
@@ -122,11 +141,11 @@ function modifyTime (data,type){
     var dateString;
     var diffDays = now.startOf('day').diff(date.startOf('day'), 'days').as('days');
     if (diffDays === 0) {
-        dateString = 'today @ ' + date.toFormat('h:mm a');
+        dateString = 'today @ ' + date.toFormat('HH:mm');
     } else if (diffDays === 1) {
-        dateString = 'yesterday @ ' + date.toFormat('h:mm a');
+        dateString = 'yesterday @ ' + date.toFormat('HH:mm');
     } else {
-        dateString = date.toFormat('dd/MMM/yyyy h:mm a');
+        dateString = date.toFormat("dd MMM '@' HH:mm");
     }    
 
     if (type === 'sort') {
