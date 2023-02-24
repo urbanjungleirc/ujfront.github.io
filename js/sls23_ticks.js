@@ -52,11 +52,17 @@ $(document).ready(function() {
 
         columns: [
             { data: "name", title: "Name", orderable: true },
-            { data: "route", title: "Route", orderable: true },
+            { data: "route", title: "Route", orderable: true, 
+                render: function (data) {
+                    var nameParts = data.split("_");
+                    return `R${nameParts[0]} ${nameParts[1]}`;
+                }
+            },
             // { data: "tick", title: "Tick", orderable: true },
             { data: "tick", title: "Tick", orderable: true, 
                 render: function ( data, type, row ) {
-                    return `<div class="row row-cols-4 text-center g-0">${tickIcon(data)}</div>`;
+                    const roundID =  row.route.charAt(0);
+                    return `<div class="text-center text-round${roundID} g-0">${tickIcon(data)}</div>`;
                 }
             },
             { data: "bonus", title: "Bonus", orderable: true },
@@ -105,6 +111,7 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 //* helper functions/objects
 
+// format date&time
 function modifyTime (data,type){
     // Parse the input date string using Luxon
     var date = luxon.DateTime.fromFormat(data, 'd/M/yyyy, h:mm:ss a', {zone: 'Australia/Perth'}).setLocale('en-AU');
