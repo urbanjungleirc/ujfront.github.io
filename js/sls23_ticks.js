@@ -143,7 +143,7 @@ function modifyTime (data,type){
     if (diffDays === 0) {
         dateString = 'today @ ' + date.toFormat('HH:mm');
     } else if (diffDays === 1) {
-        dateString = 'yesterday @ ' + date.toFormat('HH:mm');
+        dateString = 'yest. @ ' + date.toFormat('HH:mm');
     } else {
         dateString = date.toFormat("dd MMM '@' HH:mm");
     }    
