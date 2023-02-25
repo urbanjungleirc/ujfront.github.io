@@ -145,7 +145,7 @@ function modifyTime (data,type){
     } else if (diffDays === 1) {
         dateString = 'yest. @ ' + date.toFormat('HH:mm');
     } else {
-        dateString = date.toFormat("dd MMM '@' HH:mm");
+        dateString = date.toFormat("dd MMM',' HH:mm");
     }    
 
     if (type === 'sort') {
