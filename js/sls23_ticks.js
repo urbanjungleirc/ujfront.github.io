@@ -51,11 +51,17 @@ $(document).ready(function() {
         },
 
         columns: [
-            { data: "name", title: "Name", orderable: true },
+            { data: "name", title: "Name", orderable: true, 
+                render: function (data) {
+                    return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">${data}</a>`;
+                }                
+            },
             { data: "route", title: "Route", orderable: true, 
                 render: function (data) {
                     var nameParts = data.split("_");
-                    return `R${nameParts[0]} ${nameParts[1]}`;
+                    //return `R${nameParts[0]} ${nameParts[1]}`;
+                    return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">R${nameParts[0]} ${nameParts[1]}</a>`;
+                    
                 }
             },
             { data: "tick", title: "Tick", orderable: true, 
@@ -68,7 +74,9 @@ $(document).ready(function() {
             { data: "gender", visible: true, title: '<i class="bi bi-gender-ambiguous">', 
                 render: function (data, type, row) {
                     if (type==="display") {
-                        return data=="Male" ? '<i class="bi bi-gender-male">' : '<i class="bi bi-gender-female">';
+                        const icon = data=="Male" ? '<i class="bi bi-gender-male">' : '<i class="bi bi-gender-female">';
+                        //return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">${icon}</a>`;
+                        return icon;
                     } 
                     // else
                     return data;
@@ -129,6 +137,22 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 
 //* helper functions/objects
+
+
+function clickSearch(e) {
+    switch (e.value) {
+        // case 'tr':
+        //     tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
+        //     break;
+        // case 'lead':
+        //     tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
+        //     break;
+        default:
+            tblMale.DataTable().search(`"${e.innerText}"`, false ).draw();
+    }
+    
+}
+
 
 // format date&time
 function modifyTime (data,type){
