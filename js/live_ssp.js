@@ -85,6 +85,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.a, row.az, row.at);
                     },
@@ -92,6 +93,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.b, row.bz, row.bt);
                     },
@@ -99,6 +101,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.c, row.cz, row.ct);
                     },
@@ -106,6 +109,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.d, row.dz, row.dt);
                     },
@@ -113,6 +117,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.e, row.ez, row.et);
                     },
@@ -120,6 +125,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.f, row.fz, row.ft);
                     },
@@ -127,6 +133,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.g, row.gz, row.gt);
                     },
@@ -134,6 +141,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.h, row.hz, row.ht);
                     },
@@ -141,6 +149,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.i, row.iz, row.it);
                     },
@@ -148,6 +157,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.j, row.jz, row.jt);
                     },
@@ -155,6 +165,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.k, row.kz, row.kt);
                     },
@@ -162,6 +173,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.l, row.lz, row.lt);
                     },
@@ -169,6 +181,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.m, row.mz, row.mt);
                     },
@@ -176,6 +189,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.n, row.nz, row.nt);
                     },
@@ -183,6 +197,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.o, row.oz, row.ot);
                     },
@@ -190,6 +205,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.p, row.pz, row.pt);
                     },
@@ -197,6 +213,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.q, row.qz, row.qt);
                     },
@@ -204,6 +221,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.r, row.rz, row.rt);
                     },
@@ -211,6 +229,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.s, row.sz, row.st);
                     },
@@ -218,6 +237,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.t, row.tz, row.tt);
                     },
@@ -225,6 +245,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.u, row.uz, row.ut);
                     },
@@ -232,6 +253,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.v, row.vz, row.vt);
                     },
@@ -240,6 +262,7 @@ $(document).ready(function () {
                 {
                     data: null,
                     class: "dt-center",
+                    orderable: false,
                     render: function (row) {
                         return boulder(row.w, row.wz, row.wt);
                     },
