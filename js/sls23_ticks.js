@@ -64,19 +64,28 @@ $(document).ready(function() {
                     
                 }
             },
-            { data: "tick", title: "Tick", orderable: true, 
+            { data: "tick", title: '<i class="bi bi-check-circle"></i>', orderable: true, 
                 render: function ( data, type, row ) {
-                    const roundID =  row.route.charAt(0);
-                    return `<div class="text-center text-round${roundID} g-0">${tickIcon(data)}</div>`;
+                    if (type==="display") {
+                        const roundID =  row.route.charAt(0);
+                        //return `<div class="text-center text-round${roundID} g-0">${tickIcon(data)}</div>`;   
+                        return `<a href="#" class="text-decoration-none text-center text-round${roundID} g-0" onclick="clickSearch('${data}');">${tickIcon(data)}</a>`;
+                    } 
+                    // else
+                    return data;
+
                 }
             },
-            { data: "bonus", title: '<i class="bi bi-plus-circle"></i>', orderable: true },
+            { data: "bonus", title: '<i class="bi bi-plus-circle"></i>', orderable: true, 
+                render: function (data) {
+                    return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
+                }                    
+            },
             { data: "gender", visible: true, title: '<i class="bi bi-gender-ambiguous">', 
                 render: function (data, type, row) {
                     if (type==="display") {
                         const icon = data=="Male" ? '<i class="bi bi-gender-male">' : '<i class="bi bi-gender-female">';
-                        //return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">${icon}</a>`;
-                        return icon;
+                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${icon}</a>`;
                     } 
                     // else
                     return data;
@@ -86,9 +95,10 @@ $(document).ready(function() {
                 render: function (data, type, row) {
                     if (type==="display") {
                         if (data.includes("rope")) {
-                            return data.replace(/top rope/g, "TR");
+                            return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data.replace(/top rope/g, "TR")}</a>`;
+                            //return data.replace(/top rope/g, "TR");
                         } else {
-                            return data;
+                            return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                         }
                     } 
                     // else
@@ -111,13 +121,23 @@ $(document).ready(function() {
             lengthMenu: "Display _MENU_ ticks"
         },
 
+        buttons: [
+            {
+                text: '<i class="bi bi-arrow-clockwise"></i> Reload',
+                action: function ( e, dt, node, config ) {
+                    refreshData();
+                },
+                className: 'btn-light'
+            }
+        ],        
+            
         //* paging setup
         lengthChange: true,
         pageLength: rowsPerPage,
         pagingType: "simple_numbers",
         renderer: "bootstrap",
-
-        dom: '<"row my-3" f> rt <"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',    
+        
+        dom: '<"row my-3" <"col" B> <"col text-end" f>> rt <"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',    
     })
 
 } );
@@ -140,15 +160,22 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
 
 
 function clickSearch(e) {
-    switch (e.value) {
-        // case 'tr':
-        //     tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
-        //     break;
-        // case 'lead':
-        //     tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
-        //     break;
-        default:
-            tblMale.DataTable().search(`"${e.innerText}"`, false ).draw();
+
+    if ( e instanceof Element ) {
+        switch (e.value) {
+            // case 'tr':
+            //     tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
+            //     break;
+            // case 'lead':
+            //     tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
+            //     break;
+            default:
+                tblMale.DataTable().search(`"${e.innerText}"`, false ).draw();
+        }
+
+    } else {
+        console.log ("looking for " & e);
+        tblMale.DataTable().search(`\\b${e}\\b`, true ).draw();
     }
     
 }
