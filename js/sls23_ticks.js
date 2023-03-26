@@ -60,7 +60,7 @@ $(document).ready(function() {
                 render: function (data) {
                     var nameParts = data.split("_");
                     //return `R${nameParts[0]} ${nameParts[1]}`;
-                    return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">R${nameParts[0]} ${nameParts[1]}</a>`;
+                    return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">r${nameParts[0]} ${nameParts[1]}</a>`;
                     
                 }
             },
