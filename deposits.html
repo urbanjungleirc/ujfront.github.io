@@ -57,7 +57,7 @@
   <header id="header" class="d-flex align-items-center">
     <div class="container d-flex align-items-center justify-content-between">
 
-      <h1 class="logo"><a href="index.html" class="logo"><img src="assets/img/UrbanJungle-Logo_trans.png" alt="" class="img-fluid"></a><a href="https://www.urbanjungleirc.com/">Urban Jungle </a><span>IRC</span></h1>
+      <h1 class="logo"><a href="https://www.urbanjungleirc.com/" class="logo"><img src="assets/img/UrbanJungle-Logo_trans.png" alt="" class="img-fluid"> Urban Jungle </a><span>IRC</span></h1>
       <!-- Uncomment below if you prefer to use an image logo -->
       
 
@@ -97,15 +97,15 @@
             <h3>Deposits for group events hosted at Urban Jungle IRC.</h3>          
             <p class="text-body-secondary">Please take note of the following important details:</p>
             <ul>
-                <li><i class="bi bi-check-circle"></i> This form is specifically for making a deposit payment for an event tentatively booked at Urban Jungle IRC.</li>
-                <li><i class="bi bi-check-circle"></i> Please be aware that making the payment does not guarantee the confirmation of the event, especially if the payment is processed after the due date.</li>
-                <li><i class="bi bi-check-circle"></i> The handling fee is not included in the $100 deposit amount.</li>
-                <li><i class="bi bi-check-circle"></i> It's important to note that $50 of the deposit is non-refundable.</li>
-                <li><i class="bi bi-check-circle"></i> The booking confirmation will be sent to the email address you have registered.</li>
-                <li><i class="bi bi-check-circle"></i> Standard PayPal policies apply to the transaction.</li>
+                <li><i class="bi bi-check-circle"></i> You should proceed with the payment only if you have already made a tentative booking and have been specifically instructed to pay the deposit.</li>
+                <li><i class="bi bi-check-circle"></i> Making the payment does not guarantee the confirmation of the event, especially if the payment is processed after the due date or if the booking has not been made yet.</li>
+                <li><i class="bi bi-check-circle"></i> The $100 deposit will be deducted from the final balance on the day of the event. Please be aware that the handling fee, which is approximately $2.90, is not part off the deposit amount.</li>
+                <li><i class="bi bi-check-circle"></i> It's important to note that $50 of the deposit is non-refundable, regardless of any circumstances.</li>
+                <li><i class="bi bi-check-circle"></i> The booking confirmation, along with any further details, will be sent to the email address registered with your PayPal account.</li>
+                <li><i class="bi bi-check-circle"></i> The transaction is subject to the standard PayPal policies and terms of service.</li>
             </ul>
             <p>
-              If you have any further questions or require clarification, please don't hesitate to reach out.
+              If you have any further questions or require additional clarification, please do not hesitate to reach out. We are here to assist you.
             </p>
           </div>
         </div>
@@ -139,9 +139,10 @@
           </div>
           <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content" data-aos="fade-up">
             <form name="orderForm" id="orderForm" class="row mt-3 mx-0 g-3 needs-validation" novalidate>
-              <input class="form-control" name="id" type="text" placeholder="id" hidden>
-              <input class="form-control form-control-sm" name="paid" type="text" placeholder="value" hidden>
-              <input class="form-control form-control-sm" name="email" type="email" placeholder="email" hidden>
+              <input class="form-control" name="id" type="text" hidden>
+              <input class="form-control" name="paid" type="text" hidden>
+              <input class="form-control" name="fee" type="text" hidden>
+              <input class="form-control" name="email" type="email" hidden>
 
               <div class="row mb-3">
                   <label for="name" class="col-sm-3 col-form-label">Organiser</label>
@@ -254,7 +255,7 @@
         <!-- You can delete the links only if you purchased the pro version. -->
         <!-- Licensing information: https://bootstrapmade.com/license/ -->
         <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/day-multipurpose-html-template-for-free/ -->
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        Designed by <a href="https://bootstrapmade.com/" class="link-light">BootstrapMade</a>
       </div>
     </div>
   </footer><!-- End Footer -->
@@ -275,7 +276,7 @@
 
   <!-- PayPay button -->
   <script
-  src="https://www.paypal.com/sdk/js?client-id=Adso4sTVWJuYY1cSvqhhtzgX14KG5vKtESOkv1cptmHOBcNd6jtCKrFE2VPKr66f8pUaVmuBVhYP_Yau&enable-funding=venmo&currency=AUD&locale=en_AU"
+  src="https://www.paypal.com/sdk/js?client-id=AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I&enable-funding=venmo&currency=AUD&locale=en_AU"
   data-sdk-integration-source="button-factory"></script>
 <!-- AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I -->
 <!-- sb: Adso4sTVWJuYY1cSvqhhtzgX14KG5vKtESOkv1cptmHOBcNd6jtCKrFE2VPKr66f8pUaVmuBVhYP_Yau -->
@@ -407,7 +408,7 @@
           onApprove: function (data, actions) {
               return actions.order.capture().then(function (orderData) {
                   // Full available details
-                  // console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                  console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
                   document.getElementById("warningMassage").hidden = true;
                   // Show a success message within this page
                   const element = document.getElementById('paypal-button-container');
@@ -427,7 +428,8 @@
                       form.elements["name"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
                   }
                   form.elements["id"].value = orderData.id;
-                  form.elements["paid"].value = orderData.purchase_units[0].amount.value;
+                  form.elements["paid"].value = orderData.purchase_units[0].amount.breakdown.item_total.value;
+                  form.elements["fee"].value = orderData.purchase_units[0].amount.breakdown.handling.value;
                   const scriptURL = 'https://script.google.com/macros/s/AKfycbyZlYo_tNjTxxhMQPmVKmuezurH7PlXyAXwE9uC1cYAYh5CaxJJnNbEY3KyQOeqTrPw/exec';
                   fetch(scriptURL, {
                       method: 'POST',
