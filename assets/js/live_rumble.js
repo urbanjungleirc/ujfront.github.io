@@ -144,7 +144,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.g, row.gz, row.gt);
                     },
-                    title: "G", orderable: false 
+                    title: "G", visible: false, orderable: false 
                 },
                 {
                     data: null,
@@ -152,7 +152,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.h, row.hz, row.ht);
                     },
-                    title: "H", orderable: false 
+                    title: "H", visible: false, orderable: false 
                 },     
                 // lead columns
                 {
@@ -201,7 +201,7 @@ $(document).ready(function () {
                     render: function (data, type) {
                         return lead(data, type);
                     },
-                    title: "6", orderable: false 
+                    title: "6", visible: false, orderable: false 
                 },
 
                 { data: "sscore", visible: false},          // 23
