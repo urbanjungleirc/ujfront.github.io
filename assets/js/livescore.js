@@ -88,16 +88,16 @@ function resetCategory() {
         forceModal = true;
         if ( nextCatID == -1 ) {
             // competition finished, display Congratulation to all competitors
-            currentTitle = 'The competition is over :(';
-            bodyTitle = 'Well done all and thx for coming';
+            currentTitle = 'Congratulations to all competitors!';
+            bodyTitle = 'Well done to everyone for participating.';
+            nextTitle = 'Stay tuned for future events from UJ Team!';
             newDate = new Date();
-            nextTitle = 'UJ Team';
         } else {
-            // display what is next up and count down to the start of it
+            // a break between a categories - display what is next up and count down to the start of it
             currentTitle = 'Competition break, next category';
             bodyTitle = setting.data.schedule[nextCatID].name.toLocaleUpperCase();
             newDate = new Date(setting.data.schedule[nextCatID].start);
-            nextTitle = 'Try hard, send harder and cheer even more';
+            nextTitle = 'Warm up and prepare to give it your best!';
         }
     } else {
         // comp in progress
