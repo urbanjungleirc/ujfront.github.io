@@ -48,7 +48,7 @@ $pagination-active-bg:    $light;
 $pagination-active-border-color: #dee2e6;
 
 // import bootstrap
-@import '../node_modules/bootstrap/scss/bootstrap';
+@import '../../node_modules/bootstrap/scss/bootstrap';
 
 .btn-bd-primary {
   --bs-btn-font-weight: 600;
