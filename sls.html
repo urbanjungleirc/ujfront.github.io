@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summer Lead Series</title>
+
+    <link rel="stylesheet" type="text/css" href="assets/css/uj_sls.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.0/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.css"/> -->
+
+    <style>
+        /* ENDLESS ROTATE */
+        .rotate{
+        animation: rotate 5s linear infinite; 
+        }
+        @keyframes rotate{
+        to{ transform: rotate(360deg); }
+        }
+        /* SPINNER */
+        .spinner{
+        display:inline-block; width: 50px; height: 50px;
+        border-radius: 50%;
+        box-shadow: inset -2px 0 0 2px rgb(255, 217, 0);
+        }
+    </style>
+
+</head>
+
+<body class="bg-light">
+
+    <header class="navbar navbar-expand-md">
+        <nav class="container-xxl flex-wrap flex-md-nowrap" aria-label="Main navigation">
+          <a href="http://urbanjungleirc.com"><img src="assets/img/UrbanJungle_Logo_transparent_with_shadow.png" class="img-fluid mx-auto d-block w-25" alt="Urbna Jungle IRC"></a>
+        </nav>
+    </header>
+
+    <!-- Spinner-->
+    <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-hidden="true" >
+        <div class="modal-dialog modal-dialog-centered modal">
+            <div class="modal-content p-3" style="background-color: transparent !important; border: none !important;">
+                    <img src="./assets/img/SLS24_logo.png" alt="SLS" class="rotate"> 
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- main container -->
+    <div class="container-fluid">
+
+        <!-- main bar -->
+        <div class="row text-white bg-primary mb-0 py-2">
+            <div class="d-flex">
+                <div class="flex-shrink-0">
+                    <img src="assets//img/SLS24_logo.png" alt="SLS23" width="50" height="50">
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h1>Summer Lead Series 2024</br><span class="text-white-50">by Urban Jungle IRC</span></h1>
+                </div>
+            </div>   
+        </div>
+        <!-- sub-bar -->
+        <div class="row pt-3 px-1 pb-0 text-white bg-primary bg-opacity-75">
+            <div class="col">
+                <p class="text-white-50" id="timer">
+                    Time left to score </br>
+                    <span data-days class="text-white fw-bold"></span>d
+                    <span data-hours class="text-white fw-bold"></span>h
+                    <span data-minutes class="text-white fw-bold"></span>m
+                </p>
+            </div>
+            <div class="col">
+                <p class="text-end text-white-50">Scores from</br>
+                    <span id="updatedAt" class="fw-bold"></span></p>
+            </div>
+        </div>
+        <!-- filters -->
+        <div class="d-flex justify-content-between my-2">
+            <div class="py-2">
+                <div class="btn-group" role="group" aria-label="Gender group">
+                    <input type="radio" class="btn-check" name="radioGender" id="btnradioBoth" autocomplete="off" checked onchange="changeGender()">
+                    <label class="btn btn-outline-secondary" for="btnradioBoth"><i class="bi bi-gender-ambiguous"></i></label>          
+                    <input type="radio" class="btn-check" name="radioGender" id="btnradioMale" autocomplete="off" onchange="changeGender('male')">
+                    <label class="btn btn-outline-secondary" for="btnradioMale"><i class="bi bi-gender-male"></i></label>          
+                    <input type="radio" class="btn-check" name="radioGender" id="btnradioFemale" autocomplete="off" onchange="changeGender('female')">
+                    <label class="btn btn-outline-secondary" for="btnradioFemale"><i class="bi bi-gender-female"></i></label>
+                </div>
+            </div>
+            <div class="py-2">
+                <span id="refreshButton" class="btn btn-light"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Refresh" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i> Refresh</span>
+            </div>
+        </div>
+        <div class="row mt-0 mb-3">        
+            <div class="btn-group justify-content-center">
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off" value="0" onchange="changeCategory(this)">
+                <label class="btn btn-outline-secondary" for="btnradioAdv">Advanced</label>          
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioInt" autocomplete="off" value="1" onchange="changeCategory(this)">
+                <label class="btn btn-outline-secondary" for="btnradioInt">Intermediate</label>          
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioYou" autocomplete="off" value="2" onchange="changeCategory(this)">
+                <label class="btn btn-outline-secondary" for="btnradioYou">Youth</label>          
+                <input type="radio" class="btn-check"  name="radioCategory" id="btnradioLead" autocomplete="off" value="lead" onchange="changeCategory(this)">
+                <label class="btn btn-outline-accent-dark" for="btnradioLead">Lead</label>    
+            </div>    
+            <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioNov" autocomplete="off" value="3" onchange="changeCategory(this)">
+                <label class="btn btn-outline-secondary" for="btnradioNov">Novice</label>          
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioYouTR" autocomplete="off" value="4" onchange="changeCategory(this)">
+                <label class="btn btn-outline-secondary" for="btnradioYouTR">Youth</label>          
+                <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off" value="tr" onchange="changeCategory(this)">
+                <label class="btn btn-outline-accent-dark" for="btnradioTR">Top Rope</label>    
+            </div>       
+        </div>
+
+        <!-- the table -->
+        <div class="row justify-content-center px-1">
+            <div class="col card bg-white border border-1 border-primary border-opacity-25 mx-1 px-1" style="border-radius: .5rem;">
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="width: 100%;">
+                        <table id="tableMale" class="table table-striped align-middle bg-white align-bottom  rounded" style="width: 100%;">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- footer -->
+    <footer class="row row-cols-1 align-items-center text-black bg-primary bg-opacity-10 my-3 py-3">
+        <div class="col text-center">
+            <p class="fw-bold">Full competition details <a href="http://urbanjungleirc.com/sls">here</a>.</p>
+            <p class="copyright">Urban Jungle IRC </br>
+                83 Solomon Rd, Jandakot WA 6163</br>
+                <a href="http://urbanjungleirc.com">www.urbanjungleirc.com</a>
+            </p>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <a class="btn" href="http://www.facebook.com/urbanjungleirc"><i class="bi bi-facebook"></i></a>
+            <a class="btn" href="mailto:frontdesk@urbanjungleirc.com"><i class="bi bi-envelope"></i></a>
+            <a class="btn" href="https://www.instagram.com/urbanjungleirc"><i class="bi bi-instagram"></i></a>
+        </div>
+    </footer>
+
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" 
+        crossorigin="anonymous"></script>
+
+    <!-- dataTables -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.0/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.4/sorting/datetime-moment.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <!-- <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.js"></script>     -->
+    <!-- countdown timere: https://github.com/BrooonS/TimezZ -->
+    <script src="https://cdn.jsdelivr.net/npm/timezz/dist/timezz.min.js"></script>
+
+    <!-- custom -->
+    <script src="assets/js/sls.js"></script>
+
+</body>
+
+</html>
