@@ -78,15 +78,15 @@ $("#tableMale")
                             case 1:
                             case 2:
                             case 3:
-                                return `<span class="text-primary bg-transparent fw-semibold">${data}</span>`;
+                                return `<span class="text-secondary bg-transparent fw-bold">${data}</span>`;
                                 break;
                             case 4:
                             case 5:
                             case 6:
-                                return `<span class="text-black bg-transparent fw-semibold">${data}</span>`;
+                                return `<span class="text-secondary bg-transparent">${data}</span>`;
                                 break;
                             default:
-                                return `<span class="text-black bg-transparent">${data}</span>`;
+                                return `<span class="text-primary bg-transparent">${data}</span>`;
                         }
                     }
                     return data;
@@ -198,15 +198,15 @@ $("#tableFemale")
                             case 1:
                             case 2:
                             case 3:
-                                return `<span class="text-primary bg-transparent fw-semibold">${data}</span>`;
+                                return `<span class="text-secondary bg-transparent fw-bold">${data}</span>`;
                                 break;
                             case 4:
                             case 5:
                             case 6:
-                                return `<span class="text-black bg-transparent fw-semibold">${data}</span>`;
+                                return `<span class="text-secondary bg-transparent">${data}</span>`;
                                 break;
                             default:
-                                return `<span class="text-black bg-transparent">${data}</span>`;
+                                return `<span class="text-primary bg-transparent">${data}</span>`;
                         }
                     }
                     return data;
