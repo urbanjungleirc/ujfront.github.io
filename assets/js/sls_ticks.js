@@ -240,11 +240,21 @@ function tickIcon (tick=0, bonus=0) {
                         <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
                         <rect style="stroke:none"
                             id="rect1119"
-                            width="10.507964"
-                            height="7.2642632"
+                            width="10.508"
+                            height="4.2642632"
                             x="2.8761711"
-                            y="7.7501478" />
+                            y="10.7501478" />
                     </svg>`;
+        case 30:
+        case 35:
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                        <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                        <rect style="stroke: none;" id="rect1119" 
+                            width="10.508" 
+                            height="9.106" 
+                            x="2.876" 
+                            y="5.908"/>
+                    </svg>`
         case 50:
             //return `<i class="bi bi-file-fill"></i>`;
             return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
