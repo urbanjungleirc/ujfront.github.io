@@ -183,29 +183,40 @@ function clickSearch(e) {
 
 // format date&time
 function modifyTime (data,type){
-    // Parse the input date string using Luxon
-    var date = luxon.DateTime.fromFormat(data, 'd/M/yyyy, h:mm:ss a', {zone: 'Australia/Perth'}).setLocale('en-AU');
     
-    
-    // Format the date and time in the user's local time zone using Luxon
-    var now = luxon.DateTime.local();
-    var dateString;
-    var diffDays = now.startOf('day').diff(date.startOf('day'), 'days').as('days');
-    if (diffDays === 0) {
-        dateString = 'today @ ' + date.toFormat('HH:mm');
-    } else if (diffDays === 1) {
-        dateString = 'yest. @ ' + date.toFormat('HH:mm');
-    } else {
-        dateString = date.toFormat("dd MMM',' HH:mm");
-    }    
+    try {
+        // Parse the input date string using Luxon for ISO 8601 format
+        var date = luxon.DateTime.fromISO(data).setZone('Australia/Perth').setLocale('en-AU');        
 
-    if (type === 'sort') {
-        // If sorting, return the date as a number (number of milliseconds since epoch)
-        return date.valueOf();
+        // Additional checks
+        if (!date.isValid) {
+            console.error('Invalid date:', data);
+            return 'Invalid Date';
+        }
+        
+        // Format the date and time in the user's local time zone using Luxon
+        var now = luxon.DateTime.local();
+        var dateString;
+        var diffDays = now.startOf('day').diff(date.startOf('day'), 'days').as('days');
+        if (diffDays === 0) {
+            dateString = 'today @ ' + date.toFormat('HH:mm');
+        } else if (diffDays === 1) {
+            dateString = 'yest. @ ' + date.toFormat('HH:mm');
+        } else {
+            dateString = date.toFormat("dd MMM',' HH:mm");
+        }    
+
+        if (type === 'sort') {
+            // If sorting, return the date as a number (number of milliseconds since epoch)
+            return date.valueOf();
+        }
+        
+        // Otherwise, return the formatted date string
+        return dateString;
+    } catch (error) {
+        console.error('Error parsing date:', data, error);
+        return 'Error';
     }
-    
-    // Otherwise, return the formatted date string
-    return dateString;
 }
 
 
