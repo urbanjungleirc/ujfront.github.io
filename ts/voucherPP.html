@@ -1,0 +1,156 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+<div id="smart-button-container">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <form name="voucher-to-google-sheet">
+                    <p class="h4 mb-4 text-center">Details</p>
+                    <input name="ID" type="text" placeholder="id" hidden>
+                    <input name="Value" type="text" placeholder="value" hidden>
+                    <input name="Email" type="email" placeholder="email" hidden>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="From">From: </label><input name="From" type="text" class="form-control"
+                                placeholder="Enter your name" maxlength="45">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="To">To: </label>
+                            <input name="To" type="text" class="form-control" placeholder="Recipients name/s"
+                                maxlength="45">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Message ">Message: </label>
+                        <input name="Message" maxlength="170" class="form-control"
+                            placeholder="Dear Tommy, embrace the climb and reach new heights! Enjoy this adventure at the climbing gym. See you at the top! Becca">
+                    </div>
+                    <div class="form-group">
+                        <label for="custom ">Value: </label>
+                        <select id="item-options" class="form-control">
+                            <option value="custom" price="50">50 AUD</option>
+                            <option value="custom" price="100">100 AUD</option>
+                            <option value="custom" price="150">150 AUD</option>
+                            <option value="custom" price="200">200 AUD</option>
+                            <option value="Child entry with the Lot" price="28">Child entry with the Lot - 28 AUD
+                            </option>
+                            <option value="Concession entry with the Lot" price="30">Concession entry with the Lot - 30
+                                AUD</option>
+                            <option value="Adult with the Lot" price="34">Adult entry with the Lot - 34 AUD</option>
+                            <option value="Family Pass (2+2 or 3+1)" price="115">Family Pass (2+2 or 3+1) - 115 AUD
+                            </option>
+                        </select>
+                    </div>
+                    <select style="visibility: hidden" id="quantitySelect"></select>
+                    <div id="paypal-button-container"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script
+    src="https://www.paypal.com/sdk/js?client-id=AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I&enable-funding=venmo&currency=AUD"
+    data-sdk-integration-source="button-factory"></script>
+<script>
+    function initPayPalButton() {
+        var shipping = 0;
+        var itemOptions = document.querySelector("#smart-button-container #item-options");
+        var quantity = parseInt();
+        var quantitySelect = document.querySelector("#smart-button-container #quantitySelect");
+        if (!isNaN(quantity)) {
+            quantitySelect.style.visibility = "visible";
+        }
+        var orderDescription = 'Gift Certificate';
+        if (orderDescription === '') {
+            orderDescription = 'Item';
+        }
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'paypal',
+            },
+            createOrder: function (data, actions) {
+                var selectedItemDescription = itemOptions.options[itemOptions.selectedIndex].value;
+                var selectedItemPrice = parseFloat(itemOptions.options[itemOptions.selectedIndex].getAttribute("price"));
+                var tax = (0 === 0 || false) ? 0 : (selectedItemPrice * (parseFloat(0) / 100));
+                if (quantitySelect.options.length > 0) {
+                    quantity = parseInt(quantitySelect.options[quantitySelect.selectedIndex].value);
+                } else {
+                    quantity = 1;
+                }
+                tax *= quantity;
+                tax = Math.round(tax * 100) / 100;
+                var priceTotal = quantity * selectedItemPrice + parseFloat(shipping) + tax;
+                priceTotal = Math.round(priceTotal * 100) / 100;
+                var itemTotalValue = Math.round((selectedItemPrice * quantity) * 100) / 100;
+                return actions.order.create({
+                    purchase_units: [{
+                        description: orderDescription,
+                        amount: {
+                            currency_code: 'AUD',
+                            value: priceTotal,
+                            breakdown: {
+                                item_total: {
+                                    currency_code: 'AUD',
+                                    value: itemTotalValue,
+                                },
+                                shipping: {
+                                    currency_code: 'AUD',
+                                    value: shipping,
+                                },
+                                tax_total: {
+                                    currency_code: 'AUD',
+                                    value: tax,
+                                }
+                            }
+                        },
+                        items: [{
+                            name: selectedItemDescription,
+                            unit_amount: {
+                                currency_code: 'AUD',
+                                value: selectedItemPrice,
+                            },
+                            quantity: quantity
+                        }]
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (orderData) {
+                    // Full available details
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    // Show a success message within this page, e.g.
+                    const element = document.getElementById('paypal-button-container');
+                    element.innerHTML = '';
+                    element.innerHTML = '<h3>Thank you for your payment ' + orderData.payer.name.given_name + '!</h3><p>The certificate will be sent to <br><strong>' + orderData.payer.email_address + '</strong><br>within an hour.</p>';
+                    //element.innerHTML = '<h3>Thank you for your payment ' + orderData.payer.name.given_name + '!</h3><p>The certificate will be sent to ' + orderData.payer.email_address + ' shortly.</p>' + 'ID: ' + orderData.id + '<br> total amount: ' + orderData.purchase_units[0].amount.value + '<br> quantities: ' + orderData.purchase_units[0].items[0].quantity + ' x ' + orderData.purchase_units[0].items[0].unit_amount.value;
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+                    // form handling
+                    const form = document.forms['voucher-to-google-sheet'];
+                    form.elements["Email"].value = orderData.payer.email_address;
+                    if (form.elements["From"].value === '') {
+                        form.elements["From"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
+                    }
+                    form.elements["ID"].value = orderData.id;
+                    form.elements["Value"].value = orderData.purchase_units[0].amount.value;
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
+                    fetch(scriptURL, {
+                        method: 'POST',
+                        body: new FormData(form)
+                    })
+                        .then(response => console.log('Success!', response))
+                        .catch(error => console.error('Error!', error.message));
+                    //form.reset();
+                    // end of form handling
+                });
+            },
+            onError: function (err) {
+                console.log(err);
+            },
+        }).render('#paypal-button-container');
+    }
+    initPayPalButton();
+</script>
