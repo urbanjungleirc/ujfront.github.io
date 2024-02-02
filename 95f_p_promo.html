@@ -79,7 +79,7 @@
     <div class="container position-relative" data-aos="fade-up" data-aos-delay="500">
       <h1>Welcome to The Jungle</h1>
       <h2>The only gym in Perth with Bouldering, Speed and Lead climbing</h2>
-      <a href="#about" class="btn-get-started scrollto">Purchase Family Pass</a>
+      <a href="#about" class="btn-get-started scrollto">Buy discounted entry now!</a>
     </div>
   </section><!-- End Hero -->
 
@@ -119,7 +119,7 @@
 
     <!-- ======= Clients Section ======= -->
     <section id="clients" class="clients">
-      <div class="container" >
+      <div class="container">
       </div>
     </section><!-- End Clients Section -->
     
@@ -135,6 +135,7 @@
 
         <div class="row">
           <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-up">
+            <div id="validationMessage" style="color: red;"></div>
             <div class="alert alert-danger text-center" role="alert" id="warningMassage">
                 Please ensure to fill out all details before purchase.
             </div>
@@ -164,7 +165,7 @@
                   </div>
               </div>
               <select style="visibility: hidden" id="quantitySelect"></select>
-          </form>                                
+            </form>                                
           </div>
         </div>            
       </div>
@@ -266,158 +267,190 @@
   <!-- PayPay button -->
   <script
   src="https://www.paypal.com/sdk/js?client-id=AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I&enable-funding=venmo&currency=AUD&locale=en_AU"
-  data-sdk-integration-source="button-factory"></script>
-<!-- AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I -->
-<!-- sb: Adso4sTVWJuYY1cSvqhhtzgX14KG5vKtESOkv1cptmHOBcNd6jtCKrFE2VPKr66f8pUaVmuBVhYP_Yau -->
+  data-sdk-integration-source="button-factory">
+  </script>
 
-<!-- form a pp scripts -->
-<script>
-  function initPayPalButton() {
-      var shipping = 0;
-      var quantity = parseInt();
-      var orderDescription = 'Family Pass Promotion';
-      if (orderDescription === '') {
-          orderDescription = 'Item';
-      }
-      paypal.Buttons({
-          style: {
-              shape: 'rect',
-              color: 'gold',
-              layout: 'vertical',
-              label: 'paypal',
-          },
-
-          // onInit is called when the button first renders
-          onInit: function (data, actions) {
-              // Disable the buttons
-              actions.disable();
-
-              const nameInput = document.getElementById('To');
-
-              // Add event listeners to each input field
-              nameInput.addEventListener('input', validateForm);
-
-              // Function to validate the form
-              function validateForm() {
-
-                  // check all fields on class 'is-invalid'
-                  const form = document.getElementById('orderForm');
-                  const firstInvalidField = form.querySelector('.is-invalid');
-                  let isValid = firstInvalidField === null ? true : false;
-
-                  let element = document.getElementById("warningMassage");
-                  if (nameInput.checkValidity() && isValid) {
-                      actions.enable();
-                      element.classList.remove("alert-danger");
-                      element.classList.add("alert-light");
-                      element.innerText = "Please proceed with the payment below.";
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+  $(document).ready(function() {
+      $('#orderForm').on('submit', function(e) {
+          e.preventDefault(); // Prevent the default form submission
+  
+          var email = $('#To').val(); // Make sure 'To' is the ID of your email input field
+          var googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbzwuisjdx9eIuTxhGvXM2hfLUbLm0wrPtOy_Xd3vVGhRNid4a5tuE84cKxkuIONqJh8Dw/exec';
+  
+          // Append the email as a query parameter
+          var urlWithParams = googleAppsScriptUrl + '?email=' + encodeURIComponent(email);
+  
+          $.ajax({
+              url: urlWithParams,
+              type: 'GET',
+              dataType: 'json', // Expect JSON response
+              success: function(data) {
+                  if (data.exists) {
+                      $('#validationMessage').text('This email has already been used to redeem the offer.');
                   } else {
-                      actions.disable();
-                      element.classList.remove("alert-light");
-                      element.classList.add("alert-danger");
-                      element.innerText = "Please ensure to fill in all details.";
+                      // Proceed with showing the PayPal button or other actions
+                      $('#validationMessage').text('');
+                      $('#validationMessage').text('Ready to redeem.');
+                      // initPayPalButton(); Uncomment or modify as needed
                   }
+              },
+              error: function() {
+                  $('#validationMessage').text('An error occurred. Please try again later.');
               }
-          },
+          });
+      });
+  });
+  </script>
+  
 
-          createOrder: function (data, actions) {
-              const form = document.forms['orderForm'];
-              var selectedItemDescription = 'discounted pass';
-              var selectedItemPrice = parseFloat(89.95);
-              var tax = (0 === 0 || false) ? 0 : (selectedItemPrice * (parseFloat(0) / 100));
-              quantity = 1;
-              tax *= quantity;
-              tax = Math.round(tax * 100) / 100;
-              var priceTotal = quantity * selectedItemPrice + parseFloat(shipping) + tax;
-              var handling =  0;
-              priceTotal = priceTotal + handling;
-              priceTotal = Math.round(priceTotal * 100) / 100;
-              var itemTotalValue = Math.round((selectedItemPrice * quantity) * 100) / 100;
-              return actions.order.create({
-                  purchase_units: [{
-                      description: orderDescription,
-                      amount: {
-                          currency_code: 'AUD',
-                          value: priceTotal,
-                          breakdown: {
-                              item_total: {
-                                  currency_code: 'AUD',
-                                  value: itemTotalValue,
-                              },
-                              shipping: {
-                                  currency_code: 'AUD',
-                                  value: shipping,
-                              },
-                              tax_total: {
-                                  currency_code: 'AUD',
-                                  value: tax,
-                              },
-                              handling: {
-                                  currency_code: "AUD",
-                                  value: handling,
-                              },
-                          }
-                      },
-                      items: [{
-                          name: selectedItemDescription,
-                          unit_amount: {
-                              currency_code: 'AUD',
-                              value: selectedItemPrice,
-                          },
-                          quantity: quantity
-                      }]
-                  }],
-                  application_context: {
-                      shipping_preference: "NO_SHIPPING" // no shipping option for goods
-                  }
-              });
-          },
-          onApprove: function (data, actions) {
-              return actions.order.capture().then(function (orderData) {
-                  // Full available details
-                  console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                  document.getElementById("warningMassage").hidden = true;
-                  // Show a success message within this page
-                  const element = document.getElementById('paypal-button-container');
-                  element.innerHTML = '';
-                  element.innerHTML = ` <div class="alert alert-success" role="alert">
-                                  <h4 class="alert-heading">Thank you, ${orderData.payer.name.given_name}!</h4>
-                                  <p>We have received your payment of $${orderData.purchase_units[0].amount.breakdown.item_total.value} for <strong>Family Pass (2 adults and 2 children)</strong>.</p>
-                                  <p>The voucher will be sent automaticaly to your email address ${orderData.payer.email_address}.</p>
-                                  <hr>
-                                  <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
-                                  <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
-                                  </div>`
-                  // form handling
-                  const form = document.forms['orderForm'];
-                  form.elements["Email"].value = orderData.payer.email_address;
-                  if (form.elements["To"].value === '') {
-                      form.elements["To"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
-                  }
-                  form.elements["From"].value = 'FamilyPassPromo';
-                  form.elements["ID"].value = orderData.id;
-                  form.elements["Value"].value = orderData.purchase_units[0].amount.breakdown.item_total.value;
-                  const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
-                  fetch(scriptURL, {
-                      method: 'POST',
-                      body: new FormData(form)
-                  })
-                      .then(response => console.log('Success!', response))
-                      .catch(error => console.error('Error!', error.message));
-                  //form.reset();
-                  // end of form handling
-              });
-          },
-          onError: function (err) {
-              console.log(err);
-          },
-      }).render('#paypal-button-container');
-  }
-  initPayPalButton();
+  <!-- form scripts -->
+  <script>
+    function initPayPalButton() {
+        var shipping = 0;
+        var quantity = parseInt();
+        var orderDescription = 'Family Pass Promotion';
+        if (orderDescription === '') {
+            orderDescription = 'Item';
+        }
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'paypal',
+            },
 
-</script>
+            // onInit is called when the button first renders
+            onInit: function (data, actions) {
+                // Disable the buttons
+                actions.disable();
 
+                const nameInput = document.getElementById('To');
 
+                // Add event listeners to each input field
+                nameInput.addEventListener('input', validateForm);
+
+                // Function to validate the form
+                function validateForm() {
+
+                    // check all fields on class 'is-invalid'
+                    const form = document.getElementById('orderForm');
+                    const firstInvalidField = form.querySelector('.is-invalid');
+                    let isValid = firstInvalidField === null ? true : false;
+
+                    let element = document.getElementById("warningMassage");
+                    if (nameInput.checkValidity() && isValid) {
+                        actions.enable();
+                        element.classList.remove("alert-danger");
+                        element.classList.add("alert-light");
+                        element.innerText = "Please proceed with the payment below.";
+                    } else {
+                        actions.disable();
+                        element.classList.remove("alert-light");
+                        element.classList.add("alert-danger");
+                        element.innerText = "Please ensure to fill in all details.";
+                    }
+                }
+            },
+
+            createOrder: function (data, actions) {
+                const form = document.forms['orderForm'];
+                var selectedItemDescription = 'discounted pass';
+                var selectedItemPrice = parseFloat(89.95);
+                var tax = (0 === 0 || false) ? 0 : (selectedItemPrice * (parseFloat(0) / 100));
+                quantity = 1;
+                tax *= quantity;
+                tax = Math.round(tax * 100) / 100;
+                var priceTotal = quantity * selectedItemPrice + parseFloat(shipping) + tax;
+                var handling =  0;
+                priceTotal = priceTotal + handling;
+                priceTotal = Math.round(priceTotal * 100) / 100;
+                var itemTotalValue = Math.round((selectedItemPrice * quantity) * 100) / 100;
+                return actions.order.create({
+                    purchase_units: [{
+                        description: orderDescription,
+                        amount: {
+                            currency_code: 'AUD',
+                            value: priceTotal,
+                            breakdown: {
+                                item_total: {
+                                    currency_code: 'AUD',
+                                    value: itemTotalValue,
+                                },
+                                shipping: {
+                                    currency_code: 'AUD',
+                                    value: shipping,
+                                },
+                                tax_total: {
+                                    currency_code: 'AUD',
+                                    value: tax,
+                                },
+                                handling: {
+                                    currency_code: "AUD",
+                                    value: handling,
+                                },
+                            }
+                        },
+                        items: [{
+                            name: selectedItemDescription,
+                            unit_amount: {
+                                currency_code: 'AUD',
+                                value: selectedItemPrice,
+                            },
+                            quantity: quantity
+                        }]
+                    }],
+                    application_context: {
+                        shipping_preference: "NO_SHIPPING" // no shipping option for goods
+                    }
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (orderData) {
+                    // Full available details
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    document.getElementById("warningMassage").hidden = true;
+                    // Show a success message within this page
+                    const element = document.getElementById('paypal-button-container');
+                    element.innerHTML = '';
+                    element.innerHTML = ` <div class="alert alert-success" role="alert">
+                                    <h4 class="alert-heading">Thank you, ${orderData.payer.name.given_name}!</h4>
+                                    <p>We have received your payment of $${orderData.purchase_units[0].amount.breakdown.item_total.value} for <strong>Family Pass (2 adults and 2 children)</strong>.</p>
+                                    <p>The voucher will be sent automaticaly to your email address ${orderData.payer.email_address}.</p>
+                                    <hr>
+                                    <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
+                                    <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
+                                    </div>`
+                    // form handling
+                    const form = document.forms['orderForm'];
+                    form.elements["Email"].value = orderData.payer.email_address;
+                    if (form.elements["To"].value === '') {
+                        form.elements["To"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
+                    }
+                    form.elements["From"].value = 'FamilyPassPromo';
+                    form.elements["ID"].value = orderData.id;
+                    form.elements["Value"].value = orderData.purchase_units[0].amount.breakdown.item_total.value;
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
+                    fetch(scriptURL, {
+                        method: 'POST',
+                        body: new FormData(form)
+                    })
+                        .then(response => console.log('Success!', response))
+                        .catch(error => console.error('Error!', error.message));
+                    //form.reset();
+                    // end of form handling
+                });
+            },
+            onError: function (err) {
+                console.log(err);
+            },
+        }).render('#paypal-button-container');
+    }
+    initPayPalButton();
+
+  </script>
 
 </body>
 
