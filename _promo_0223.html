@@ -97,9 +97,9 @@
           </div>
           <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content" data-aos="fade-right">
             <h3>Save over 30% on an all-inclusive day pass</h3>
-            <p class="text-body-secondary">Take advnatage of this increadible offer</p>
+            <p class="text-body-secondary">Take advantage of this incredible offer:</p>
             <ul>
-              <li><i class="bi bi-check-circle"></i>All day entry fee</li>
+              <li><i class="bi bi-check-circle"></i>All-day entry</li>
               <li><i class="bi bi-check-circle"></i>Climbing gear included</li>
             </ul>
           </div>
@@ -118,25 +118,15 @@
       <div class="container">
 
         <div class="section-title">
-          <span>All Day Entry Promotion</span>
-          <h2>All Day Entry Promotion</h2>
-          <p>By proceeding with the payment you acknowledge and agree to the terms and conditions below.</p>
+          <span>Open Pass</span>
+          <h2>Open Pass</h2>
+          <small class="text-muted">By proceeding with the payment, you acknowledge and agree to the terms and conditions below.</small>
         </div>
 
         <div class="row">
-          <div class="col-lg-6 order-2 order-lg-2" data-aos="fade-up">
-            <div id="loadingSpinner" class="text-center" style="display: none;">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
-            <div class="alert alert-danger text-center" role="alert" id="warningMassage">
-              Please ensure to fill out all details before proceeding to the payment.
-            </div>
-            <div id="paypal-button-container"></div>
-          </div>
-          <div class="col-lg-6 pt-4 pt-lg-0 order-1 order-lg-1 content" data-aos="fade-up">
-            <form name="orderForm" id="orderForm" class="row mt-3 mx-0 g-3 ">
+        
+          <div class="col-lg-6 content" data-aos="fade-up">
+            <form name="orderForm" id="orderForm" class="row mt-0 mx-0 g-3 ">
               <input name="ID" type="text" hidden>
               <input name="Value" type="text" hidden>
               <input name="From" type="text" hidden>
@@ -144,85 +134,114 @@
               <input name="Email" type="email" hidden>
 
               <div class="row mb-3">
-                <label for="Email_recepient" class="col-sm-3 col-form-label">Your email address</label>
-                <div class="col-sm-9">
+                <label for="Email_recepient" class="col-sm-4 col-form-label">Your email address</label>
+                <div class="col-sm-8">
                   <input class="form-control" name="Email_recepient" type="email" id="Email_recepient" placeholder="@"
                     required>
-                  <div id="emailHelp" class="form-text">Email to send the purchase to.</div>
+                  <div id="emailHelp" class="form-text">Email to send the purchase confirmation.</div>
                 </div>
               </div>
               <div class="row mb-3">
-                <label for="To" class="col-sm-3 col-form-label">Recepient</label>
-                <div class="col-sm-9">
+                <label for="To" class="col-sm-4 col-form-label">Recipient</label>
+                <div class="col-sm-8">
                   <input name="To" id="To" type="text" class="form-control" placeholder="Adam Ondra" maxlength="100"
                     required>
-                  <div id="toHelp" class="form-text">Full name of the recepient</div>
+                  <div id="toHelp" class="form-text">Full name of the recipient</div>
                 </div>
               </div>
-
-              <!-- <div class="row mb-3">
-                <label for="list-group" class="col-sm-3 col-form-label">Choose your deal</label>
-                <div class="col-sm-9">
+              
+              <div class="row mb-3">
+                <label for="list-group" class="col-form-label">Choose your deal</label>
+                <div class="col-sm-6 pe-0">
                   <ul class="list-group">
                     <li class="list-group-item">
-                      <input class="form-check-input me-1" type="radio" name="listGroupRadio" value="" id="firstRadio"
-                        checked>
-                      <label class="form-check-label" for="firstRadio">First radio</label>
-                    </li>
-                    <li class="list-group-item">
-                      <input class="form-check-input me-1" type="radio" name="listGroupRadio" value="" id="secondRadio">
-                      <label class="form-check-label" for="secondRadio">
-                        <div class="d-flex w-100 justify-content-between">
-                          <div class="mb-1">2 adults, 2 children </div>
+                      <input class="form-check-input me-1" type="radio" name="deals" value="2 adults, 2 children" price="89.95" id="deal01" checked>
+                      <label class="form-check-label" for="deal01">
+                          <div>2 adults, 2 children</div>
                           <small class="text-body-secondary">was $115.00, <strong>now $89.95</strong></small>
-                        </div>
                       </label>
                     </li>
                     <li class="list-group-item">
-                      <input class="form-check-input me-1" type="radio" name="listGroupRadio" value="" id="thirdRadio">
-                      <label class="form-check-label" for="thirdRadio">Third radio</label>
+                      <input class="form-check-input me-1" type="radio" name="deals" value="2 adults, 1 child" price="69.95" id="deal02">
+                      <label class="form-check-label" for="deal02">
+                          <div>2 adults, 1 child</div>
+                          <small class="text-body-secondary">was $96.00, <strong>now $69.95</strong></small>
+                      </label>
+                    </li>
+                    <li class="list-group-item">
+                      <input class="form-check-input me-1" type="radio" name="deals" value="1 adult, 1 child" price="44.95" id="deal03">
+                      <label class="form-check-label" for="deal03">
+                          <div>1 adult, 1 child</div>
+                          <small class="text-body-secondary">was $62.00, <strong>now $44.95</strong></small>
+                      </label>
+                    </li>
+                    <li class="list-group-item">
+                      <input class="form-check-input me-1" type="radio" name="deals" value="2 adults" price="49.95" id="deal04">
+                      <label class="form-check-label" for="deal04">
+                          <div>2 adults</div>
+                          <small class="text-body-secondary">was $60.00, <strong>now $49.95</strong></small>
+                      </label>
                     </li>
                   </ul>
                 </div>
-              </div> -->             
-
-              <div class="row mb-3">
-                <label for="item-options" class="col-sm-3 col-form-label">Choose your deal</label>
-                <div class="col-sm-9">
-                  <select id="item-options" name="item-options" class="form-select" required>
-                    <option value="Family Pass (2+2)" price="89.95">2 Adults, 2 children - was $115, now $89.95 AUD</option>
-                    <option value="2 Adults, 1 child" price="69.95">2 Adults, 1 child - was $96.00, now $69.95 AUD</option>
-                    <option value="1 Adult, 1 child" price="44.95">1 Adult, 1 child - was $62.00, now $44.95 AUD</option>
-                    <option value="2 Adults" price="49.95">2 Adults, was $68.00 - now $49.95 AUD</option>
-                    <option value="1 Adult, 1 concession" price="44.95">1 Adult, 1 concession - was $64.00, now $44.95 AUD</option>
-                    <option value="2 Concession" price="39.95">2 Concession - was $60.00, now $39.95 AUD</option>
-                    <option value="1 Concession, 1 child" price="37.95">1 Concession, 1 child - was $58.00, now $37.95 AUD</option>
-                  </select>
-                  <div id="itemOptionsHelp" class="form-text"></div>
+                <div class="col-sm-6 pe-0">
+                  <ul class="list-group">
+                    <li class="list-group-item">
+                      <input class="form-check-input me-1" type="radio" name="deals" value="1 adult, 1 concession" price="44.95" id="deal05">
+                      <label class="form-check-label" for="deal05">
+                        <div>1 adult, 1 concession</div>
+                          <small class="text-body-secondary">was $64.00, <strong>now $44.95</strong></small>
+                      </label>
+                    </li>
+                    <li class="list-group-item">
+                      <input class="form-check-input me-1" type="radio" name="deals" value="2 concession" price="39.95" id="deal06">
+                      <label class="form-check-label" for="deal06">
+                        <div>2 concession</div>
+                          <small class="text-body-secondary">was $60.00, <strong>now $39.95</strong></small>
+                      </label>
+                    </li>
+                    <li class="list-group-item">
+                      <input class="form-check-input me-1" type="radio" name="deals" value="1 concession, 1 child" price="37.95" id="deal07">
+                      <label class="form-check-label" for="deal07">
+                          <div>1 concession, 1 child</div>
+                          <small class="text-body-secondary">was $58.00, <strong>now $37.95</strong></small>
+                      </label>
+                    </li>
+                  </ul>
                 </div>
               </div>
               <select style="visibility: hidden" id="quantitySelect"></select>
             </form>
           </div>
+
+          <div class="col-lg-6 " data-aos="fade-up">
+            <div id="loadingSpinner" class="text-center" style="display: none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div class="alert alert-danger text-center" role="alert" id="warningMassage">
+              Make sure all information are complete before proceeding with the payment.
+            </div>
+            <div id="paypal-button-container"></div>
+          </div>
+
         </div>
+
+
         <div class="row">
           <div class="pt-4 pt-lg-0 content" data-aos="fade-right">
             <h4>Terms and Conditions</h4>
             <p class="text-body-secondary">Please take note of the following important details:</p>
             <ul>
-              <li>The Open Pass is non-transferable and can only be redeemed by the
-                person(s) listed on the pass.</li>
-              <li>The Open Pass is valid for a period of 3 months from the date of
-                purchase.</li>
-              <li>The pass must be used all at once and cannot be divided over
-                multiple visits.</li>
-              <li>There will be no refunds issued for unused portions of the Open Pass.</li>
+              <li>The Open Pass is non-transferable and can only be redeemed by the individual(s) listed on the pass.</li>
+              <li>The Open Pass is valid for 3 months from the date of purchase.</li>
+              <li>The pass must be used all at once and cannot be divided over multiple visits.</li>
+              <li>No refunds will be issued for unused portions of the Open Pass.</li>
               <li>Only one voucher can be redeemed per family.</li>
               <li>No extensions or exceptions to the expiration date will be granted.</li>
-              <li>Child: 12 years old and under, Concession: 18 yo and under or a student with a valid student card.</li>
-              <li>The management reserves the right to change or cancel the event or
-                service at their discretion. In such cases, a refund equal to the purchase price of the Open Pass will
-                be provided.</li>
+              <li>Child: Ages 12 and under | Concession: Ages 18 and under or students with a valid student card.</li>
+              <li>Management reserves the right to change or cancel the event or service, in which case a refund equal to the purchase price of the Open Pass will be provided. </li>
               <li>By purchasing the Open Pass, you acknowledge and agree to these terms and conditions.</li>
             </ul>
             <p>
@@ -241,7 +260,7 @@
 
         <div class="text-center">
           <h3>First time in the Jungle?</h3>
-          <p>Find out more how to get ready for a smooth sailing and successful event.</p>
+          <p>Learn how to prepare for your first visit for an unforgettable experience.</p>
           <a class="cta-btn" href="https://www.urbanjungleirc.com/firsttime">Find out more</a>
         </div>
 
@@ -350,15 +369,26 @@
       });
     });
 
-    // check correct email format
-    document.getElementById('Email_recepient').addEventListener('change', function (event) {
+    document.getElementById('Email_recepient').addEventListener('input', function (event) {
+      // Reset custom validity message to ensure the browser checks for its native validity anew
+      this.setCustomValidity("");
+
+      // Check if the email format is generally correct
       if (this.validity.typeMismatch) {
-        this.setCustomValidity("Please enter a valid email address.");
-        this.reportValidity();
+          this.setCustomValidity("Enter a valid email address, like name@example.com .");
       } else {
-        this.setCustomValidity("");
+          // Further custom validation to ensure the domain part contains a dot
+          var emailParts = this.value.split('@');
+          if (emailParts.length === 2 && !emailParts[1].includes('.')) {
+              this.setCustomValidity("Please include a domain with a '.' in the email address.");
+          }
       }
-    });
+
+      // Update the validity state which will now use either the custom message or default browser validation
+      this.reportValidity();
+
+  });
+
 
     function togglePayPalButton(show) {
       // If show is true, display the button container, else hide it
@@ -366,16 +396,14 @@
     }
 
     function updateWarningMessage(correct, text) {
-      // display user message
+      // Update the warning message based on form validation
       let element = document.getElementById("warningMassage");
       if (correct) {
         element.classList.remove("alert-danger");
         element.classList.add("alert-light");
-        togglePayPalButton(true);
       } else {
         element.classList.remove("alert-light");
         element.classList.add("alert-danger");
-        togglePayPalButton(false);
       }
       element.innerText = text;
     }
@@ -384,7 +412,7 @@
     function initPayPalButton() {
       var shipping = 0;
       var quantity = parseInt();
-      var orderDescription = 'All day entry promotion';
+      var orderDescription = 'Open Pass promotion';
       const promoID = 'promo1';
       paypal.Buttons({
         style: {
@@ -401,23 +429,26 @@
 
           const emailInut = document.getElementById('Email_recepient');
           const nameInput = document.getElementById('To');
-          const productInput = document.getElementById('item-options');
 
           // Add event listeners to each input field
           emailInut.addEventListener('change', validateEmailField);
           nameInput.addEventListener('input', validateForm);
-          productInput.addEventListener('input', validateForm);
 
-          // Function to validate the form (all fields are required)
+          // Check radio buttons state change
+          $('input[type=radio][name=deals]').change(function() {
+            validateForm(); // Call validate form function when a radio option is selected or changed
+          });
+
           function validateForm() {
-            if (nameInput.checkValidity() && emailInut.checkValidity() && productInput.checkValidity()) {
-              actions.enable();
+            const radioButtons = document.querySelectorAll('input[type=radio][name=deals]');
+            const isRadioSelected = [...radioButtons].some(radio => radio.checked); // Check if any radio button is selected
+            
+            if (nameInput.checkValidity() && emailInut.checkValidity() && isRadioSelected) {
               updateWarningMessage(true, 'Please proceed with the payment below.');
-              togglePayPalButton(true);
+              togglePayPalButton(true); // Enable PayPal button if form is valid including radio selection
             } else {
-              actions.disable();
-              updateWarningMessage(false, 'Please ensure to fill in all details.');
-              togglePayPalButton(false);
+              updateWarningMessage(false, 'Please ensure to fill in all details including a valid email address, name and selecting a deal.');
+              togglePayPalButton(false); // Keep PayPal button disabled if form is invalid
             }
           }
 
@@ -434,7 +465,7 @@
             $.ajax({
               url: urlWithParams,
               type: 'GET',
-              dataType: 'json', // Expect JSON response
+              dataType: 'json',
               success: function (data) {
                 // Hide loading spinner
                 $('#loadingSpinner').hide();
@@ -442,15 +473,13 @@
                   updateWarningMessage(false, "This is a one-time offer. Unfortunately you can't redeem it again.");
                   actions.disable();
                 } else {
-                  // Proceed with showing the PayPal button or other actions
                   validateForm();
-                  //togglePayPalButton(true); // Show PayPal button
                 }
               },
               error: function () {
                 // Hide loading spinner
                 $('#loadingSpinner').hide();
-                updateWarningMessage(false, 'An error occurred. Please try again later.');
+                updateWarningMessage(false, 'We are experiencing technical difficulties. Please try again in a few moments or contact us for assistance.');
                 actions.disable();
               }
             });
@@ -460,10 +489,11 @@
 
         createOrder: function (data, actions) {
           const form = document.forms['orderForm'];
-          var selectElement = document.getElementById('item-options');
-          var selectedOption = selectElement.options[selectElement.selectedIndex];
-          var selectedItemDescription = selectedOption.value;
-          var selectedItemPrice = parseFloat(selectedOption.getAttribute("price"));
+          // Extract the selected radio button details
+          const selectedRadio = document.querySelector('input[type=radio][name=deals]:checked');
+          var selectedItemDescription = selectedRadio.value;
+          var selectedItemPrice = parseFloat(selectedRadio.getAttribute("price"));
+
           var tax = (0 === 0 || false) ? 0 : (selectedItemPrice * (parseFloat(0) / 100));
           quantity = 1;
           tax *= quantity;
@@ -527,8 +557,8 @@
             element.innerHTML = '';
             // element.innerHTML = ` <div class="alert alert-success" role="alert">
             //                         <h4 class="alert-heading">Thank you, ${firstName}!</h4>
-            //                         <p>We have received your payment of $${orderData.purchase_units[0].amount.breakdown.item_total.value} for <strong>Family Pass (2 adults and 2 children)</strong>.</p>
-            //                         <p>The voucher will be sent automaticaly to your email address ${orderData.payer.email_address}.</p>
+            //                         <p>Your payment of ${orderData.purchase_units[0].amount.breakdown.item_total.value} for the <strong>Family Pass (2 adults and 2 children)</strong> has been successfully processed.</p>
+            //                         <p>A confirmation email will be sent to your address ${orderData.payer.email_address} shortly.</p>
             //                         <hr>
             //                         <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
             //                         <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
