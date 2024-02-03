@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -13,11 +14,13 @@
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/css/uj_colors.min.css" rel="stylesheet"> 
+  <link href="assets/css/uj_colors.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
 
@@ -25,28 +28,41 @@
   <link href="assets/css/style.css" rel="stylesheet">
 
 </head>
+
 <body>
+  <!-- ======= Header ======= -->
+  <header id="header" class="d-flex align-items-center">
+    <div class="container d-flex align-items-center justify-content-between">
+      <h1 class="logo"><a href="https://www.urbanjungleirc.com/" class="logo"><img
+            src="assets/img/UrbanJungle-Logo_trans.png" alt="" class="img-fluid"> Urban Jungle </a><span>IRC</span></h1>
+    </div>
+  </header><!-- End Header -->
 
-  <main id="main" class="main-page">
-
-    <!-- ======= Section ======= -->
-    <section class="section-thank-you">
-      <div class="container">
-        <div class="text-center">
-          <h1>Thank You!</h1>
-          <p>Your payment has been successfully processed.</p>
-          <p>We have received your payment for the <strong>Family Pass (2 adults and 2 children)</strong>.</p>
-          <p>The voucher will be sent automatically to your email address withing an hour.</p>
-          <hr>
-          <p>If you have any additional questions or need further assistance, please feel free to <a href="mailto:admin@urbanjungleirc.com">contact us</a>.</p>
-          <p class="mb-0">Thank you for choosing <a href="https://www.urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>.</p>
-        </div>
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex align-items-center">
+    <div class="container position-relative" data-aos="fade-up" data-aos-delay="500">
+      <div class="alert alert-info text-center" role="alert">
+        <section class="section-thank-you">
+          <div class="container">
+            <div class="text-center">
+              <h1 class="text-black">Thank You!</h1>
+              <p>Your payment has been successfully processed.</p>
+              <p>We have received your payment for the <strong>Family Pass (2 adults and 2 children)</strong>.</p>
+              <p>The voucher will be sent automatically to your email address withing an hour.</p>
+              <hr>
+              <p>If you have any additional questions or need further assistance, please feel free to <a
+                  href="mailto:admin@urbanjungleirc.com">contact us</a>.</p>
+              <p class="mb-0">Thank you for choosing <a href="https://www.urbanjungleirc.com" class="alert-link">Urban
+                  Jungle IRC</a>.</p>
+            </div>
+          </div>
+        </section><!-- End Section -->
       </div>
-    </section><!-- End Section -->
 
-  </main><!-- End #main -->
+    </div>
+  </section><!-- End Hero -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <main id="main"></main>
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/aos/aos.js"></script>
@@ -59,7 +75,7 @@
   <script src="assets/js/main.js"></script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       // Function to parse query parameters
       function getQueryParams() {
         const params = {};
@@ -69,10 +85,10 @@
         });
         return params;
       }
-    
+
       // Parse the query parameters
       const queryParams = getQueryParams();
-    
+
       // Check if the necessary query parameters are present
       if (!queryParams.firstName || !queryParams.productName) {
         // Redirect to the main page or a specific URL if the required parameters are missing
@@ -80,12 +96,13 @@
       } else {
         // Display the dynamic information if parameters are present
         const messageContainer = document.querySelector('.section-thank-you .container .text-center p:nth-of-type(2)');
-        if(messageContainer) { // Check if the container exists to avoid errors
+        if (messageContainer) { // Check if the container exists to avoid errors
           messageContainer.innerHTML = `Thank you, ${decodeURIComponent(queryParams.firstName)}! We have received your payment for the <strong>${decodeURIComponent(queryParams.productName)}</strong>.`;
         }
       }
     });
-    </script>
-    
+  </script>
+
 </body>
+
 </html>
