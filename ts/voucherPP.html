@@ -7,9 +7,10 @@
             <div class="col">
                 <form name="voucher-to-google-sheet">
                     <p class="h4 mb-4 text-center">Details</p>
-                    <input name="ID" type="text" placeholder="id" hidden>
-                    <input name="Value" type="text" placeholder="value" hidden>
-                    <input name="Email" type="email" placeholder="email" hidden>
+                    <input name="ID" type="text" hidden>
+                    <input name="Value" type="text" hidden>
+                    <input name="Clubworx" type="text" hidden>
+                    <input name="Email" type="email" hidden>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="From">From: </label><input name="From" type="text" class="form-control"
@@ -24,11 +25,11 @@
                     <div class="form-group">
                         <label for="Message ">Message: </label>
                         <input name="Message" maxlength="170" class="form-control"
-                            placeholder="Dear Tommy, embrace the climb and reach new heights! Enjoy this adventure at the climbing gym. See you at the top! Becca">
+                            placeholder="Dear Tommy, embrace the climb and reach new heights!">
                     </div>
                     <div class="form-group">
                         <label for="custom ">Value: </label>
-                        <select id="item-options" class="form-control">
+                        <select id="item-options" class="form-select">
                             <option value="custom" price="50">50 AUD</option>
                             <option value="custom" price="100">100 AUD</option>
                             <option value="custom" price="150">150 AUD</option>
@@ -122,12 +123,21 @@
                 return actions.order.capture().then(function (orderData) {
                     // Full available details
                     console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    // Extract needed information
+                    const firstName = orderData.payer.name.given_name;
+                    const productName = orderData.purchase_units[0].items[0].name;
                     // Show a success message within this page, e.g.
                     const element = document.getElementById('paypal-button-container');
                     element.innerHTML = '';
-                    element.innerHTML = '<h3>Thank you for your payment ' + orderData.payer.name.given_name + '!</h3><p>The certificate will be sent to <br><strong>' + orderData.payer.email_address + '</strong><br>within an hour.</p>';
-                    //element.innerHTML = '<h3>Thank you for your payment ' + orderData.payer.name.given_name + '!</h3><p>The certificate will be sent to ' + orderData.payer.email_address + ' shortly.</p>' + 'ID: ' + orderData.id + '<br> total amount: ' + orderData.purchase_units[0].amount.value + '<br> quantities: ' + orderData.purchase_units[0].items[0].quantity + ' x ' + orderData.purchase_units[0].items[0].unit_amount.value;
-                    // Or go to another URL:  actions.redirect('thank_you.html');
+                    element.innerHTML = `<div class="alert alert-success" role="alert">
+                                            <h4 class="alert-heading">Thank you, ${firstName}!</h4>
+                                            <p>Your payment of ${orderData.purchase_units[0].amount.breakdown.item_total.value} has been successfully processed.</p>
+                                            <p>A confirmation email with the voucher will be sent to your address ${orderData.payer.email_address} shortly.</p>
+                                            <small>Please check your spam folder if not received within an hour.</small>
+                                            <hr>
+                                            <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
+                                            <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
+                                         </div>`
                     // form handling
                     const form = document.forms['voucher-to-google-sheet'];
                     form.elements["Email"].value = orderData.payer.email_address;
@@ -136,6 +146,7 @@
                     }
                     form.elements["ID"].value = orderData.id;
                     form.elements["Value"].value = orderData.purchase_units[0].amount.value;
+                    form.elements["Clubworx"].value = 'eVoucher';
                     const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
                     fetch(scriptURL, {
                         method: 'POST',
