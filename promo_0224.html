@@ -447,6 +447,7 @@
             if (nameInput.checkValidity() && emailInut.checkValidity() && isRadioSelected) {
               updateWarningMessage(true, 'Please proceed with the payment below.');
               togglePayPalButton(true); // Enable PayPal button if form is valid including radio selection
+              actions.enable();
             } else {
               updateWarningMessage(false, 'Please ensure to fill in all details including a valid email address, name and selecting a deal.');
               togglePayPalButton(false); // Keep PayPal button disabled if form is invalid
@@ -459,9 +460,10 @@
 
             // Show loading spinner
             $('#loadingSpinner').show();
+            updateWarningMessage(false, 'Please ensure to fill in all details including a valid email address, name and selecting a deal.');
 
             // Append the email as a query parameter
-            var urlWithParams = googleAppsScriptUrl + '?email=' + encodeURIComponent(email);
+            var urlWithParams = googleAppsScriptUrl + '?email=' + encodeURIComponent(email) + '&promoID=' + promoID; 
 
             $.ajax({
               url: urlWithParams,
@@ -471,9 +473,11 @@
                 // Hide loading spinner
                 $('#loadingSpinner').hide();
                 if (data.exists) {
+                  console.log('=== Email already used');
                   updateWarningMessage(false, "This is a one-time offer. Unfortunately you can't redeem it again.");
                   actions.disable();
                 } else {
+                  console.log('=== No email found.');
                   validateForm();
                 }
               },
@@ -485,7 +489,6 @@
               }
             });
           }
-
         },
 
         createOrder: function (data, actions) {

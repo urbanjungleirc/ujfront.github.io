@@ -95,9 +95,13 @@
         window.location.href = 'https://www.urbanjungleirc.com/';
       } else {
         // Display the dynamic information if parameters are present
+        const nameContainer = document.querySelector('.section-thank-you .container .text-center .h1');
+        if (nameContainer) { // Check if the container exists to avoid errors
+          messageContainer.innerHTML = `Thank you, ${decodeURIComponent(queryParams.firstName)}!`;
+        }
         const messageContainer = document.querySelector('.section-thank-you .container .text-center p:nth-of-type(2)');
         if (messageContainer) { // Check if the container exists to avoid errors
-          messageContainer.innerHTML = `Thank you, ${decodeURIComponent(queryParams.firstName)}! We have received your payment for the <strong>${decodeURIComponent(queryParams.productName)}</strong>.`;
+          messageContainer.innerHTML = `We have received your payment for the <strong>${decodeURIComponent(queryParams.productName)}</strong>.`;
         }
       }
     });
