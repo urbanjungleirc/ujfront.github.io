@@ -95,7 +95,7 @@
         window.location.href = 'https://www.urbanjungleirc.com/';
       } else {
         // Display the dynamic information if parameters are present
-        const nameContainer = document.querySelector('.section-thank-you .container .text-center .h1');
+        const nameContainer = document.querySelector('.section-thank-you .container .text-center h1');
         if (nameContainer) { // Check if the container exists to avoid errors
           messageContainer.innerHTML = `Thank you, ${decodeURIComponent(queryParams.firstName)}!`;
         }
