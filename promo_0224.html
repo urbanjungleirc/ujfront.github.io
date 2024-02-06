@@ -571,9 +571,10 @@
             // Update the order form and send it to Google Sheet
             const form = document.forms['orderForm'];
             form.elements["Email"].value = orderData.payer.email_address;
-            if (form.elements["To"].value === '') {
-              form.elements["To"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
+            if (form.elements["From"].value === '') {
+              form.elements["From"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
             }
+            if (form.elements["To"].value === '') { form.elements["To"].value = 'unknown';}
             form.elements["Clubworx"].value = promoID;
             form.elements["ID"].value = orderData.id;
             form.elements["Value"].value = orderData.purchase_units[0].amount.breakdown.item_total.value;

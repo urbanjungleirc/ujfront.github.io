@@ -152,8 +152,9 @@
                         method: 'POST',
                         body: new FormData(form)
                     })
-                        .then(response => console.log('Success!', response))
-                        .catch(error => console.error('Error!', error.message));
+                    .then(response => console.log('Success!', response))
+                    .catch(error => console.error('Error!', error.message));
+                    form.classList.add('visually-hidden');
                     //form.reset();
                     // end of form handling
                 });
