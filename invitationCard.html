@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Submit to Google Sheet & Doc</title>
+
+    <link href="assets/css/uj_colors.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="bg-light py-3">
+        <div class="container text-center">
+            <a href="http://urbanjungleirc.com"><img src="assets/img/UrbanJungle_Logo_transparent_with_shadow.png"
+                    alt="Urban Jungle IRC" class="img-fluid w-25"></a>
+        </div>
+    </header>
+
+
+
+    <div class="container mt-5">
+        <h2 class="text-primary">Invitation card</h2>
+
+        <form id="submission-form" class="mt-3 p-3">
+            <div class="card text-center p-3 border-1 border-accent-dark text-bg-accent-light mt-3">
+                <h5 class="card-header">Card template</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Let's celebrate!</h5>
+                    <div class="p-3 mb-3">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" for="name">Name</span>
+                            <input type="text" class="form-control" id="name" name="name"
+                                placeholder="your child's name Xth">
+                        </div>
+                        <div class="mb-3">
+                        <h4>Birthday Party</h4>
+                        <p class="m-0">at Urban Jungle Indoor Rock Climbing</p>
+                        <small class="text-muted">83 Solomon Rd, Jandakot WA 6164</small>
+                    </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" for="date">On</span>
+                            <input type="date" class="form-control" id="date" name="date">
+                            <span class="input-group-text" for="fromTime">From</span>
+                            <input type="time" class="form-control" id="fromTime" name="fromTime">
+                            <span class="input-group-text" for="toTime">To</span>
+                            <input type="time" class="form-control" id="toTime" name="toTime">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" for="message">RSVP</span>
+                            <input class="form-control" id="message" name="message"
+                                placeholder="Enter your contact number/email and latest RSVP"></input>
+                        </div>
+                    </div>
+
+                    <!-- Spinner -->
+                    <div id="spinner" class="d-none text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <!-- Notification -->
+                    <div id="notification" class="d-none mt-3"></div>
+
+                    <div class="card-footer row d-flex justify-content-between">
+                        <div class="col input-group">
+                            <label class="input-group-text" for="email">Your email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="col-3">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <!-- Bootstrap Modal for Validation Messages -->
+    <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary" id="validationModalLabel">Validation Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Validation message will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fix Mistakes</button>
+                    <button type="button" class="btn btn-secondary" id="acceptConditions">Accept and Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS, Popper.js, and jQuery for Bootstrap Modal -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbx8aXJlgiagmKQIg9Hneab875sgdrZccItJWwT8oN8xMRCEGsW9t2NMG3LeGW2V3hra/exec';
+        document.getElementById('submission-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Validation logic
+            const date = document.getElementById('date').value;
+            const fromTime = document.getElementById('fromTime').value;
+            const toTime = document.getElementById('toTime').value;
+            const errorMessage = validateForm(date, fromTime, toTime);
+
+            if (errorMessage) {
+                // Show modal with error message
+                document.querySelector('.modal-body').innerHTML = errorMessage;
+                var myModal = new bootstrap.Modal(document.getElementById('validationModal'));
+                myModal.show();
+
+                // Handle "Accept and Proceed" button click
+                document.getElementById('acceptConditions').onclick = function () {
+                    myModal.hide();
+                    submitForm(); // Implement this function to submit the form or perform the fetch operation
+                };
+            } else {
+                submitForm(); // Directly submit if no errors
+            }
+        });
+
+        function validateForm(date, fromTime, toTime) {
+            let errorMessage = '';
+            const selectedDate = new Date(date);
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0); // Reset time part to compare only dates
+
+            // Date is in the future
+            if (selectedDate <= currentDate) {
+                errorMessage += 'The date must be in the future.<br>';
+            }
+
+            // Difference between from and to times is not more than 2 hours
+            const from = new Date(`1970-01-01T${fromTime}:00`);
+            const to = new Date(`1970-01-01T${toTime}:00`);
+            if ((to - from) > 7200000) { // 2 hours in milliseconds
+                errorMessage += 'The time difference must not exceed 2 hours.<br><small class="text-mutted">Urban Jungle group bookings have 2 hrs limit.</small><br>';
+            }
+
+            // The from time is either 10:30 AM, 12:30 PM, or 3:30 PM
+            const validTimes = ['10:30', '13:00', '15:30']; // 24-hour format
+            if (!validTimes.includes(fromTime)) {
+                errorMessage += 'The start time must be either 10:30 AM, 1:00 PM, or 3:30 PM.<br><small class="text-mutted">Regular weekend bookings are as listed. Please do not invite your guest earlier unless previously arranged with UJ.</small><br>';
+            }
+
+            return errorMessage;
+        }
+
+        function submitForm() {
+
+            // Show spinner
+            document.getElementById('spinner').classList.remove('d-none');
+            // Hide notification (just in case the form is resubmitted)
+            const notification = document.getElementById('notification');
+            notification.classList.add('d-none');
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                date: document.getElementById('date').value,
+                fromTime: document.getElementById('fromTime').value,
+                toTime: document.getElementById('toTime').value,
+                message: document.getElementById('message').value
+            };
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Important for CORS policy
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    // Hide spinner
+                    document.getElementById('spinner').classList.add('d-none');
+
+                    // Show notification
+                    notification.classList.add('alert', 'alert-success');
+                    notification.innerHTML = `<h4 class="alert-heading">All done, we've received your request!</h4>
+                                            <p class="m-0">An email with the invitation card will be sent to your address <strong>${document.getElementById('email').value}</strong> shortly.</p>
+                                            <small>Please check your spam folder if not received within an hour.</small>
+                                            <hr>
+                                            <p class="m-0">If you have any additional questions or need further assistance, please feel free to contact us.</p>
+                                            <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>`;
+                    notification.classList.remove('d-none');
+                })
+                .catch(error => {
+                    // Hide spinner
+                    document.getElementById('spinner').classList.add('d-none');
+
+                    // Show error notification
+                    notification.classList.add('alert', 'alert-danger');
+                    notification.textContent = 'Applogies, there was an error submitting your request. Please try again.';
+                    notification.classList.remove('d-none');
+                });
+        }
+
+    </script>
+
+</body>
+
+</html>
