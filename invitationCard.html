@@ -26,53 +26,61 @@
                 <h5 class="card-header">Card template</h5>
                 <div class="card-body">
                     <h5 class="card-title">Let's celebrate!</h5>
-                    <div class="p-3 mb-3">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" for="name">Name</span>
-                            <input type="text" class="form-control" id="name" name="name"
-                                placeholder="your child's name Xth">
-                        </div>
-                        <div class="mb-3">
-                        <h4>Birthday Party</h4>
-                        <p class="m-0">at Urban Jungle Indoor Rock Climbing</p>
-                        <small class="text-muted">83 Solomon Rd, Jandakot WA 6164</small>
+                    <div class="p-3 mb-2">
+                        <label class="form-label h6" for="name">Name</label>
+                        <input type="text" class="form-control text-center" id="name" name="name" maxlength="13"
+                            placeholder="Peter" aria-describedby="nameHelp">
+                        <div id="nameHelp" class="form-text">Enter name of your child (or children)</div>
                     </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" for="date">On</span>
-                            <input type="date" class="form-control" id="date" name="date">
-                            <span class="input-group-text" for="fromTime">From</span>
-                            <input type="time" class="form-control" id="fromTime" name="fromTime">
-                            <span class="input-group-text" for="toTime">To</span>
-                            <input type="time" class="form-control" id="toTime" name="toTime">
-                        </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" for="message">RSVP</span>
-                            <input class="form-control" id="message" name="message"
-                                placeholder="Enter your contact number/email and latest RSVP"></input>
-                        </div>
+                    <div class="p-3 mb-2">
+                        <label class="form-label" for="underName">info under the name</label>
+                        <input type="text" class="form-control text-center" id="underName" name="underName"
+                            maxlength="16" placeholder="is turning 10" aria-describedby="underNameHelp">
+                        <div id="underNameHelp" class="form-text">for exmaple: is turning 10 / are turning 15</div>
                     </div>
+                    <div class="mb-2">
+                        <p class="h5 m-0">at Urban Jungle</p>
+                        <small class="text-muted">Indoor Rock Climbing</small>
+                    </div>
+                    <div class="p-3 mb-0">
+                        <label class="form-label h6" for="date">On</label>
+                        <input type="date" class="form-control" id="date" name="date" aria-describedby="dateHelp">
+                    </div>
+                    <div class="input-group p-3 mb-2">
+                        <span class="input-group-text" for="fromTime">From</span>
+                        <input type="time" class="form-control" id="fromTime" name="fromTime">
+                        <span class="input-group-text" for="toTime">To</span>
+                        <input type="time" class="form-control" id="toTime" name="toTime">
+                    </div>
+                    <div class="p-3 mb-2 ">
+                        <label class="form-label h6" for="message">RSVP</label>
+                        <input class="form-control text-center" id="message" name="message" maxlength="50"
+                            placeholder="John on 0412 345 678 by 10 Feb 2024" aria-describedby="rsvpHelp"></input>
+                        <div id="rsvpHelp" class="form-text">Enter your name and how you wish to be contacted (phone/email) and due date.</div>
+                    </div>
+                </div>
 
-                    <!-- Spinner -->
-                    <div id="spinner" class="d-none text-center">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
+                <!-- Spinner -->
+                <div id="spinner" class="d-none text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                    <!-- Notification -->
-                    <div id="notification" class="d-none mt-3"></div>
+                </div>
+                <!-- Notification -->
+                <div id="notification" class="d-none mt-3"></div>
 
-                    <div class="card-footer row d-flex justify-content-between">
-                        <div class="col input-group">
-                            <label class="input-group-text" for="email">Your email</label>
-                            <input type="email" class="form-control" id="email" name="email">
-                        </div>
-                        <div class="col-3">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
+                <div class="card-footer row d-flex justify-content-between">
+                    <div class="col input-group">
+                        <label class="input-group-text" for="email">Your email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="col-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </div>
             </div>
-        </form>
+    </div>
+    </form>
 
     </div>
 
@@ -90,7 +98,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fix Mistakes</button>
-                    <button type="button" class="btn btn-outline-primary" id="acceptConditions">Accept and Proceed</button>
+                    <button type="button" class="btn btn-outline-primary" id="acceptConditions">Accept and
+                        Proceed</button>
                 </div>
             </div>
         </div>
@@ -152,7 +161,7 @@
             // The from time is either 10:30 AM, 12:30 PM, or 3:30 PM
             const validTimes = ['10:30', '13:00', '15:30']; // 24-hour format
             if (!validTimes.includes(fromTime)) {
-                errorMessage += 'The start time must be either 10:30 AM, 1:00 PM, or 3:30 PM.<br><small class="text-mutted">Regular weekend bookings are as listed. Please do not invite your guest earlier unless previously arranged with UJ.</small><br>';
+                errorMessage += 'The start time must be either 10:30 AM, 1:00 PM, or 3:30 PM.<br><small class="text-mutted">Regular weekend bookings are as listed. Please do not invite your guest earlier unless previously arranged with us.</small><br>';
             }
 
             return errorMessage;
@@ -168,6 +177,7 @@
 
             const formData = {
                 name: document.getElementById('name').value,
+                underName: document.getElementById('underName').value,
                 email: document.getElementById('email').value,
                 date: document.getElementById('date').value,
                 fromTime: document.getElementById('fromTime').value,
