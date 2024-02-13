@@ -60,27 +60,27 @@
                     </div>
                 </div>
 
-                <!-- Spinner -->
-                <div id="spinner" class="d-none text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-                <!-- Notification -->
-                <div id="notification" class="d-none mt-3"></div>
+                    <!-- Notification -->
+                    <div id="notification" class="d-none mt-3"></div>
 
-                <div class="card-footer row d-flex justify-content-between">
-                    <div class="col input-group">
-                        <label class="input-group-text" for="email">Your email</label>
-                        <input type="email" class="form-control" id="email" name="email">
-                    </div>
-                    <div class="col-3">
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="card-footer row d-flex justify-content-between">
+                        <div class="col input-group">
+                            <label class="input-group-text" for="email">Your email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="col-3">
+                            <!-- Button with a spinner -->
+                            <button type="submit" class="btn btn-primary">
+                                <span id="spinner" class="d-none spinner-border spinner-border-sm"
+                                    aria-hidden="true"></span>
+                                <span class="visually-hidden" role="status">Loading...</span>
+                                Submit
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-    </div>
-    </form>
+        </form>
 
     </div>
 
