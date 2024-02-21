@@ -233,8 +233,8 @@
                       </label>
                     </li>
                     <li class="list-group-item">
-                      <input class="form-check-input me-1" type="radio" name="deals" value="test no value"
-                        price="1" id="deal08">
+                      <input class="form-check-input me-1" type="radio" name="deals" value="test no value" price="1"
+                        id="deal08">
                       <label class="form-check-label" for="deal08">
                         <div>for testing only</div>
                         <small class="text-body-secondary">$1</small>
@@ -614,6 +614,18 @@
             form.elements["Value"].value = orderData.purchase_units[0].amount.breakdown.item_total.value;
             form.elements["Message"].value = productName;
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
+            
+            // firstPage purchase tracking
+            dataLayer.push({ 
+              event: "purchase", 
+              ecommerce: { 
+                  transaction_id: orderData.id, 
+                  value: orderData.purchase_units[0].amount.breakdown.item_total.value, 
+                  currency: "AUD", 
+                  items: [{ item_id: productName, item_name: productName, price: form.elements["Value"].value, quantity:  1 }] 
+                } 
+            });
+            
             fetch(scriptURL, {
               method: 'POST',
               body: new FormData(form)
