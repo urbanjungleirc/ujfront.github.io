@@ -58,7 +58,7 @@
   <!-- ======= Hero Section ======= -->
   <section id="hero" class="d-flex align-items-center">
     <div class="container position-relative" data-aos="fade-up" data-aos-delay="500">
-      <div class="alert alert-info text-center" role="alert">
+      <div class="alert alert-info text-center bg-white" role="alert">
         <section class="section-thank-you">
           <div class="container">
             <div class="text-center">
@@ -75,7 +75,6 @@
           </div>
         </section><!-- End Section -->
       </div>
-
     </div>
   </section><!-- End Hero -->
 
@@ -109,15 +108,15 @@
       // Check if the necessary query parameters are present
       if (!queryParams.firstName || !queryParams.productName) {
         // Redirect to the main page or a specific URL if the required parameters are missing
-        window.location.href = 'https://www.urbanjungleirc.com/';
+        //window.location.href = 'https://www.urbanjungleirc.com/';
       } else {
         // Display the dynamic information if parameters are present
         const nameContainer = document.querySelector('.section-thank-you .container .text-center h1');
-        if (nameContainer) { // Check if the container exists to avoid errors
-          messageContainer.innerHTML = `Thank you, ${decodeURIComponent(queryParams.firstName)}!`;
-        }
         const messageContainer = document.querySelector('.section-thank-you .container .text-center p:nth-of-type(2)');
-        if (messageContainer) { // Check if the container exists to avoid errors
+        if (nameContainer) {
+          nameContainer.textContent = `Thank you, ${decodeURIComponent(queryParams.firstName)}!`;
+        }
+        if (messageContainer) {
           messageContainer.innerHTML = `We have received your payment for the <strong>${decodeURIComponent(queryParams.productName)}</strong>.`;
         }
       }
