@@ -232,14 +232,6 @@
                         <small class="text-body-secondary">was $58.00, <strong>now $37.95</strong></small>
                       </label>
                     </li>
-                    <li class="list-group-item">
-                      <input class="form-check-input me-1" type="radio" name="deals" value="test no value" price="1"
-                        id="deal08">
-                      <label class="form-check-label" for="deal08">
-                        <div>for testing only</div>
-                        <small class="text-body-secondary">$1</small>
-                      </label>
-                    </li>
                   </ul>
                 </div>
               </div>
@@ -593,15 +585,6 @@
             // Show a success message within this page
             const element = document.getElementById('paypal-button-container');
             element.innerHTML = '';
-            // element.innerHTML = ` <div class="alert alert-success" role="alert">
-            //                         <h4 class="alert-heading">Thank you, ${firstName}!</h4>
-            //                         <p>Your payment of ${orderData.purchase_units[0].amount.breakdown.item_total.value} for the <strong>Family Pass (2 adults and 2 children)</strong> has been successfully processed.</p>
-            //                         <p>A confirmation email will be sent to your address ${orderData.payer.email_address} shortly.</p>
-            //                         <hr>
-            //                         <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
-            //                         <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
-            //                         </div>`
-
             // Update the order form and send it to Google Sheet
             const form = document.forms['orderForm'];
             form.elements["Email"].value = orderData.payer.email_address;
