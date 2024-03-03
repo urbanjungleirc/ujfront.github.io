@@ -47,6 +47,51 @@
                         <div id="rsvpHelp" class="form-text">Enter your name and how you wish to be contacted
                             (phone/email) and due date.</div>
                     </div>
+                    <p>Select your invitation card design:</p>
+                    <div class="card-group">
+                        <div class="card">
+                          <!-- <img src="..." class="card-img-top" alt="..."> -->
+                          <div class="card-body">
+                            <h6 class="card-title">Monkey</h6>
+                            <input class="form-check-input" type="radio" name="designChoice" id="design1" value="1EeKm1_wuFKBK_MtdqlKRmjimq72DjRxWz-l5t9B3dx4" checked>
+                          </div>
+                        </div>
+                        <div class="card">
+                            <!-- <img src="..." class="card-img-top" alt="..."> -->
+                            <div class="card-body">
+                              <h6 class="card-title">Forest</h6>
+                              <input class="form-check-input" type="radio" name="designChoice" id="design2" value="11QupS9O56sP-gdxVPotDeOoRR3evi_RCVsRI04SyJH8">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <!-- <img src="..." class="card-img-top" alt="..."> -->
+                            <div class="card-body">
+                              <h6 class="card-title">Outdoor climber</h6>
+                              <input class="form-check-input" type="radio" name="designChoice" id="design3" value="1Y8-dBa2uFrK1AMBmY7R_QgXTA6toMKlPn3S7e_SzRHc">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <!-- <img src="..." class="card-img-top" alt="..."> -->
+                            <div class="card-body">
+                              <h6 class="card-title">Star Balloons</h6>
+                              <input class="form-check-input" type="radio" name="designChoice" id="design4" value="1lEo5_razLqvC8qpGXyUkbXb5sp04vz8cmwgdqe_2ZaM">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <!-- <img src="..." class="card-img-top" alt="..."> -->
+                            <div class="card-body">
+                              <h6 class="card-title">Spiderman</h6>
+                              <input class="form-check-input" type="radio" name="designChoice" id="design5" value="1b7CS9f-FJiV0mGcFxstPEkD002g8ujuPsiSuUo8aQNQ">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <!-- <img src="..." class="card-img-top" alt="..."> -->
+                            <div class="card-body">
+                              <h6 class="card-title">Cinderella</h6>
+                              <input class="form-check-input" type="radio" name="designChoice" id="design6" value="1PkdR8hPSvRzKS_MI8hucsG3wUifcIcdnTTTwONSAFsg">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <hr>
@@ -111,26 +156,46 @@
             e.preventDefault(); // Prevent the default form submission
 
             // Validation logic
+            const email = document.getElementById('email').value;
             const date = document.getElementById('date').value;
             const fromTime = document.getElementById('fromTime').value;
             const toTime = document.getElementById('toTime').value;
+            
+
+            // Check if email is empty
+            if (!email) {
+                displayModal('Please provide an email address.');
+                return; // Stop execution if no email
+            }
+
+            // Other validation checks
             const errorMessage = validateForm(date, fromTime, toTime);
-
             if (errorMessage) {
-                // Show modal with error message
-                document.querySelector('.modal-body').innerHTML = errorMessage;
-                var myModal = new bootstrap.Modal(document.getElementById('validationModal'));
-                myModal.show();
+                // Show modal with error message but provide an option to proceed
+                displayModal(errorMessage, true); // True indicates there's an option to accept and proceed
+            } else {
+                submitForm(); // Directly submit if no errors and email is present
+            }
+        });
 
-                // Handle "Accept and Proceed" button click
+        function displayModal(message, canProceed = false) {
+            document.querySelector('.modal-body').innerHTML = message;
+            var myModal = new bootstrap.Modal(document.getElementById('validationModal'));
+
+            // If canProceed is true, show the "Accept and Proceed" button
+            if (canProceed) {
+                document.getElementById('acceptConditions').style.display = 'block';
                 document.getElementById('acceptConditions').onclick = function () {
                     myModal.hide();
                     submitForm(); // Implement this function to submit the form or perform the fetch operation
                 };
             } else {
-                submitForm(); // Directly submit if no errors
+                // If email is missing, don't show the "Accept and Proceed" button
+                document.getElementById('acceptConditions').style.display = 'none';
             }
-        });
+
+            myModal.show();
+        }
 
         function validateForm(date, fromTime, toTime) {
             let errorMessage = '';
@@ -174,7 +239,8 @@
                 date: document.getElementById('date').value,
                 fromTime: document.getElementById('fromTime').value,
                 toTime: document.getElementById('toTime').value,
-                message: document.getElementById('message').value
+                message: document.getElementById('message').value, 
+                designChoice: document.querySelector('input[name="designChoice"]:checked').value
             };
 
             fetch(scriptURL, {
