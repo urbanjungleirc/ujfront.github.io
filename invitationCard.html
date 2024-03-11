@@ -3,7 +3,7 @@
 
 <head>
     <title>Submit to Google Sheet & Doc</title>
-    <link href="assets/css/uj_colors.css" rel="stylesheet">
+    <link href="https://ujfront.github.io/assets/css/uj_colors.css" rel="stylesheet">
 </head>
 
 <body>
@@ -11,49 +11,49 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <h2 class="mb-3" >Available templates</h2>
+                <h2 class="mb-3 text-center">Available templates</h2>
                 <div id="imgCarousel" class="carousel slide">
                     <div class="carousel-inner">
                         <div class="carousel-item active">
                             <figure class="figure">
-                                <img src="/assets/img/invitations/invitation_monkey.jpg"
-                                    class="figure-img img-fluid rounded" alt="Monkey design">
                                 <figcaption class="figure-caption text-center fs-5">Monkey</figcaption>
+                                <img src="https://ujfront.github.io/assets/img/invitations/invitation_monkey.jpg"
+                                    class="figure-img img-fluid rounded" alt="Monkey design">
                             </figure>
                         </div>
                         <div class="carousel-item">
                             <figure class="figure">
-                                <img src="/assets/img/invitations/invitation_forrest.jpg"
-                                    class="figure-img img-fluid rounded" alt="Forest design">
                                 <figcaption class="figure-caption text-center fs-5">Forest</figcaption>
+                                <img src="https://ujfront.github.io/assets/img/invitations/invitation_forrest.jpg"
+                                    class="figure-img img-fluid rounded" alt="Forest design">
                             </figure>
                         </div>
                         <div class="carousel-item">
+                            <figcaption class="figure-caption text-center fs-5">Outdoor Climber</figcaption>
                             <figure class="figure">
-                                <img src="/assets/img/invitations/invitation_climber.jpg"
+                                <img src="https://ujfront.github.io/assets/img/invitations/invitation_climber.jpg"
                                     class="figure-img img-fluid rounded" alt="Outdoor Climber design">
-                                <figcaption class="figure-caption text-center fs-5">Outdoor Climber</figcaption>
                             </figure>
                         </div>
                         <div class="carousel-item">
+                            <figcaption class="figure-caption text-center fs-5">Star Balloons</figcaption>
                             <figure class="figure">
-                                <img src="/assets/img/invitations/invitation_balloons.jpg"
+                                <img src="https://ujfront.github.io//assets/img/invitations/invitation_balloons.jpg"
                                     class="figure-img img-fluid rounded" alt="Star Balloons design">
-                                <figcaption class="figure-caption text-center fs-5">Star Balloons</figcaption>
                             </figure>
                         </div>
                         <div class="carousel-item">
+                            <figcaption class="figure-caption text-center fs-5">Spiderman</figcaption>
                             <figure class="figure">
-                                <img src="/assets/img/invitations/invitation_spiderman.jpg"
+                                <img src="https://ujfront.github.io//assets/img/invitations/invitation_spiderman.jpg"
                                     class="figure-img img-fluid rounded" alt="Spiderman design">
-                                <figcaption class="figure-caption text-center fs-5">Spiderman</figcaption>
                             </figure>
                         </div>
                         <div class="carousel-item">
+                            <figcaption class="figure-caption text-center fs-5">Cinderella</figcaption>
                             <figure class="figure">
-                                <img src="/assets/img/invitations/invitation_cinderella.jpg"
+                                <img src="https://ujfront.github.io//assets/img/invitations/invitation_cinderella.jpg"
                                     class="figure-img img-fluid rounded" alt="...">
-                                <figcaption class="figure-caption text-center fs-5">Cinderella</figcaption>
                             </figure>
                         </div>
                     </div>
@@ -70,106 +70,114 @@
                 </div>
             </div>
             <div class="col">
-                <form id="submission-form" class="mt-3 p-3">
-                    <div class="card text-center p-3 border-1 border-light bg-light mt-3">
+                <h2 class="mb-3 text-center">Let's celebrate!</h2>
+                <form id="submission-form" class="p-0">
+                    <div class="card text-center p-3 border-1 border-light bg-light mt-0">
                         <!-- <h5 class="card-header text-bg-success ">Card template</h5> -->
-                        <div class="card-body">
-                            <h2 class="card-title">Let's celebrate!</h5>
-                                <div class="p-3 mb-2">
-                                    <label class="form-label h6" for="name">Name</label>
-                                    <input type="text" class="form-control text-center" id="name" name="name"
-                                        maxlength="13" placeholder="Peter" aria-describedby="nameHelp">
-                                    <div id="nameHelp" class="form-text">Enter name of your child (or children)</div>
-                                </div>
-                                <div class="p-3 mb-2">
-                                    <label class="form-label" for="underName">info under the name</label>
-                                    <input type="text" class="form-control text-center" id="underName" name="underName"
-                                        maxlength="16" placeholder="is turning 10" aria-describedby="underNameHelp">
-                                    <div id="underNameHelp" class="form-text">for exmaple: is turning 10 / are turning
-                                        15</div>
-                                </div>
-                                <div class="mb-2">
-                                    <p class="h5 m-0">at Urban Jungle</p>
-                                    <small class="text-muted">Indoor Rock Climbing</small>
-                                </div>
-                                <div class="p-3 mb-0">
-                                    <label class="form-label h6" for="date">On</label>
-                                    <input type="date" class="form-control" id="date" name="date"
-                                        aria-describedby="dateHelp">
-                                </div>
-                                <div class="input-group p-3 mb-2">
-                                    <span class="input-group-text" for="fromTime">From</span>
-                                    <input type="time" class="form-control" id="fromTime" name="fromTime">
-                                    <span class="input-group-text" for="toTime">To</span>
-                                    <input type="time" class="form-control" id="toTime" name="toTime">
-                                </div>
-                                <div class="p-3 mb-2 ">
-                                    <label class="form-label h6" for="message">RSVP</label>
-                                    <input class="form-control text-center" id="message" name="message" maxlength="50"
-                                        placeholder="John on 0412 345 678 by 10 Feb 2024"
-                                        aria-describedby="rsvpHelp"></input>
-                                    <div id="rsvpHelp" class="form-text">Enter your name and how you wish to be
-                                        contacted
-                                        (phone/email) and due date.</div>
-                                </div>
-                                <p class="form-label h6" >Select your invitation card design:</p>
-                                <ul class="list-group list-group-horizontal">
-                                    <li class="list-group-item flex-fill">
-                                        <input class="form-check-input" type="radio" name="designChoice" id="design1"
-                                            value="1EeKm1_wuFKBK_MtdqlKRmjimq72DjRxWz-l5t9B3dx4" checked>
-                                        <label class="form-check-label" for="design1">Monkey</label>
-                                    </li>
-                                    <li class="list-group-item flex-fill">
-                                        <input class="form-check-input" type="radio" name="designChoice"
-                                                id="design2" value="11QupS9O56sP-gdxVPotDeOoRR3evi_RCVsRI04SyJH8">
-                                        <label class="form-check-label" for="design2">Forest</label>
-                                    </li>
-                                    <li class="list-group-item flex-fill">
-                                        <input class="form-check-input" type="radio" name="designChoice"
-                                                id="design3" value="1Y8-dBa2uFrK1AMBmY7R_QgXTA6toMKlPn3S7e_SzRHc">
-                                        <label class="form-check-label" for="design3">Outdoor Climber</label>
-                                    </li>
-                                </ul>
-                                <ul class="list-group list-group-horizontal" style="margin-top: -1px;">
-                                    <li class="list-group-item flex-fill">
-                                        <input class="form-check-input" type="radio" name="designChoice"id="design4" value="1lEo5_razLqvC8qpGXyUkbXb5sp04vz8cmwgdqe_2ZaM">                                        
-                                        <label class="form-check-label" for="design4">Star Balloons</label>
-                                    </li>
-                                    <li class="list-group-item flex-fill">
-                                        <input class="form-check-input" type="radio" name="designChoice" id="design5" value="1b7CS9f-FJiV0mGcFxstPEkD002g8ujuPsiSuUo8aQNQ">
-                                        <label class="form-check-label" for="design5">Spiderman</label>
-                                    </li>
-                                    <li class="list-group-item flex-fill">
-                                        <input class="form-check-input" type="radio" name="designChoice" id="design6" value="1PkdR8hPSvRzKS_MI8hucsG3wUifcIcdnTTTwONSAFsg">
-                                        <label class="form-check-label" for="design6">Cinderella</label>
-                                    </li>
-                                </ul>
+                        <div class="card-body p-0 mb-3">
+                            <div class="mb-2">
+                                <label class="form-label h6" for="name">Name</label>
+                                <input type="text" class="form-control text-center" id="name" name="name" maxlength="13"
+                                    placeholder="Peter" aria-describedby="nameHelp">
+                                <div id="nameHelp" class="form-text">Enter name of your child (or children)</div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label" for="underName">info under the name</label>
+                                <input type="text" class="form-control text-center" id="underName" name="underName"
+                                    maxlength="16" placeholder="is turning 10" aria-describedby="underNameHelp">
+                                <div id="underNameHelp" class="form-text">for exmaple: is turning 10 / are turning
+                                    15</div>
+                            </div>
+                            <div class="mb-2">
+                                <p class="h5 m-0">at Urban Jungle</p>
+                                <small class="text-muted">Indoor Rock Climbing</small>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label h6" for="date">On</label>
+                                <input type="date" class="form-control" id="date" name="date"
+                                    aria-describedby="dateHelp">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" for="fromTime">From</span>
+                                <input type="time" class="form-control" id="fromTime" name="fromTime">
+                                <span class="input-group-text" for="toTime">To</span>
+                                <input type="time" class="form-control" id="toTime" name="toTime">
+                            </div>
+                            <div class="mb-2 ">
+                                <label class="form-label h6" for="message">RSVP</label>
+                                <input class="form-control text-center" id="message" name="message" maxlength="50"
+                                    placeholder="John on 0412 345 678 by 10 Feb 2024"
+                                    aria-describedby="rsvpHelp"></input>
+                                <div id="rsvpHelp" class="form-text">Enter your name and how you wish to be
+                                    contacted
+                                    (phone/email) and due date.</div>
+                            </div>
+                            <p class="form-label h6 mt-4">Select your invitation card design:</p>
+                            <ul class="list-group list-group-horizontal">
+                                <li class="list-group-item flex-fill">
+                                    <input class="form-check-input" type="radio" name="designChoice" id="design1"
+                                        value="1EeKm1_wuFKBK_MtdqlKRmjimq72DjRxWz-l5t9B3dx4" checked>
+                                    <label class="form-check-label" for="design1">Monkey</label>
+                                </li>
+                                <li class="list-group-item flex-fill">
+                                    <input class="form-check-input" type="radio" name="designChoice" id="design2"
+                                        value="11QupS9O56sP-gdxVPotDeOoRR3evi_RCVsRI04SyJH8">
+                                    <label class="form-check-label" for="design2">Forest</label>
+                                </li>
+                                <li class="list-group-item flex-fill">
+                                    <input class="form-check-input" type="radio" name="designChoice" id="design3"
+                                        value="1Y8-dBa2uFrK1AMBmY7R_QgXTA6toMKlPn3S7e_SzRHc">
+                                    <label class="form-check-label" for="design3">Outdoor Climber</label>
+                                </li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal" style="margin-top: -1px;">
+                                <li class="list-group-item flex-fill">
+                                    <input class="form-check-input" type="radio" name="designChoice" id="design4"
+                                        value="1lEo5_razLqvC8qpGXyUkbXb5sp04vz8cmwgdqe_2ZaM">
+                                    <label class="form-check-label" for="design4">Star Balloons</label>
+                                </li>
+                                <li class="list-group-item flex-fill">
+                                    <input class="form-check-input" type="radio" name="designChoice" id="design5"
+                                        value="1b7CS9f-FJiV0mGcFxstPEkD002g8ujuPsiSuUo8aQNQ">
+                                    <label class="form-check-label" for="design5">Spiderman</label>
+                                </li>
+                                <li class="list-group-item flex-fill">
+                                    <input class="form-check-input" type="radio" name="designChoice" id="design6"
+                                        value="1PkdR8hPSvRzKS_MI8hucsG3wUifcIcdnTTTwONSAFsg">
+                                    <label class="form-check-label" for="design6">Cinderella</label>
+                                </li>
+                            </ul>
                         </div>
 
-                        <hr>
+                        <div class="card-footer p-3">
+                            <!-- Notification -->
+                            <div id="notification" class="mt-3">
+                                <div class="alert alert-light" role="alert">
+                                    Please <strong>review all provided details</strong> for accuracy before submitting
+                                    your
+                                    invitation card request.
+                                </div>
+                            </div>
 
-                        <!-- Notification -->
-                        <div id="notification" class="mt-3">
-                            <div class="alert alert-light" role="alert">
-                                Please <strong>review all provided details</strong> for accuracy before submitting your
-                                invitation card request.
+                            <div class="row d-flex justify-content-between g-3">
+                                <div class="col-8 input-group ">
+                                    <label class="input-group-text" for="email">Your email</label>
+                                    <input type="email" class="form-control" id="email" name="email">
+                                </div>
+                                <div class="form-text" id="basic-addon4">Enter email address you wish sent the
+                                    invitation to. Ensure to check spelling.</div>
+                                <div class="col">
+                                    <!-- Button with a spinner -->
+                                    <button type="submit" class="btn btn-success">
+                                        <span id="spinner" class="d-none spinner-border spinner-border-sm"
+                                            aria-hidden="true"></span>
+                                        <span class="visually-hidden" role="status">Loading...</span>
+                                        Create My Invitation
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="row d-flex justify-content-between">
-                            <div class="col-8 input-group">
-                                <label class="input-group-text" for="email">Your email</label>
-                                <input type="email" class="form-control" id="email" name="email">
-                            </div>
-                            <div class="col">
-                                <!-- Button with a spinner -->
-                                <button type="submit" class="btn btn-success">
-                                    <span id="spinner" class="d-none spinner-border spinner-border-sm"
-                                        aria-hidden="true"></span>
-                                    <span class="visually-hidden" role="status">Loading...</span>
-                                    Create My Invitation
-                                </button>
-                            </div>
+
                         </div>
                     </div>
                 </form>
