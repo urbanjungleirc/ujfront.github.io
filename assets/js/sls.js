@@ -92,7 +92,23 @@ $("#tableMale")
         //     null,
         //     null
         // ],
-
+        // buttons: [
+        //     'searchPanes',
+        //     {
+        //         text: 'Order by Name',
+        //         action: function ( e, dt, node, config ) {
+        //             dt.order([1, 'asc']).draw();
+        //         }
+        //     },
+        //     {
+        //         text: 'Speed',
+        //         action: function ( e, dt, node, config ) {
+        //             dt.order([24, 'asc']).draw();
+        //         },
+        //         className: 'text-speed'
+        //     },
+        // ],
+        
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
             infoFiltered: "</br>(filtered from a total of _MAX_ participants)", 
