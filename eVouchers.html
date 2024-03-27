@@ -153,16 +153,16 @@
                       <div class="form-group">
                         <label for="custom ">Value: </label>
                         <select id="item-options" class="form-select">
-                          <option value="custom" price="50">50 AUD</option>
-                          <option value="custom" price="100">100 AUD</option>
-                          <option value="custom" price="150">150 AUD</option>
-                          <option value="custom" price="200">200 AUD</option>
-                          <option value="Child entry with the Lot" price="28">Child entry with the Lot - 28 AUD
+                          <option value="$50 Gift Certificate" price="50">50 AUD</option>
+                          <option value="$100 Gift Certificate" price="100">100 AUD</option>
+                          <option value="$150 Gift Certificate" price="150">150 AUD</option>
+                          <option value="$200 Gift Certificate" price="200">200 AUD</option>
+                          <option value="Child entry with the Lot ($28 AUD)" price="28">Child entry with the Lot - 28 AUD
                           </option>
-                          <option value="Concession entry with the Lot" price="30">Concession entry with the Lot - 30
+                          <option value="Concession entry with the Lot ($30 AUD)" price="30">Concession entry with the Lot - 30
                             AUD</option>
-                          <option value="Adult with the Lot" price="34">Adult entry with the Lot - 34 AUD</option>
-                          <option value="Family Pass (2+2 or 3+1)" price="115">Family Pass (2+2 or 3+1) - 115 AUD
+                          <option value="Adult with the Lot ($34 AUD)" price="34">Adult entry with the Lot - 34 AUD</option>
+                          <option value="Family Pass (2+2 or 3+1) ($115 AUD)" price="115">Family Pass (2+2 or 3+1) - 115 AUD
                           </option>
                         </select>
                       </div>
@@ -179,18 +179,22 @@
               <div class="row">
                 <div class="pt-4 pt-lg-0 content" data-aos="fade-right">
                   <h4>Terms and Conditions</h4>
-                  <p class="text-body-secondary">The gift certificate expires three years from the date of purchase. It must
-                    be presented at the time of sale and can not be returned, refunded or redeemed for cash. Urban Jungle
-                    Indoor Rock Climbing can not take responsibility for lost, stolen or destroyed gift certificates.</p>
+                  <p class="text-body-secondary">The gift certificate expires three years from the date of purchase. It
+                    must
+                    be presented at the time of sale and can not be returned, refunded or redeemed for cash. Urban
+                    Jungle
+                    Indoor Rock Climbing can not take responsibility for lost, stolen or destroyed gift certificates.
+                  </p>
                   <p>
-                    If you have any further questions or require additional clarification, please do not hesitate to reach
+                    If you have any further questions or require additional clarification, please do not hesitate to
+                    reach
                     out. We are here to assist you.
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          
+
 
         </div>
 
@@ -306,127 +310,130 @@
 
   <script>
     function initPayPalButton() {
-        var shipping = 0;
-        const promoID = 'eVoucher';
-        var itemOptions = document.querySelector("#smart-button-container #item-options");
-        var quantity = parseInt();
-        var quantitySelect = document.querySelector("#smart-button-container #quantitySelect");
-        if (!isNaN(quantity)) {
-            quantitySelect.style.visibility = "visible";
-        }
-        var orderDescription = 'Gift Certificate';
-        if (orderDescription === '') {
-            orderDescription = 'Item';
-        }
-        paypal.Buttons({
-            style: {
-                shape: 'rect',
-                color: 'gold',
-                layout: 'vertical',
-                label: 'paypal',
-            },
-            createOrder: function (data, actions) {
-                var selectedItemDescription = itemOptions.options[itemOptions.selectedIndex].value;
-                var selectedItemPriceIncludingTax = parseFloat(itemOptions.options[itemOptions.selectedIndex].getAttribute("price"));
+      var shipping = 0;
+      const promoID = 'eVoucher';
+      var itemOptions = document.querySelector("#smart-button-container #item-options");
+      var quantity = parseInt();
+      var quantitySelect = document.querySelector("#smart-button-container #quantitySelect");
+      if (!isNaN(quantity)) {
+        quantitySelect.style.visibility = "visible";
+      }
+      var orderDescription = 'Gift Certificate';
+      if (orderDescription === '') {
+        orderDescription = 'Item';
+      }
+      paypal.Buttons({
+        style: {
+          shape: 'rect',
+          color: 'gold',
+          layout: 'vertical',
+          label: 'paypal',
+        },
+        createOrder: function (data, actions) {
+          var selectedItemDescription = itemOptions.options[itemOptions.selectedIndex].value;
+          var selectedItemPriceIncludingTax = parseFloat(itemOptions.options[itemOptions.selectedIndex].getAttribute("price"));
 
-                // Assuming the price includes 10% tax, calculating the base price without tax
-                var basePrice = selectedItemPriceIncludingTax / 1.1;
-                var taxRate = 0.1;
-                var taxAmount = selectedItemPriceIncludingTax - basePrice;
-                
-                if (quantitySelect.options.length > 0) {
-                    quantity = parseInt(quantitySelect.options[quantitySelect.selectedIndex].value);
-                } else {
-                    quantity = 1;
+          // Assuming the price includes 10% tax, calculating the base price without tax
+          var basePrice = selectedItemPriceIncludingTax / 1.1;
+          var taxRate = 0.1;
+          var taxAmount = selectedItemPriceIncludingTax - basePrice;
+
+          if (quantitySelect.options.length > 0) {
+            quantity = parseInt(quantitySelect.options[quantitySelect.selectedIndex].value);
+          } else {
+            quantity = 1;
+          }
+
+          var basePriceTotal = basePrice * quantity;
+          var taxTotal = taxAmount * quantity;
+          var priceTotal = selectedItemPriceIncludingTax * quantity + parseFloat(shipping);
+
+          return actions.order.create({
+            purchase_units: [{
+              description: orderDescription,
+              amount: {
+                currency_code: 'AUD',
+                value: priceTotal.toFixed(2),
+                breakdown: {
+                  item_total: {
+                    currency_code: 'AUD',
+                    value: basePriceTotal.toFixed(2),
+                  },
+                  shipping: {
+                    currency_code: 'AUD',
+                    value: shipping.toFixed(2),
+                  },
+                  tax_total: {
+                    currency_code: 'AUD',
+                    value: taxTotal.toFixed(2),
+                  }
                 }
-                
-                var basePriceTotal = basePrice * quantity;
-                var taxTotal = taxAmount * quantity;
-                var priceTotal = selectedItemPriceIncludingTax * quantity + parseFloat(shipping);
+              },
+              items: [{
+                name: selectedItemDescription,
+                unit_amount: {
+                  currency_code: 'AUD',
+                  value: basePrice.toFixed(2),
+                },
+                quantity: quantity,
+                category: "PHYSICAL_GOODS"
+              }]
+            }],
+            application_context: {
+              shipping_preference: "NO_SHIPPING" // no shipping option for goods
+            }
+          });
+        },
+        onApprove: function (data, actions) {
+          return actions.order.capture().then(function (orderData) {
+            // Full available details
+            console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+            // Extract needed information
+            const firstName = orderData.payer.name.given_name;
+            const productName = orderData.purchase_units[0].items[0].name;
+            // Show a success message within this page, e.g.
+            const element = document.getElementById('paypal-button-container');
+            element.innerHTML = '';
+            // element.innerHTML = `<div class="alert alert-success" role="alert">
+            //                         <h4 class="alert-heading">Thank you, ${firstName}!</h4>
+            //                         <p>Your payment of ${orderData.purchase_units[0].amount.breakdown.item_total.value} has been successfully processed.</p>
+            //                         <p>A confirmation email with the voucher will be sent to your address ${orderData.payer.email_address} shortly.</p>
+            //                         <small>Please check your spam folder if not received within an hour.</small>
+            //                         <hr>
+            //                         <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
+            //                         <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
+            //                      </div>`
 
-                return actions.order.create({
-                    purchase_units: [{
-                        description: orderDescription,
-                        amount: {
-                            currency_code: 'AUD',
-                            value: priceTotal.toFixed(2),
-                            breakdown: {
-                                item_total: {
-                                    currency_code: 'AUD',
-                                    value: basePriceTotal.toFixed(2),
-                                },
-                                shipping: {
-                                    currency_code: 'AUD',
-                                    value: shipping.toFixed(2),
-                                },
-                                tax_total: {
-                                    currency_code: 'AUD',
-                                    value: taxTotal.toFixed(2),
-                                }
-                            }
-                        },
-                        items: [{
-                            name: selectedItemDescription,
-                            unit_amount: {
-                                currency_code: 'AUD',
-                                value: basePrice.toFixed(2),
-                            },
-                            quantity: quantity,
-                            category: "PHYSICAL_GOODS"
-                        }]
-                    }]
-                });
-            },
-            onApprove: function (data, actions) {
-                return actions.order.capture().then(function (orderData) {
-                    // Full available details
-                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                    // Extract needed information
-                    const firstName = orderData.payer.name.given_name;
-                    const productName = orderData.purchase_units[0].items[0].name;
-                    // Show a success message within this page, e.g.
-                    const element = document.getElementById('paypal-button-container');
-                    element.innerHTML = '';
-                    // element.innerHTML = `<div class="alert alert-success" role="alert">
-                    //                         <h4 class="alert-heading">Thank you, ${firstName}!</h4>
-                    //                         <p>Your payment of ${orderData.purchase_units[0].amount.breakdown.item_total.value} has been successfully processed.</p>
-                    //                         <p>A confirmation email with the voucher will be sent to your address ${orderData.payer.email_address} shortly.</p>
-                    //                         <small>Please check your spam folder if not received within an hour.</small>
-                    //                         <hr>
-                    //                         <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
-                    //                         <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
-                    //                      </div>`
-                    
-                    // save the payment
-                    const form = document.forms['voucher-to-google-sheet'];
-                    form.elements["Email"].value = orderData.payer.email_address;
-                    if (form.elements["From"].value === '') {
-                        form.elements["From"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
-                    }
-                    form.elements["ID"].value = orderData.id;
-                    form.elements["Value"].value = orderData.purchase_units[0].amount.value;
-                    form.elements["Clubworx"].value = 'eVoucher';
-                    const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
-                    fetch(scriptURL, {
-                        method: 'POST',
-                        body: new FormData(form)
-                    })
-                        .then(response => {
-                            console.log('Success!', response);
-                            // Redirect to the thank you page with query parameters after data saved succesfully
-                            window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}`;
-                        })
-                        .catch(error => console.error('Error!', error.message));
-                    form.classList.add('visually-hidden');
-                });
-            },
-            onError: function (err) {
-                console.log(err);
-            },
-        }).render('#paypal-button-container');
+            // save the payment
+            const form = document.forms['voucher-to-google-sheet'];
+            form.elements["Email"].value = orderData.payer.email_address;
+            if (form.elements["From"].value === '') {
+              form.elements["From"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
+            }
+            form.elements["ID"].value = orderData.id;
+            form.elements["Value"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
+            form.elements["Clubworx"].value = 'eVoucher';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
+            fetch(scriptURL, {
+              method: 'POST',
+              body: new FormData(form)
+            })
+              .then(response => {
+                console.log('Success!', response);
+                // Redirect to the thank you page with query parameters after data saved succesfully
+                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}`;
+              })
+              .catch(error => console.error('Error!', error.message));
+            form.classList.add('visually-hidden');
+          });
+        },
+        onError: function (err) {
+          console.log(err);
+        },
+      }).render('#paypal-button-container');
     }
     initPayPalButton();
-</script>
+  </script>
 
 </body>
 

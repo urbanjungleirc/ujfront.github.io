@@ -286,6 +286,7 @@
   function initPayPalButton() {
       var shipping = 0;
       var quantity = parseInt();
+      const promoID = 'deposit';
       var orderDescription = 'event deposit';
       if (orderDescription === '') {
           orderDescription = 'Item';
@@ -356,38 +357,41 @@
               var selectedOption = selectElement.options[selectElement.selectedIndex];
               var selectedOptionText = selectedOption.innerText;
               var selectedItemDescription = form.elements["event_date"].value + ' @ ' + selectedOptionText;
-              var selectedItemPrice = parseFloat(100);
-              var tax = (0 === 0 || false) ? 0 : (selectedItemPrice * (parseFloat(0) / 100));
+              var selectedItemPriceIncludingTax = parseFloat(100); // selectedItemPrice        
+              // Assuming the price includes 10% tax, calculating the base price without tax
+              var basePrice = selectedItemPriceIncludingTax / 1.1;
+              var taxRate = 0.1;
+              var taxAmount = selectedItemPriceIncludingTax - basePrice;
               quantity = 1;
-              tax *= quantity;
-              tax = Math.round(tax * 100) / 100;
-              var priceTotal = quantity * selectedItemPrice + parseFloat(shipping) + tax;
+
+
+              var basePriceTotal = basePrice * quantity;
+              var taxTotal = taxAmount * quantity;
+              var priceTotal = selectedItemPriceIncludingTax * quantity + parseFloat(shipping);
               var handling =  priceTotal * 0.026 + 0.3;
               priceTotal = priceTotal + handling;
-              priceTotal = Math.round(priceTotal * 100) / 100;
-              var itemTotalValue = Math.round((selectedItemPrice * quantity) * 100) / 100;
               return actions.order.create({
                   purchase_units: [{
                       description: orderDescription,
                       amount: {
                           currency_code: 'AUD',
-                          value: priceTotal,
+                          value: priceTotal.toFixed(2),
                           breakdown: {
                               item_total: {
                                   currency_code: 'AUD',
-                                  value: itemTotalValue,
+                                  value: basePriceTotal.toFixed(2),
                               },
                               shipping: {
                                   currency_code: 'AUD',
-                                  value: shipping,
+                                  value: shipping.toFixed(2),
                               },
                               tax_total: {
                                   currency_code: 'AUD',
-                                  value: tax,
+                                  value: taxTotal.toFixed(2),
                               },
                               handling: {
                                   currency_code: "AUD",
-                                  value: handling,
+                                  value: handling.toFixed(2),
                               },
                           }
                       },
@@ -395,9 +399,10 @@
                           name: selectedItemDescription,
                           unit_amount: {
                               currency_code: 'AUD',
-                              value: selectedItemPrice,
+                              value: basePrice.toFixed(2),
                           },
-                          quantity: quantity
+                          quantity: quantity,
+                          category: "PHYSICAL_GOODS"
                       }]
                   }],
                   application_context: {
@@ -415,7 +420,7 @@
                   element.innerHTML = '';
                   element.innerHTML = ` <div class="alert alert-success" role="alert">
                                   <h4 class="alert-heading">Thank you, ${orderData.payer.name.given_name}!</h4>
-                                  <p>We have received your deposit payment of $${orderData.purchase_units[0].amount.breakdown.item_total.value} for the event scheduled on <strong>${orderData.purchase_units[0].items[0].name}</strong>.</p>
+                                  <p>We have received your deposit payment of $${parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value)} for the event scheduled on <strong>${orderData.purchase_units[0].items[0].name}</strong>.</p>
                                   <p>Once the booking is confirmed, we will send the booking confirmation and provide further details to your registered email address ${orderData.payer.email_address}.</p>
                                   <hr>
                                   <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
@@ -428,7 +433,7 @@
                       form.elements["name"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
                   }
                   form.elements["id"].value = orderData.id;
-                  form.elements["paid"].value = orderData.purchase_units[0].amount.breakdown.item_total.value;
+                  form.elements["paid"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
                   form.elements["fee"].value = orderData.purchase_units[0].amount.breakdown.handling.value;
                   const scriptURL = 'https://script.google.com/macros/s/AKfycbyZlYo_tNjTxxhMQPmVKmuezurH7PlXyAXwE9uC1cYAYh5CaxJJnNbEY3KyQOeqTrPw/exec';
                   fetch(scriptURL, {
