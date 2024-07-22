@@ -619,15 +619,24 @@
             form.elements["Message"].value = productName;
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
 
-            // firstPage purchase tracking
-            dataLayer.push({
-              event: "purchase",
-              ecommerce: {
-                transaction_id: orderData.id,
-                value: orderData.purchase_units[0].amount.breakdown.item_total.value,
-                currency: "AUD",
-                items: [{ item_id: productName, item_name: productName, price: form.elements["Value"].value, quantity: 1 }]
-              }
+            // // firstPage purchase tracking
+            // dataLayer.push({
+            //   event: "purchase",
+            //   ecommerce: {
+            //     transaction_id: orderData.id,
+            //     value: orderData.purchase_units[0].amount.breakdown.item_total.value,
+            //     currency: "AUD",
+            //     items: [{ item_id: productName, item_name: productName, price: form.elements["Value"].value, quantity: 1 }]
+            //   }
+            // });
+
+            // Fire the Meta/Pixel Purchase Event (with additional parameters)
+            fbq('track', 'Purchase', {
+              value: form.elements["Value"].value,
+              currency: 'AUD',
+              content_name: productName,
+              content_ids: [campaignID],
+              content_type: 'product'
             });
 
             fetch(scriptURL, {

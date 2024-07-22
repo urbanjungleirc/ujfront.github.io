@@ -430,7 +430,7 @@
             //                         <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
             //                      </div>`
 
-            // save the payment
+            // update processed values in the form 
             const form = document.forms['voucher-to-google-sheet'];
             form.elements["Email"].value = orderData.payer.email_address;
             if (form.elements["From"].value === '') {
@@ -439,6 +439,17 @@
             form.elements["ID"].value = orderData.id;
             form.elements["Value"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
             form.elements["Clubworx"].value = 'eVoucher';
+            
+            // Fire the Meta/Pixel Purchase Event (with additional parameters)
+            fbq('track', 'Purchase', {
+              value: form.elements["Value"].value,
+              currency: 'AUD',
+              content_name: productName,
+              content_ids: [campaignID],
+              content_type: 'product'
+            });
+            
+            // record a voucher sale and redirect to Thank You page
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
             fetch(scriptURL, {
               method: 'POST',
