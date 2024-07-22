@@ -20,10 +20,11 @@
 
   <!-- Meta Pixel Code -->
   <script>
+    const campaignID = '120210672496270401';
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
         n.callMethod ?
-        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
       };
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
       n.queue = []; t = b.createElement(e); t.async = !0;
@@ -31,14 +32,14 @@
       s.parentNode.insertBefore(t, s)
     }(window, document, 'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1952580545200444');
+    fbq('init', '874916414055399');
     fbq('track', 'PageView');
   </script>
   <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1952580545200444&ev=PageView&noscript=1" /></noscript>
+      src="https://www.facebook.com/tr?id=874916414055399&ev=PageView&noscript=1" /></noscript>
   <!-- End Meta Pixel Code -->
-  
-    <!-- Vendor CSS Files -->
+
+  <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/css/uj_colors.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -57,7 +58,7 @@
 </head>
 
 <body>
-  
+
 
   <!-- ======= Top Bar ======= -->
   <section id="topbar" class="d-flex align-items-center">
@@ -446,7 +447,7 @@
               .then(response => {
                 console.log('Success!', response);
                 // Redirect to the thank you page with query parameters after data saved succesfully
-                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}`;
+                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}&value=${encodeURIComponent(form.elements["Value"].value)}&campaignID=${encodeURIComponent(campaignID)}`;
               })
               .catch(error => console.error('Error!', error.message));
             form.classList.add('visually-hidden');
