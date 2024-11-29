@@ -22,15 +22,15 @@ $(document).ready(function () {
             let d = new Date();
             el.innerText = " @ " + d.getHours() + ":" + d.getMinutes();
         })
-        .dataTable({
-            ajax: {
-                url: scoreUrl,
-                cache: true,
-                data: function (d) {
-                    d.format = "json";
+            .dataTable({    
+                ajax: {
+                    url: "https://cors-anywhere.herokuapp.com/" + scoreUrl, // Use public proxy
+                    cache: true,
+                    data: function (d) {
+                        d.format = "json";
+                    },
+                    dataSrc: "data",
                 },
-                dataSrc: "data",
-            },
 
             lengthChange: false,
             pageLength: rowsPerPage,

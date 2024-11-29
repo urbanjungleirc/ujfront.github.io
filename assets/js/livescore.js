@@ -40,15 +40,30 @@ if (allowModalTimer) {
 function readSetting(){
     //output.innerHTML = 'loading setting...';
     console.log("loading setting data...");
-    fetch (settingUrl)
-    .then (res => res.json())
-    .then (data => {
-        console.log (data);
-        setting.data = data;
-        //outputData();
-        findCurrentNext();
-        resetCategory();
-    })
+    // fetch (settingUrl)  
+    // .then (res => res.json())
+    // .then (data => {
+    //     console.log (data);
+    //     setting.data = data;
+    //     //outputData();
+    //     findCurrentNext();
+    //     resetCategory();
+    // })
+
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Public proxy
+    const targetUrl = settingUrl;
+
+    fetch(proxyUrl + targetUrl)
+        .then((res) => res.json())
+        .then((data) => {
+            console.log(data);  
+            setting.data = data; // Update your settings object
+            findCurrentNext();   // Call your custom function
+            resetCategory();     // Call your custom function
+        })
+        .catch((error) => console.error("Error loading settings:", error));
+
+
 }
 
 // find Current and Next category
