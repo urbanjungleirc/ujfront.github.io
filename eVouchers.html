@@ -18,6 +18,27 @@
     href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
     rel="stylesheet">
 
+  <!-- Meta Pixel Code -->
+  <script>
+    const campaignID = '120210672496270401';
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '874916414055399');
+    fbq('track', 'PageView', { campaignID: campaignID });
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=874916414055399&ev=PageView&noscript=1" /></noscript>
+  <!-- End Meta Pixel Code -->
+
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/css/uj_colors.min.css" rel="stylesheet">
@@ -37,6 +58,7 @@
 </head>
 
 <body>
+
 
   <!-- ======= Top Bar ======= -->
   <section id="topbar" class="d-flex align-items-center">
@@ -79,7 +101,7 @@
     <div class="container position-relative" data-aos="fade-up" data-aos-delay="500">
       <h1>Welcome to The Jungle</h1>
       <h2>The only gym in Perth with Bouldering, Speed and Lead climbing</h2>
-      <a href="#payment" class="btn-get-started scrollto">Purchase your gift certificate now!</a>
+      <a href="#payment" class="btn-get-started scrollto">BUY NOW!</a>
     </div>
   </section><!-- End Hero -->
 
@@ -157,12 +179,16 @@
                           <option value="$100 Gift Certificate" price="100">100 AUD</option>
                           <option value="$150 Gift Certificate" price="150">150 AUD</option>
                           <option value="$200 Gift Certificate" price="200">200 AUD</option>
-                          <option value="Child entry with the Lot ($28 AUD)" price="28">Child entry with the Lot - 28 AUD
+                          <option value="Child entry with the Lot ($28 AUD)" price="28">Child entry with the Lot - 28
+                            AUD
                           </option>
-                          <option value="Concession entry with the Lot ($30 AUD)" price="30">Concession entry with the Lot - 30
+                          <option value="Concession entry with the Lot ($30 AUD)" price="30">Concession entry with the
+                            Lot - 30
                             AUD</option>
-                          <option value="Adult with the Lot ($34 AUD)" price="34">Adult entry with the Lot - 34 AUD</option>
-                          <option value="Family Pass (2+2 or 3+1) ($115 AUD)" price="115">Family Pass (2+2 or 3+1) - 115 AUD
+                          <option value="Adult with the Lot ($34 AUD)" price="34">Adult entry with the Lot - 34 AUD
+                          </option>
+                          <option value="Family Pass (2+2 or 3+1) ($115 AUD)" price="115">Family Pass (2+2 or 3+1) - 115
+                            AUD
                           </option>
                         </select>
                       </div>
@@ -404,7 +430,7 @@
             //                         <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
             //                      </div>`
 
-            // save the payment
+            // update processed values in the form 
             const form = document.forms['voucher-to-google-sheet'];
             form.elements["Email"].value = orderData.payer.email_address;
             if (form.elements["From"].value === '') {
@@ -413,6 +439,17 @@
             form.elements["ID"].value = orderData.id;
             form.elements["Value"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
             form.elements["Clubworx"].value = 'eVoucher';
+            
+            // Fire the Meta/Pixel Purchase Event (with additional parameters)
+            fbq('track', 'Purchase', {
+              value: form.elements["Value"].value,
+              currency: 'AUD',
+              content_name: productName,
+              content_ids: [campaignID],
+              content_type: 'product'
+            });
+            
+            // record a voucher sale and redirect to Thank You page
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
             fetch(scriptURL, {
               method: 'POST',
@@ -421,7 +458,7 @@
               .then(response => {
                 console.log('Success!', response);
                 // Redirect to the thank you page with query parameters after data saved succesfully
-                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}`;
+                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}&value=${encodeURIComponent(form.elements["Value"].value)}&campaignID=${encodeURIComponent(campaignID)}`;
               })
               .catch(error => console.error('Error!', error.message));
             form.classList.add('visually-hidden');

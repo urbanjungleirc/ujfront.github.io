@@ -29,14 +29,32 @@
     href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
     rel="stylesheet">
 
+  <!-- Meta Pixel Code -->
+  <script>
+    const campaignID = '120206850545480401';
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '874916414055399');
+    fbq('track', 'PageView', { campaignID: campaignID });
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=874916414055399&ev=PageView&noscript=1" /></noscript>
+  <!-- End Meta Pixel Code -->
+
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <!-- <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
   <link href="assets/css/uj_colors.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <!-- <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet"> -->
-  <!-- <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet"> -->
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
@@ -600,18 +618,27 @@
             form.elements["Value"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
             form.elements["Message"].value = productName;
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHm4EnIXmNhPkkqjpoqYhWfve5NoSwUQLLdNv3kADpBFiXFCAOEvQUxwR1PV5fOgw/exec';
-            
-            // firstPage purchase tracking
-            dataLayer.push({ 
-              event: "purchase", 
-              ecommerce: { 
-                  transaction_id: orderData.id, 
-                  value: orderData.purchase_units[0].amount.breakdown.item_total.value, 
-                  currency: "AUD", 
-                  items: [{ item_id: productName, item_name: productName, price: form.elements["Value"].value, quantity:  1 }] 
-                } 
+
+            // // firstPage purchase tracking
+            // dataLayer.push({
+            //   event: "purchase",
+            //   ecommerce: {
+            //     transaction_id: orderData.id,
+            //     value: orderData.purchase_units[0].amount.breakdown.item_total.value,
+            //     currency: "AUD",
+            //     items: [{ item_id: productName, item_name: productName, price: form.elements["Value"].value, quantity: 1 }]
+            //   }
+            // });
+
+            // Fire the Meta/Pixel Purchase Event (with additional parameters)
+            fbq('track', 'Purchase', {
+              value: form.elements["Value"].value,
+              currency: 'AUD',
+              content_name: productName,
+              content_ids: [campaignID],
+              content_type: 'product'
             });
-            
+
             fetch(scriptURL, {
               method: 'POST',
               body: new FormData(form)
@@ -619,7 +646,7 @@
               .then(response => {
                 console.log('Success!', response);
                 // Redirect to the thank you page with query parameters after data saved succesfully
-                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}`;
+                window.location.href = `thankyou.html?promoID=${encodeURIComponent(promoID)}&firstName=${encodeURIComponent(firstName)}&productName=${encodeURIComponent(productName)}&value=${encodeURIComponent(form.elements["Value"].value)}&campaignID=${encodeURIComponent(campaignID)}`;
               })
               .catch(error => console.error('Error!', error.message));
           });

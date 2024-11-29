@@ -20,6 +20,46 @@
     })(window, document, 'script', 'dataLayer', 'GTM-NP52DRP3');</script>
   <!-- End Google Tag Manager -->
 
+  <!-- Meta Pixel Code -->
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '874916414055399');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=874916414055399&ev=PageView&noscript=1" /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- Purchase Event Tracking -->
+  <!-- <script>
+    // Extract query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const firstName = urlParams.get('firstName');
+    const productName = urlParams.get('productName');
+    const purchaseValue = parseFloat(urlParams.get('value'));
+    const campaignID = urlParams.get('campaignID');
+    const currency = 'AUD';
+
+    // Fire the Purchase event with additional parameters
+    fbq('track', 'Purchase', {
+      value: purchaseValue,
+      currency: currency,
+      content_name: productName,
+      content_ids: [campaignID], // Include the campaign ID
+      content_type: 'product'
+    });
+  </script> -->
+  <!-- End Purchase Event Tracking -->
+
   <!-- Favicons -->
   <link href="assets/img/favicon.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
@@ -108,7 +148,7 @@
       // Check if the necessary query parameters are present
       if (!queryParams.firstName || !queryParams.productName) {
         // Redirect to the main page or a specific URL if the required parameters are missing
-        //window.location.href = 'https://www.urbanjungleirc.com/';
+        window.location.href = 'https://www.urbanjungleirc.com/';
       } else {
         // Display the dynamic information if parameters are present
         const nameContainer = document.querySelector('.section-thank-you .container .text-center h1');
