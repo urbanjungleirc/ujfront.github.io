@@ -1,8 +1,8 @@
 /*  Using Google Script Api to retrieve JSON data
-    how to creat the api with formated json in google script
-        youtube: https://www.youtube.com/watch?v=uJDLT8nh2ps
-        script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
-*/
+        how to creat the api with formated json in google script
+            youtube: https://www.youtube.com/watch?v=uJDLT8nh2ps
+            script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
+    */
 
 const setting = { data: {} };
 const output = document.querySelector(".output");
@@ -28,33 +28,42 @@ const modalBody = document.getElementById("modalTimerBody");
 const modalFooter = document.getElementById("modalTimerFooter");
 
 //* set default timers
-let timer = timezz(document.querySelector("#timer"), {
-    date: catTimeEnd,
-    stopOnZero: true,
-});
-let timerInModal = timezz(document.querySelector("#timer2"), {
-    date: catTimeEnd,
-    stopOnZero: true,
-});
+// import timezz from 'https://cdn.jsdelivr.net/npm/timezz@9.0.2/+esm';
+console.log("timezz is:", typeof timezz);
+
+    let timer = timezz(document.querySelector("#timer"), {
+        date: catTimeEnd,
+        stopOnZero: true,
+        beforeUpdate(event) {
+            console.log("Timer updating:", event);
+        },
+        update(event) {
+            console.log("Timer updated:", event);
+        },
+    });     
+
+    let timerInModal = timezz(document.querySelector("#timer2"), {
+        date: catTimeEnd,
+        stopOnZero: true,
+        beforeUpdate(event) {
+            console.log("Modal timer updating:", event);
+        },
+        update(event) {
+            console.log("Modal timer updated:", event);
+        },
+    });
 
 // read data from setting sheet and iniciate Modal/timer
 if (allowModalTimer) {
     readSetting();
 }
-function readSetting() {
+function readSettingOriginal() {
     //output.innerHTML = 'loading setting...';
     console.log("loading setting data...");
 
-    const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Public proxy
-    const targetUrl = settingUrl;
-
-    fetch(proxyUrl + targetUrl, {
-        headers: {
-            "Origin": "https://ujfront.github.io" // Match your website domain
-        }   
-    })
+    fetch(settingUrl)
         .then((res) => res.json())
-        .then((data) => {   
+        .then((data) => {
             console.log(data);
             setting.data = data;
             findCurrentNext();
@@ -63,56 +72,95 @@ function readSetting() {
         .catch((error) => console.error("Error loading settings:", error));
 }
 
+function readSetting() {
+    console.log("Loading setting data...");
+
+    const script = document.createElement("script");
+
+    window.jsonpCallback = function (data) {
+        console.log("JSONP Data Received:", data);
+
+        if (data && data.schedule) {
+            setting.data = data;
+            console.log("Setting Data:", setting.data);
+            findCurrentNext();
+            resetCategory();
+        } else {
+            console.error("Invalid data structure received:", data);
+        }
+
+        delete window.jsonpCallback;
+        document.body.removeChild(script);
+    };
+
+    script.src = `${settingUrl}?callback=jsonpCallback`;
+    document.body.appendChild(script);
+}
+
 // find Current and Next category
 let currentCatID = -1;
 let nextCatID = -1;
 function findCurrentNext() {
     currentCatID = -1;
     nextCatID = -1;
+
+    if (!setting.data.schedule || !Array.isArray(setting.data.schedule)) {
+        console.error("Schedule data is missing or invalid.");
+        return;
+    }
+
     const dNow = new Date();
     setting.data.schedule.forEach((category, ind) => {
-        if (category) {
+        if (category !== null && category.name) {
+            // Skip null or invalid entries
             const compEnd = new Date(category.to);
             const compStart = new Date(category.start);
+
             if (
                 compStart.valueOf() <= dNow.valueOf() &&
                 dNow.valueOf() <= compEnd.valueOf()
             ) {
                 currentCatID = ind;
             }
-            if (nextCatID == -1) {
-                if (compStart.valueOf() > dNow.valueOf()) {
-                    nextCatID = ind;
-                }
+            if (nextCatID == -1 && compStart.valueOf() > dNow.valueOf()) {
+                nextCatID = ind;
             }
-            console.log(`ID ${ind} - ${currentCatID} / ${nextCatID}`);
+
+            console.log(
+                `ID ${ind} - Current: ${currentCatID}, Next: ${nextCatID}`
+            );
         }
     });
+
     console.log(
-        `findCurrentNext() -> current category: ${currentCatID} next: ${nextCatID}`
+        `findCurrentNext() -> Current category: ${currentCatID}, Next: ${nextCatID}`
     );
 }
 
 function resetCategory() {
-    //myModal.show();
+    if (!setting.data.schedule || !Array.isArray(setting.data.schedule)) {
+        console.error("Schedule data is missing or invalid.");
+        return;
+    }
+
     modalHeader.innerText = "";
     modalBody.innerText = "";
     modalFooter.innerText = "";
+
     let currentTitle = "";
     let bodyTitle = "";
     let nextTitle = "";
     let newDate = new Date();
+
     if (currentCatID == -1) {
-        // nothing in progress
+        // Nothing in progress
         forceModal = true;
+
         if (nextCatID == -1) {
-            // competition finished, display Congratulation to all competitors
             currentTitle = "Congratulations to all competitors!";
             bodyTitle = "Well done to everyone for participating.";
-            nextTitle = "Stay tuned for future events from UJ Team!";
-            newDate = new Date();
+            nextTitle = "Stay tuned for future events!";
         } else {
-            // a break between a categories - display what is next up and count down to the start of it
             currentTitle = "Competition break, next category";
             bodyTitle =
                 setting.data.schedule[nextCatID].name.toLocaleUpperCase();
@@ -120,28 +168,29 @@ function resetCategory() {
             nextTitle = "Warm up and prepare to give it your best!";
         }
     } else {
-        // comp in progress
+        // Competition in progress
         forceModal = false;
         currentTitle =
             setting.data.schedule[currentCatID].name.toLocaleUpperCase();
         bodyTitle = "Time left";
         newDate = new Date(setting.data.schedule[currentCatID].to);
+
         if (nextCatID == -1) {
-            // this is the last category, hide what is next up
             nextTitle = "";
         } else {
-            // display what is next
             const nextStart = new Date(
                 setting.data.schedule[nextCatID].start
             ).toLocaleTimeString();
-            nextTitle = `Next category ${setting.data.schedule[
+            nextTitle = `Next category: ${setting.data.schedule[
                 nextCatID
             ].name.toLocaleUpperCase()} at ${nextStart}`;
         }
     }
+
     console.log(
-        `resetCategory() -> currentTitle: ${currentTitle}, nextTitle: ${nextTitle}`
+        `resetCategory() -> Current Title: ${currentTitle}, Next Title: ${nextTitle}`
     );
+
     maker("h1", modalHeader, "text-white", currentTitle);
     maker("h1", modalBody, "text-white", bodyTitle);
     maker("h4", modalFooter, "text-secondary", nextTitle);
@@ -381,6 +430,6 @@ function resetCategoryOld() {
 
 /* Resources:
 
- https://datatables.net/examples/basic_init/data_rendering.html
- rendering plugins: https://github.com/DataTables/Plugins/tree/master/dataRender
- */
+    https://datatables.net/examples/basic_init/data_rendering.html
+    rendering plugins: https://github.com/DataTables/Plugins/tree/master/dataRender
+    */

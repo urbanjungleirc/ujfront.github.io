@@ -15,7 +15,7 @@ $(document).ready(function () {
                 `Table initialisation complete: ${new Date().getTime()}`
             );
         })
-        .on("xhr.dt", function (e, settings, json, xhr) {
+        .on("xhr.dt", function (e, settings, json, xhr) {   
             //$("#status").html(json.status);
             let el = document.getElementById("updatedAt");
             let d = new Date();
@@ -23,16 +23,14 @@ $(document).ready(function () {
         })
         .dataTable({
             ajax: {
-                url: "https://cors-anywhere.herokuapp.com/" + scoreUrl, // Use public proxy
+                url: scoreUrl,
+                dataType: "jsonp",
                 cache: true,
-                data: function (d) {
+                dataSrc: "data",
+                data: function (d) {    
                     d.format = "json";
                 },
-                dataSrc: "data",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Origin", "https://ujfront.github.io"); // Use your hosted domain
-                }
-            },
+            },      
             lengthChange: false,
             pageLength: rowsPerPage,
             pagingType: "numbers",
@@ -274,11 +272,12 @@ $(document).ready(function () {
                 { data: "top_attempts", visible: false },
                 { data: "zone_attempts", visible: false },
             ],
-            initComplete: function () {
+            initComplete: function (settings,json) {
+                //console.log("DataTables initialized with data:", json);
+
                 // calculate time intervals for the page rotating and updates
                 let api = this.api();
                 let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
-
                 if (tableInfo.pages > 1) {
                     // more than one page
                     let timePerPage = dataRefreshInterval / tableInfo.pages;
