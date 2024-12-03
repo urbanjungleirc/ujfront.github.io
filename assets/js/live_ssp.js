@@ -4,7 +4,6 @@
         script: https://docs.google.com/document/d/1tvJzwS7Zu_WeE77rNTnM5Q7leNanR95CnLY5Jc5p0_4/edit
 */
 
-
 //* set the table
 $(document).ready(function () {
     console.log(`Table initialisation start: ${new Date().getTime()}`);
@@ -16,7 +15,7 @@ $(document).ready(function () {
                 `Table initialisation complete: ${new Date().getTime()}`
             );
         })
-        .on("xhr.dt", function (e, settings, json, xhr) {
+        .on("xhr.dt", function (e, settings, json, xhr) {   
             //$("#status").html(json.status);
             let el = document.getElementById("updatedAt");
             let d = new Date();
@@ -25,22 +24,20 @@ $(document).ready(function () {
         .dataTable({
             ajax: {
                 url: scoreUrl,
+                dataType: "jsonp",
                 cache: true,
-                data: function (d) {
+                dataSrc: "data",
+                data: function (d) {    
                     d.format = "json";
                 },
-                dataSrc: "data",
-            },
-
+            },      
             lengthChange: false,
             pageLength: rowsPerPage,
             pagingType: "numbers",
             renderer: "bootstrap",
-
             // search: {
             //     search: filter,
             // },
-
             // ordering:  false,
             order: [[0, "asc"]],
             rowReorder: true, // allows to re-order
@@ -49,9 +46,8 @@ $(document).ready(function () {
                 { orderable: false, targets: "_all" }, // disable ordering for columns
             ],
             orderClasses: true, // highlight the columns which are used to order the content
-
             columns: [
-                { data: "name"},
+                { data: "name" },
                 {
                     data: "rank",
                     class: "dt-center",
@@ -78,9 +74,8 @@ $(document).ready(function () {
                         }
                         return data;
                     },
-                    visible: false
+                    visible: false,
                 },
-
                 // boulder columns
                 {
                     data: null,
@@ -257,7 +252,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.v, row.vz, row.vt);
                     },
-                    visible: false
+                    visible: false,
                 },
                 {
                     data: null,
@@ -266,7 +261,7 @@ $(document).ready(function () {
                     render: function (row) {
                         return boulder(row.w, row.wz, row.wt);
                     },
-                    visible: false
+                    visible: false,
                 },
 
                 // hidden columns
@@ -277,12 +272,12 @@ $(document).ready(function () {
                 { data: "top_attempts", visible: false },
                 { data: "zone_attempts", visible: false },
             ],
+            initComplete: function (settings,json) {
+                //console.log("DataTables initialized with data:", json);
 
-            initComplete: function () {
                 // calculate time intervals for the page rotating and updates
                 let api = this.api();
                 let tableInfo = api.page.info(); // https://datatables.net/reference/api/page.info()
-
                 if (tableInfo.pages > 1) {
                     // more than one page
                     let timePerPage = dataRefreshInterval / tableInfo.pages;
@@ -309,16 +304,15 @@ $(document).ready(function () {
                     api.ajax.reload(null, false);
                 }, dataRefreshInterval);
             },
-
             // setting Search Panels
             language: {
                 searchPanes: {
-                    clearMessage: 'Clear selections',
-                    collapse: {0: 'Filter', _: 'Filters (%d)'}
-                }
+                    clearMessage: "Clear selections",
+                    collapse: { 0: "Filter", _: "Filters (%d)" },
+                },
             },
             buttons: [
-                'searchPanes',
+                "searchPanes",
                 // {
                 //     text: 'Order by Name',
                 //     action: function ( e, dt, node, config ) {
@@ -337,18 +331,20 @@ $(document).ready(function () {
             columnDefs: [
                 {
                     searchPanes: {
-                        show: true
+                        show: true,
                     },
-                    targets: [25,26] // 25 = category, 26 = gender
+                    targets: [25, 26], // 25 = category, 26 = gender
                 },
                 {
                     searchPanes: {
-                        show: false
+                        show: false,
                     },
-                    targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,27,28,29,30]
-                }
-            ]
-            
+                    targets: [
+                        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                        16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30,
+                    ],
+                },
+            ],
         });
 
     // hide search option
@@ -358,5 +354,4 @@ $(document).ready(function () {
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
 */
-$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn btn-light';
-
+$.fn.dataTable.Buttons.defaults.dom.button.className = "btn btn-light";
