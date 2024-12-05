@@ -23,9 +23,9 @@
         }
 
         // Set your parameters
-        const searchText = 'Holiday Program, Summer Camp';
-        const period = '1m';
-        const date = getCurrentDate(); // Default is current date, or set a specific date in 'YYYY-MM-DD' format
+        const searchText = 'slot'; // comma separated search terms in event names
+        const period = '1w'; // m for months, w for weeks 
+        const date = '2024-12-05'; // enter getCurrentDate() or 'YYYY-MM-DD' for a specific date in 'YYYY-MM-DD' format
 
         // Encode parameters using URLSearchParams
         const params = new URLSearchParams({
@@ -35,7 +35,7 @@
         });
 
         // Construct the iframe URL with the encoded parameters
-        const iframeUrl = '/eventsCalendar.html?' + params.toString();
+        const iframeUrl = '/eventsCalendar.html?' + params.toString(); // https://ujfront.github.io/eventsCalendar.html
 
         // Set the iframe's src attribute to the constructed URL
         document.getElementById('calendarEl').src = iframeUrl;
