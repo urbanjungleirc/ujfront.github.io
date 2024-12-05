@@ -151,18 +151,9 @@
 
             // Prepare events for FullCalendar
             const calendarEvents = events.map(event => {
-                let eventTitle = event.event_name;
-                if (event.event_full) {
-                    eventTitle += ' (Full)';
-                } else {
-                    eventTitle += ' (' + event.spaces_available + ' spots)';
-                }
-
                 // Determine the background color based on the event name
                 let backgroundColor = event.event_full ? 'gray' : '#ff4709'; // default color
-
                 const eventNameLower = event.event_name.toLowerCase();
-
                 if (eventNameLower.includes('wombats')) {
                     backgroundColor = '#009c6c';
                 } else if (eventNameLower.includes('monkeys')) {
@@ -173,6 +164,21 @@
                     backgroundColor = '#4e4bcc';
                 }
 
+                // Determine the title based on the event name
+                let eventTitle = event.event_name;
+                if (eventNameLower.includes('booking slot')) {
+                    // Add "(Full)" if B'day event is already booked out = event has 0 or more than 1 space left
+                    eventTitle += event.spaces_available == 1 ? '' : ' (Full)';
+                } else {
+                    // Add "(Full)" if other events are full or add "(# of spaces left)" if event is not full
+                    if (event.event_full) {
+                        eventTitle += ' (Full)';
+                    } else {
+                        eventTitle += ' (' + event.spaces_available + ' spots)';
+                    }
+                }
+
+
                 // Set the event URL only if the event is not full or the name contains "Booking Slot" which is booked
                 let eventUrl;
                 if (event.event_full) {
@@ -182,7 +188,7 @@
                 } else {
                     eventUrl = 'https://app.clubworx.com/websites/urban-jungle-indoor-rock-climbing-1/calendar/event/' + event.event_id;
                     // Default link if neither condition matches
-                }   
+                }
 
                 return {
                     title: eventTitle,
