@@ -17,6 +17,10 @@
 </head>
 
 <style>
+    body {
+        background-color: #FAFAFA;
+    }
+
     .event-full {
         pointer-events: none;
         /* Disable click events */
@@ -232,6 +236,7 @@
                 initialView: 'listWeek',
                 events: calendarEvents,
                 themeSystem: 'bootstrap5',
+                height: 600,
                 validRange: {
                     start: formatDate(minDate),
                     end: formatDate(addDays(maxDate, 1)) // Add 1 day to include the last event date
