@@ -5,7 +5,17 @@
 // orange #f26e22
 // red #f23827
 
-// Maroon primary
+
+
+// 1. Import Bootstrap's default variables
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+
+// 2. Define missing variables (to prevent errors)
+$mark-bg-dark: #f8d7da;   // Background for marked text (choose any color)
+$mark-color-dark: #721c24; // Text color for marked text
+
+// 3. Override only the colors you care about
 $white:         #ffffff;
 $primary:       #ae222a;
 $secondary:     #999999;
@@ -17,7 +27,6 @@ $light:         #F3F7F4;
 $dark:          #1C121B;
 $accent-light:  #9791A5;
 $accent-dark:   #C24657;
-
 $theme-colors: (
   "primary":    $primary, 
   "secondary":  $secondary,
@@ -40,8 +49,8 @@ $pagination-active-color: $dark;
 $pagination-active-bg:    $light;
 $pagination-active-border-color: #dee2e6;
 
-// import bootstrap
-@import '../../node_modules/bootstrap/scss/bootstrap';
+// 4. Import the rest of Bootstrap
+@import "../../node_modules/bootstrap/scss/bootstrap";
 
 
 .btn-bd-primary {
