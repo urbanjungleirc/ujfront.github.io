@@ -1,22 +1,30 @@
-// sls 2024 colours
+// 2025 theme
+
+// 1. Import Bootstrap's default variables
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+
+// 2. Define missing variables (to prevent errors)
+$mark-bg-dark: #f8d7da;   // Background for marked text
+$mark-color-dark: #721c24; // Text color for marked text
+
+// 3. Override only the colors you care about
 $white:         #ffffff;
-$primary:       #4fd2d0;
-$secondary:     #139fb8;
-$info:          #2fcce4;
-$success:       #00b74e;
-$warning:       #f3cc00;
-$danger:        #fc0034;
-$light:         #D6EEEE;
-$dark:          #04413C;
+$primary:       #052a36;
+$secondary:     #256c76;
+$info:          #FFD587;
+$success:       #3CD670;
+$warning:       #FFC107;
+$danger:        #DC3545;
+$light:         #f9f5d6;
+$dark:          #000c36;    
 $accent-light:  #F2D8B3;
 $accent-dark:   #F08F27;
-$round1:        #fe3e02; 
-$round2:        #0a89fe;
-$round3:        #ebb500;
-$round4:        #4caf50;
-
-
-$theme-colors: (
+$round1:        #FF8470;      
+$round2:        #7DCCFF;
+$round3:        #FFD587;
+$round4:        #3CD670;  
+$theme-colors: (    
   "primary":    $primary, 
   "secondary":  $secondary,
   "success":    $success,
@@ -34,16 +42,15 @@ $theme-colors: (
   "round4":     $round4,
 );
 
-// change pagination style (colours)
-// https://getbootstrap.com/docs/5.2/components/pagination/#variables
+// change pagination style (colours) - based onhttps://getbootstrap.com/docs/5.2/components/pagination/#variables
 $pagination-color:        gray;
 $pagination-focus-color:  gray;
 $pagination-active-color: $dark;
 $pagination-active-bg:    $light;
 $pagination-active-border-color: #dee2e6;
 
-// import bootstrap
-@import '../../node_modules/bootstrap/scss/bootstrap';
+// 4. Import the rest of Bootstrap
+@import "../../node_modules/bootstrap/scss/bootstrap";
 
 .btn-bd-primary {
   --bs-btn-font-weight: 600;
@@ -97,9 +104,3 @@ $pagination-active-border-color: #dee2e6;
   color: $black;
   background-color: $white;
 }
-
-
-/*
- * DataTables style pagination controls
- * source: https://datatables.net/blog/2014-06-06#Paging-controls
- */
