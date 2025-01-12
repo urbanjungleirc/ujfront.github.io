@@ -43,11 +43,11 @@ $theme-colors: (
 );
 
 // change pagination style (colours) - based onhttps://getbootstrap.com/docs/5.2/components/pagination/#variables
-// $pagination-color:        gray;
+$pagination-color:        $secondary;
 // $pagination-focus-color:  gray;
 // $pagination-active-color: $dark;
-// $pagination-active-bg:    $light;
-// $pagination-active-border-color: #dee2e6;
+$pagination-active-bg:    $secondary;
+$pagination-active-border-color: $secondary;
 
 // 4. Import the rest of Bootstrap
 @import "../../node_modules/bootstrap/scss/bootstrap";
