@@ -19,7 +19,7 @@ $danger:        #DC3545;
 $light:         #f9f5d6;
 $dark:          #000c36;    
 $accent-light:  #F2D8B3;
-$accent-dark:   #F08F27;
+$accent-dark:   #F08F27;      
 $round1:        #FF8470;      
 $round2:        #7DCCFF;
 $round3:        #FFD587;
@@ -43,11 +43,11 @@ $theme-colors: (
 );
 
 // change pagination style (colours) - based onhttps://getbootstrap.com/docs/5.2/components/pagination/#variables
-$pagination-color:        gray;
-$pagination-focus-color:  gray;
-$pagination-active-color: $dark;
-$pagination-active-bg:    $light;
-$pagination-active-border-color: #dee2e6;
+// $pagination-color:        gray;
+// $pagination-focus-color:  gray;
+// $pagination-active-color: $dark;
+// $pagination-active-bg:    $light;
+// $pagination-active-border-color: #dee2e6;
 
 // 4. Import the rest of Bootstrap
 @import "../../node_modules/bootstrap/scss/bootstrap";
