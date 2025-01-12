@@ -5,102 +5,102 @@
 @import "../../node_modules/bootstrap/scss/variables";
 
 // 2. Define missing variables (to prevent errors)
-$mark-bg-dark: #f8d7da;   // Background for marked text
+$mark-bg-dark: #f8d7da; // Background for marked text
 $mark-color-dark: #721c24; // Text color for marked text
 
 // 3. Override only the colors you care about
-$white:         #ffffff;
-$primary:       #052a36;
-$secondary:     #256c76;
-$info:          #FFD587;
-$success:       #3CD670;
-$warning:       #FFC107;
-$danger:        #DC3545;
-$light:         #f9f5d6;
-$dark:          #000c36;    
-$accent-light:  #F2D8B3;
-$accent-dark:   #F08F27;      
-$round1:        #FF8470;      
-$round2:        #7DCCFF;
-$round3:        #FFD587;
-$round4:        #3CD670;  
-$theme-colors: (    
-  "primary":    $primary, 
-  "secondary":  $secondary,
-  "success":    $success,
-  "info":       $info,
-  "warning":    $warning,
-  "danger":     $danger,
-  "light":      $light,
-  "dark":       $dark, 
-  "white":      $white,
-  "accent-light":$accent-light,
-  "accent-dark":$accent-dark,
-  "round1":     $round1,
-  "round2":     $round2,
-  "round3":     $round3,
-  "round4":     $round4,
+$white: #ffffff;
+$primary: #052a36;
+$secondary: #256c76;
+$info: #ffd587;
+$success: #3cd670;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f9f5d6;
+$dark: #000c36;
+$accent-light: #f2d8b3;
+$accent-dark: #f08f27;
+$round1: #ff8470;
+$round2: #7dccff;
+$round3: #ffd587;
+$round4: #3cd670;
+$theme-colors: (
+    "primary": $primary,
+    "secondary": $secondary,
+    "success": $success,
+    "info": $info,
+    "warning": $warning,
+    "danger": $danger,
+    "light": $light,
+    "dark": $dark,
+    "white": $white,
+    "accent-light": $accent-light,
+    "accent-dark": $accent-dark,
+    "round1": $round1,
+    "round2": $round2,
+    "round3": $round3,
+    "round4": $round4,
 );
 
-// change pagination style (colours) - based onhttps://getbootstrap.com/docs/5.2/components/pagination/#variables
-$pagination-color:        $secondary;
+// change pagination style (colours) - based on https://getbootstrap.com/docs/5.2/components/pagination/#variables
+$pagination-color: $secondary;
 // $pagination-focus-color:  gray;
 // $pagination-active-color: $dark;
-$pagination-active-bg:    $secondary;
+$pagination-active-bg: $secondary;
 $pagination-active-border-color: $secondary;
 
 // 4. Import the rest of Bootstrap
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 .btn-bd-primary {
-  --bs-btn-font-weight: 600;
-  --bs-btn-color: var(--bs-white);
-  --bs-btn-bg: var(--primary);
-  --bs-btn-border-color: var(--primary);
-  --bs-btn-border-radius: .5rem;
-  --bs-btn-hover-color: var(--bs-white);
-  --bs-btn-hover-bg: #{shade-color($primary, 10%)};
-  --bs-btn-hover-border-color: #{shade-color($primary, 10%)};
-  --bs-btn-focus-shadow-rgb: var(--primary-rgb);
-  --bs-btn-active-color: var(--bs-btn-hover-color);
-  --bs-btn-active-bg: #{shade-color($primary, 20%)};
-  --bs-btn-active-border-color: #{shade-color($primary, 20%)};
+    --bs-btn-font-weight: 600;
+    --bs-btn-color: var(--bs-white);
+    --bs-btn-bg: var(--primary);
+    --bs-btn-border-color: var(--primary);
+    --bs-btn-border-radius: 0.5rem;
+    --bs-btn-hover-color: var(--bs-white);
+    --bs-btn-hover-bg: #{shade-color($primary, 10%)};
+    --bs-btn-hover-border-color: #{shade-color($primary, 10%)};
+    --bs-btn-focus-shadow-rgb: var(--primary-rgb);
+    --bs-btn-active-color: var(--bs-btn-hover-color);
+    --bs-btn-active-bg: #{shade-color($primary, 20%)};
+    --bs-btn-active-border-color: #{shade-color($primary, 20%)};
 }
 
 // custom styles
-.blue-hold { 
-  color: $white;
-  background-color: $blue-600;  
- }
+.blue-hold {
+    color: $white;
+    background-color: $blue-600;
+}
 .red-hold {
-  color: $white;
-  background-color: $red-600; 
+    color: $white;
+    background-color: $red-600;
 }
 .yellow-hold {
-  color: $black;
-  background-color: $yellow-400; 
+    color: $black;
+    background-color: $yellow-400;
 }
 .pink-hold {
-  color: $black; 
-  background-color: $pink-400; 
+    color: $black;
+    background-color: $pink-400;
 }
 .orange-hold {
-  color: $black;
-  background-color: $orange-500;
+    color: $black;
+    background-color: $orange-500;
 }
 .green-hold {
-  color: $black;
-  background-color: #60B36F;
+    color: $black;
+    background-color: #60b36f;
 }
 .black-hold {
-  color: $white;
-  background-color: $black;
+    color: $white;
+    background-color: $black;
 }
 .purple-hold {
-  color: $white;
-  background-color: $purple-700;
+    color: $white;
+    background-color: $purple-700;
 }
 .white-hold {
-  color: $black;
-  background-color: $white;
+    color: $black;
+    background-color: $white;
 }
