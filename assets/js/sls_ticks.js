@@ -6,19 +6,37 @@ const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370P
 const ticksUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks"; // public copy data
 const rowsPerPage = 10;                         // number of rows per page
 const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
-const competitionEndTime = "2024-03-21 19:00";
+//const competitionEndTime = "2024-03-21 19:00";
+const competitionEndTime = new Date("2024-03-21T19:00:00");
 
 // setting up Modal element
 let mySpinner = new bootstrap.Modal(document.getElementById('modalSpinner'), {
     keyboard: false
   });
 
-
 //* set default timers
-let timer = timezz(document.querySelector("#timer"), {
-    date: competitionEndTime,
-    stopOnZero: true
-});
+// let timer = timezz(document.querySelector("#timer"), {
+//     date: competitionEndTime,
+//     stopOnZero: true
+// });
+
+function updateCountdown() {
+    const now = new Date();
+    const timeLeft = countdown(now, competitionEndTime);
+    
+    if (timeLeft.value <= 0) {
+        document.querySelector("#timer").innerHTML = "Competition Ended!";
+        clearInterval(timerInterval);
+        return;
+    }
+
+    document.querySelector("[data-days]").innerText = timeLeft.days;
+    document.querySelector("[data-hours]").innerText = timeLeft.hours;
+    document.querySelector("[data-minutes]").innerText = timeLeft.minutes;
+}
+
+const timerInterval = setInterval(updateCountdown, 1000);
+updateCountdown();
 
 /** 
 * dataTable setup
