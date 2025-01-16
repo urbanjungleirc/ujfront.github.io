@@ -18,22 +18,41 @@ let currentCategoryIndex = 0; // filtering data - enter category
 const categories = [
     "advanced",
     "intermediate",
-    "youth",
+    "open",
     "novice - top rope",
     "youth - top rope",
 ];
-const competitionEndTime = "2024-03-21 19:00";
+const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
 // setting up Modal element
 let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
     keyboard: false,
 });
 
-//* set default timers
-let timer = timezz(document.querySelector("#timer"), {
-    date: competitionEndTime,
-    stopOnZero: true,
-});
+function updateCountdown() {
+    const now = new Date();
+
+    // Use countdown library with specific units
+    const timeLeft = countdown(
+        now,
+        competitionEndTime,
+        countdown.DAYS | countdown.HOURS | countdown.MINUTES
+    );
+
+    if (timeLeft.value <= 0) {
+        document.querySelector("#timer").innerHTML = "Competition Ended!";
+        clearInterval(timerInterval);
+        return;
+    }
+
+    // Display values
+    document.querySelector("[data-days]").innerText = timeLeft.days;
+    document.querySelector("[data-hours]").innerText = timeLeft.hours;
+    document.querySelector("[data-minutes]").innerText = timeLeft.minutes;
+}
+
+const timerInterval = setInterval(updateCountdown, 1000);
+updateCountdown();
 
 /**
  * dataTable setup
