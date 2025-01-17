@@ -16,9 +16,9 @@ let firstPageCallDone = false;
 const rowsPerPage = 7; // number of rows per page
 let currentCategoryIndex = 0; // filtering data - enter category
 const categories = [
+    "open",
     "advanced",
     "intermediate",
-    "open",
     "novice - top rope",
     "youth - top rope",
 ];
@@ -47,8 +47,8 @@ function updateCountdown() {
 
     // Display values
     document.querySelector("[data-days]").innerText = timeLeft.days;
-    document.querySelector("[data-hours]").innerText = timeLeft.hours;
-    document.querySelector("[data-minutes]").innerText = timeLeft.minutes;
+    // document.querySelector("[data-hours]").innerText = timeLeft.hours;
+    // document.querySelector("[data-minutes]").innerText = timeLeft.minutes;
 }
 
 const timerInterval = setInterval(updateCountdown, 1000);
