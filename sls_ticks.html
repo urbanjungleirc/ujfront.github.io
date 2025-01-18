@@ -38,6 +38,7 @@
             border-radius: 50%;
             box-shadow: inset -2px 0 0 2px rgb(255, 217, 0);
         }
+
     </style>
 </head>
 
@@ -69,13 +70,12 @@
                 <div class="flex-grow-1 ms-3 text-center">
                     <div class="alert alert-light" role="alert">
                         <h4 class="alert-heading">Ticks </br>& Sends</h4>
-                      </div>
+                    </div>
                 </div>
             </div>
         </div>
         <!-- sub-bar -->
-        <div
-            class="row pt-3 px-1 pb-0 text-primary bg-light border-bottom border-accent-dark border-opacity-75 border-5">
+        <div class="row pt-3 px-1 pb-0 text-primary bg-light-subtle">
             <div class="col">
                 <p class="text-primary" id="timer">
                     Time left to score </br>
@@ -84,6 +84,7 @@
                     <span data-minutes class="text-primary fw-bold"></span>m
                 </p>
             </div>
+
             <div class="col">
                 <p class="text-end text-primary">Scores from</br>
                     <span id="updatedAt" class="fw-bold"></span>
@@ -92,18 +93,28 @@
         </div>
 
         <!-- the table -->
-        <div class="row justify-content-center p-1">
+        <!-- <div class="row justify-content-center p-1">
             <div class="col card bg-white border border-1 border-primary border-opacity-25 mx-1 px-1"
                 style="border-radius: .5rem;">
                 <div class="card-body px-0 pt-2 pb-3">
                     <div class="table-responsive" style="width: 100%;">
                         <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded"
                             style="width: 100%;">
+                            <tbody class="table-group-divider"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
+        </div> -->
+        <div class="row justify-content-center p-1">
+            <div class="table-responsive" style="width: 100%;">
+                <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded"
+                    style="width: 100%;">
+                    <tbody class="table-group-divider"></tbody>
+                </table>
+            </div>
         </div>
+
 
     </div>
 
@@ -126,7 +137,7 @@
     <!-- <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countdown/2.6.0/countdown.min.js"></script>
-    
+
     <!-- custom -->
     <script src="assets/js/sls_ticks.js"></script>
 

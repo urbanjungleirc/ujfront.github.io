@@ -4,8 +4,14 @@
 */
 const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data
 const rowsPerPage = 10;                         // number of rows per page
-const categories = ["advanced", "intermediate", "youth", "novice - top rope", "youth - top rope"];
-const competitionEndTime = "2024-03-21 19:00";
+const categories = [
+    "open",
+    "advanced",
+    "intermediate",
+    "novice - top rope",
+    "youth - top rope",
+];
+const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
 // setting up Modal element
 let mySpinner = new bootstrap.Modal(document.getElementById('modalSpinner'), {
@@ -14,16 +20,34 @@ let mySpinner = new bootstrap.Modal(document.getElementById('modalSpinner'), {
 
 
 //* set default timers
-let timer = timezz(document.querySelector("#timer"), {
-    date: competitionEndTime,
-    stopOnZero: true
-});
+function updateCountdown() {
+    const now = new Date();
+
+    // Use countdown library with specific units
+    const timeLeft = countdown(
+        now,
+        competitionEndTime,
+        countdown.DAYS | countdown.HOURS | countdown.MINUTES
+    );
+
+    if (timeLeft.value <= 0) {
+        document.querySelector("#timer").innerHTML = "Competition Ended!";
+        clearInterval(timerInterval);
+        return;
+    }
+
+    // Display values
+    document.querySelector("[data-days]").innerText = timeLeft.days;
+    document.querySelector("[data-hours]").innerText = timeLeft.hours;
+    document.querySelector("[data-minutes]").innerText = timeLeft.minutes;
+}
+
+const timerInterval = setInterval(updateCountdown, 1000);
+updateCountdown();
 
 /** 
 * dataTable setup
 */
-
-
 $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
@@ -84,30 +108,6 @@ $("#tableMale")
             },
             
         ],
-
-        // searchCols: [
-        //     { search: `\\bmale\\b`, regex: true },
-        //     null, 
-        //     null,
-        //     null,
-        //     null
-        // ],
-        // buttons: [
-        //     'searchPanes',
-        //     {
-        //         text: 'Order by Name',
-        //         action: function ( e, dt, node, config ) {
-        //             dt.order([1, 'asc']).draw();
-        //         }
-        //     },
-        //     {
-        //         text: 'Speed',
-        //         action: function ( e, dt, node, config ) {
-        //             dt.order([24, 'asc']).draw();
-        //         },
-        //         className: 'text-speed'
-        //     },
-        // ],
         
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ competitors", 
@@ -124,7 +124,23 @@ $("#tableMale")
 
         order: [[2, "asc"]],      
 
-        dom: 'rt<"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',
+        layout: {
+            topStart: null,
+            topEnd: null,
+            bottomStart: "info",
+            bottomEnd: "paging",
+            bottom1: "pageLength",
+        },
+
+        initComplete: function () {
+            // wrapping the table with a new div to improve the appearance (adding styles)
+            let tableElement = this.api().table().node(); // Get the main table element
+            let $newWrapper = $('<div>', {
+                class: 'bg-primary rounded rounded-3 px-0 py-1'
+            });
+            $(tableElement).wrap($newWrapper);
+      },
+
         
     })
 

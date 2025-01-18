@@ -94,6 +94,7 @@ $(document).ready(function () {
                         //return `R${nameParts[0]} ${nameParts[1]}`;
                         return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">r${nameParts[0]} ${nameParts[1]}</a>`;
                     },
+                    className: "dt-body-center",
                 },
                 {
                     data: "tick",
@@ -110,6 +111,7 @@ $(document).ready(function () {
                         // else
                         return data;
                     },
+                    className: "dt-body-center",
                 },
                 {
                     data: "bonus",
@@ -118,6 +120,7 @@ $(document).ready(function () {
                     render: function (data) {
                         return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                     },
+                    className: "dt-body-center",
                 },
                 {
                     data: "gender",
@@ -134,6 +137,7 @@ $(document).ready(function () {
                         // else
                         return data;
                     },
+                    className: "dt-body-center",
                 },
                 {
                     data: "category",
@@ -180,7 +184,7 @@ $(document).ready(function () {
                     action: function (e, dt, node, config) {
                         refreshData();
                     },
-                    className: "btn-light",
+                    className: "btn-primary",
                 },
             ],
 
@@ -190,13 +194,20 @@ $(document).ready(function () {
             pagingType: "simple_numbers",
             renderer: "bootstrap",
 
-            // dom: '<"row my-3" <"col" B> <"col text-end" f>> rt <"row row-cols-1 text-center mb-3" <"col mb-0 pe-4" p><"col text-secondary mb-3" i> <"col" l> >',
             layout: {
                 topStart: "buttons",
                 topEnd: "search",
                 bottomStart: "info",
                 bottomEnd: "paging",
                 bottom1: "pageLength",
+            },
+            initComplete: function () {
+                  // wrapping the table with a new div to improve the appearance (adding styles)
+                  let tableElement = this.api().table().node(); // Get the main table element
+                  let $newWrapper = $('<div>', {
+                      class: 'bg-primary rounded rounded-3 px-0 py-1'
+                  });
+                  $(tableElement).wrap($newWrapper);
             },
         });
 });
