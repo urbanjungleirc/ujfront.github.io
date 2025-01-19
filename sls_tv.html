@@ -17,6 +17,7 @@
     <link href="https://cdn.datatables.net/select/2.1.0/css/select.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="assets/css/uj_sls.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        
     <style>
         /* ENDLESS ROTATE */
         .rotate {
@@ -36,6 +37,12 @@
             height: 50px;
             border-radius: 50%;
             box-shadow: inset -2px 0 0 2px rgb(255, 217, 0);
+        }
+        h1,
+        h2,
+        h3, 
+        .sls-font {
+            font-family: 'FatFrank', sans-serif;
         }
     </style>
 
@@ -60,31 +67,31 @@
         <!-- heading -->
         <div class="row text-white bg-primary mb-0 py-1">
             <div class="col-auto me-auto">
-                <div class="h1 d-flex align-items-center"><img src="assets/img/sls_logo.png" alt="SLS" width="50"
+                <h1 class="d-flex align-items-center"><img src="assets/img/sls_logo.png" alt="SLS" width="50"
                         height="50" class="me-2"> Summer Lead Series
                     <small class="text-white-50 visually-hidden">LIVESCORE</small>
                     <small id="updatedAt" class="text-white-50 visually-hidden"></small>
-                </div>
+                </h1>
             </div>
             <div class="col-auto">
-                <div class="h1 d-flex align-items-center text-white-50" id="timer">
+                <h1 class="d-flex align-items-center text-white-50" id="timer">
                     <span data-days class="text-white fw-bold me-2"></span>days left
-                </div>
+                </h1>
             </div>
         </div>
 
         <!-- sub-heading -->
         <div class="row bg-light text-primary mb-1 pt-2 pb-0">
             <div class="col align-self-start">
-                <h2 class="text-primary fs-1"><i class="bi bi-gender-male"></i> male</h2>
+                <h2 class="text-primary"><i class="bi bi-gender-male me-2"></i> male</h2>
             </div>
             <div class="col align-self-center text-center">
                 <h2 id="activeCategory"
-                    class="text-light fs-1 bg-primary border border-1 border-opacity-25 border-primary rounded-5 ">
+                    class="text-light bg-primary border border-1 border-opacity-25 border-primary rounded-5 ">
                     Category</h2>
             </div>
-            <div class="col align-self-end text-end ">
-                <h2 class="text-primary fs-1"><i class="bi bi-gender-female px-3 py-1"></i> female</h2>
+            <div class="col align-self-end text-end">
+                <h2 class="text-primary"><i class="bi bi-gender-female me-2 py-1"></i> female</h2>
             </div>
         </div>
 

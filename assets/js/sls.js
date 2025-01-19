@@ -8,8 +8,8 @@ const categories = [
     "open",
     "advanced",
     "intermediate",
-    "novice - top rope",
-    "youth - top rope",
+    "novice",
+    "youth",
 ];
 const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
@@ -101,7 +101,7 @@ $("#tableMale")
                 render: function (data, type) {
                     if (type === "display") {
                         //return `<a href="#" rel="noopener noreferrer" >${data}</a>`; //class="btn btn-outline-primary"
-                        return `<span class="btn btn-sm btn-outline-primary border-0">${data}</span>`; //class="btn btn-outline-primary"
+                        return `<span class="btn btn-sm btn-outline-primary">${data}</span>`; //class="btn btn-outline-primary"
                     }
                     else { return data;}
                 } 
@@ -176,13 +176,13 @@ function changeGender(gender) {
     }
 }
 
-function changeCategory(e) {
+function filterCategory(e) {
     switch (e.value) {
         case 'tr':
-            tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
+            tblMale.DataTable().columns(1).search(`\^\\b(novice|youth)\$\\b`, true ).draw();
             break;
         case 'lead':
-            tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
+            tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|open)\$\\b`, true ).draw();
             break;
         default:
             tblMale.DataTable().columns(1).search(`\^\\b${categories[e.value]}\$\\b`, true ).draw();

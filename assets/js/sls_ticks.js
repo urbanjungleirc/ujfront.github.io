@@ -11,8 +11,8 @@ const categories = [
     "open",
     "advanced",
     "intermediate",
-    "novice - top rope",
-    "youth - top rope",
+    "novice",
+    "youth",
 ];
 const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
@@ -145,12 +145,11 @@ $(document).ready(function () {
                     title: "Category",
                     render: function (data, type, row) {
                         if (type === "display") {
-                            if (data.includes("rope")) {
+                            if (data.includes("top rope")) {
                                 return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data.replace(
                                     /top rope/g,
                                     "TR"
                                 )}</a>`;
-                                //return data.replace(/top rope/g, "TR");
                             } else {
                                 return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                             }

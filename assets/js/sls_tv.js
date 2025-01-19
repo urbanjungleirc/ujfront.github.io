@@ -19,8 +19,8 @@ const categories = [
     "open",
     "advanced",
     "intermediate",
-    "novice - top rope",
-    "youth - top rope",
+    "novice",
+    "youth",
 ];
 const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
