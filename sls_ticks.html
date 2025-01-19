@@ -43,7 +43,7 @@
 
         h1,
         h2,
-        h3, 
+        h3,
         .sls-font {
             font-family: 'FatFrank', sans-serif;
         }
@@ -51,6 +51,61 @@
 </head>
 
 <body class="bg-light">
+
+    <header>
+        <div class="px-3 py-2 text-bg-primary border-bottom">
+            <div class="container-md">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                    <div class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white">
+                        <div class="flex-shrink-0">
+                            <img src="./assets/img/sls_logo.png" alt="SLS" width="100" height="100">
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h1>Summer Lead Series</br><span class="text-white-50">by Urban Jungle IRC</span></h1>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3 text-end">
+                        <div class="text-light">
+                            <h2>Ticks & Sends</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="px-3 py-2 border-bottom mb-3 bg-white">
+            <div class="container-md d-flex flex-wrap justify-content-center">
+                <div class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto">
+                    <p class="text-primary mb-0" id="timer">
+                        Time left to score </br>
+                        <span data-days class="text-primary fw-bold"></span>d
+                        <span data-hours class="text-primary fw-bold"></span>h
+                        <span data-minutes class="text-primary fw-bold"></span>m
+                    </p>
+                </div>
+                <div class="text-end">
+                    <p class="text-end text-primary mb-0">Scores from</br>
+                        <span id="updatedAt" class="fw-bold"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container-md p-1">
+        <!-- the table -->
+        <div class="justify-content-center">
+            <div class="table-responsive" style="width: 100%;">
+                <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded"
+                    style="width: 100%;">
+                    <tbody class="table-group-divider"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="container-fluid bg-primary text-white text-center mt-3 py-2">
+        <p class="text-white-50 mb-0">Developed by <a href="https://urbanjungleirc.com" class="text-white-50">Urban Jungle IRC</a></p>
+    </footer>
 
     <!-- Spinner-->
     <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
@@ -63,68 +118,6 @@
         </div>
     </div>
 
-    <!-- main container -->
-    <div class="container-fluid">
-
-        <!-- main bar -->
-        <div class="row text-white bg-primary mb-0 py-2">
-            <div class="d-flex">
-                <div class="flex-shrink-0">
-                    <img src="./assets/img/sls_logo.png" alt="SLS" width="50" height="50">
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <h1>Summer Lead Series</br><span class="text-white-50">by Urban Jungle IRC</span></h1>
-                </div>
-                <div class="flex-grow-1 ms-3 text-end">
-                    <div class=" p-3 text-light">
-                        <h2>Ticks & Sends</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- sub-bar -->
-        <div class="row pt-3 px-1 pb-0 text-primary bg-light-subtle">
-            <div class="col">
-                <p class="text-primary" id="timer">
-                    Time left to score </br>
-                    <span data-days class="text-primary fw-bold"></span>d
-                    <span data-hours class="text-primary fw-bold"></span>h
-                    <span data-minutes class="text-primary fw-bold"></span>m
-                </p>
-            </div>
-
-            <div class="col">
-                <p class="text-end text-primary">Scores from</br>
-                    <span id="updatedAt" class="fw-bold"></span>
-                </p>
-            </div>
-        </div>
-
-        <!-- the table -->
-        <!-- <div class="row justify-content-center p-1">
-            <div class="col card bg-white border border-1 border-primary border-opacity-25 mx-1 px-1"
-                style="border-radius: .5rem;">
-                <div class="card-body px-0 pt-2 pb-3">
-                    <div class="table-responsive" style="width: 100%;">
-                        <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded"
-                            style="width: 100%;">
-                            <tbody class="table-group-divider"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-        <div class="row justify-content-center p-1">
-            <div class="table-responsive" style="width: 100%;">
-                <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded"
-                    style="width: 100%;">
-                    <tbody class="table-group-divider"></tbody>
-                </table>
-            </div>
-        </div>
-
-
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
