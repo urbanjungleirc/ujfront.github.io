@@ -68,7 +68,7 @@ let pageTimer = new Timer(pageFlipper, 600000);
 // });
 
 // moving dataTable warning to the console -  https://datatables.net/manual/tech-notes/7
-$.fn.dataTable.ext.errMode = 'throw';
+// $.fn.dataTable.ext.errMode = 'throw';
 
 $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
