@@ -7,7 +7,11 @@
     -------------------------------------
 */
 // public copy data in JSON format
-const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+//const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+// public copy data in JSONP format
+const scoreUrl = 'https://script.google.com/macros/s/AKfycbxT-iCL9thSaPhjBbR2guYymQ6Q9fxuebsgbVT9tavoG1-DWmm6yU8_HR7aovXW5sS-Wg/exec' +
+    '?attribute=jsonp' +
+    '&callback=jsonpCallback'; 
 const minPageDisplay = 10000; // minimum time for a page to be displayed
 const maxPageDisplay = 15000; // maximum time for a page to be displayed
 let dataRefreshInterval = 2 * 60000; // frequency for full data refresh
@@ -51,7 +55,6 @@ function updateCountdown() {
     // document.querySelector("[data-hours]").innerText = timeLeft.hours;
     // document.querySelector("[data-minutes]").innerText = timeLeft.minutes;
 }
-
 const timerInterval = setInterval(updateCountdown, 1000);
 updateCountdown();
 
@@ -70,234 +73,238 @@ let pageTimer = new Timer(pageFlipper, 600000);
 // moving dataTable warning to the console -  https://datatables.net/manual/tech-notes/7
 $.fn.dataTable.ext.errMode = 'throw';
 
-$("#tableMale")
-    .on("preXhr.dt", function (e, settings, json, xhr) {
-        // fired when an Ajax request is completed
-        mySpinner.show();
-    })
-    .on('page.dt', function () {
-        tblMale.fadeOut("fast");
-        tblMale.fadeIn("fast"); 
-    })
-    .dataTable({
-        ajax: {
-            url: scoreUrl,
-            cache: true,
-            dataSrc: "data",
-            data: function (d) {
-                d.format = "json";
+function initializeDataTables(data) {
+    
+    $("#tableMale")
+        .on("preXhr.dt", function () {
+            // fired when an Ajax request is completed
+            mySpinner.show();
+        })
+        .on('page.dt', function () {
+            $('#tableMale').fadeOut("fast").fadeIn("fast"); 
+        })
+        .dataTable({
+            ajax: {
+                // url: scoreUrl,
+                // cache: true,
+                // dataType: "jsonp",
+                // dataSrc: "data",
+                // data: function (d) {
+                //     d.format = "json";
+                // },
+                data: data, 
             },
-        },
 
-        columns: [
-            { data: "gender", visible: false, title: "Gender" },
-            { data: "category", visible: false, title: "Category" },
-            {
-                data: "rank",
-                class: "dt-center",
-                render: function (data, type) {
-                    if (type === "display") {
-                        switch (data) {
-                            case 1:
-                            case 2:
-                            case 3:
-                                return `<span class="text-secondary bg-transparent fw-bold">${data}</span>`;
-                                break;
-                            case 4:
-                            case 5:
-                            case 6:
-                                return `<span class="text-secondary bg-transparent">${data}</span>`;
-                                break;
-                            default:
-                                return `<span class="text-primary bg-transparent">${data}</span>`;
+            columns: [
+                { data: "gender", visible: false, title: "Gender" },
+                { data: "category", visible: false, title: "Category" },
+                {
+                    data: "rank",
+                    class: "dt-center",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            switch (data) {
+                                case 1:
+                                case 2:
+                                case 3:
+                                    return `<span class="text-secondary bg-transparent fw-bold">${data}</span>`;
+                                    break;
+                                case 4:
+                                case 5:
+                                case 6:
+                                    return `<span class="text-secondary bg-transparent">${data}</span>`;
+                                    break;
+                                default:
+                                    return `<span class="text-primary bg-transparent">${data}</span>`;
+                            }
                         }
-                    }
-                    return data;
+                        return data;
+                    },
+                    orderable: false,
+                    class: "align-middle",
                 },
-                orderable: false,
-                class: "align-middle",
-            },
-            {
-                data: "name",
-                title: "Name",
-                orderable: false,
-                class: "align-middle",
-                render: function (data, type) {
-                    if (type === "display") {
-                        return shortName(data);
-                    }
-                    return data;
+                {
+                    data: "name",
+                    title: "Name",
+                    orderable: false,
+                    class: "align-middle",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            return shortName(data);
+                        }
+                        return data;
+                    },
                 },
-            },
-            {
-                data: "score",
-                title: "Score",
-                orderable: false,
-                class: "dt-right align-middle",
-            },
-            {
-                data: null,
-                class: "dt-right py-1",
-                render: function (row, type) {
-                    if (type === "display") {
-                        return sends(row);
-                    }
-                    return;
+                {
+                    data: "score",
+                    title: "Score",
+                    orderable: false,
+                    class: "dt-right align-middle",
                 },
-                orderable: false,
-                title: "",
-                defaultContent: "",
+                {
+                    data: null,
+                    class: "dt-right py-1",
+                    render: function (row, type) {
+                        if (type === "display") {
+                            return sends(row);
+                        }
+                        return;
+                    },
+                    orderable: false,
+                    title: "",
+                    defaultContent: "",
+                },
+            ],
+
+            //* paging setup
+            lengthChange: false,
+            pageLength: rowsPerPage,
+            pagingType: "numbers",
+            renderer: "bootstrap",
+
+            searchCols: [
+                { search: `\\bmale\\b`, regex: true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
+                {
+                    search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
+                    regex: true,
+                },
+                null,
+                null,
+                null,
+                null,
+            ],
+
+            language: {
+                info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
+                infoFiltered: "",
+                infoEmpty: "No competitors found",
+                lengthMenu: "Display _MENU_ competitors",
             },
-        ],
 
-        //* paging setup
-        lengthChange: false,
-        pageLength: rowsPerPage,
-        pagingType: "numbers",
-        renderer: "bootstrap",
+            order: [[2, "asc"]],
+            dom: "irt",
+        });
 
-        searchCols: [
-            { search: `\\bmale\\b`, regex: true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
-            {
-                search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
-                regex: true,
-            },
-            null,
-            null,
-            null,
-            null,
-        ],
-
-        language: {
-            info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
-            infoFiltered: "",
-            infoEmpty: "No competitors found",
-            lengthMenu: "Display _MENU_ competitors",
-        },
-
-        order: [[2, "asc"]],
-        dom: "irt",
-    });
-
-// Female table setup
-$("#tableFemale")
-    .one("init.dt", function () {
-        //  fired when DataTables has been fully initialised and data loaded
-        startPageRotations();
-    })
-    .on("xhr.dt", function (e, settings, json, xhr) {
-        // fired when an Ajax request is completed
-        // updates time and start Restarts Page Roatation
-        let el = document.getElementById("updatedAt");
-        moment.locale("au");
-        el.innerText = " @ " + moment().format("LT");
-        if (firstPageCallDone) {
+    $("#tableFemale")
+        .one("init.dt", function () {
+            //  fired when DataTables has been fully initialised and data loaded
             startPageRotations();
-        }
-    })
-    .on('page.dt', function () {
-        tblFemale.fadeOut("fast");
-        tblFemale.fadeIn("fast"); 
-    })
-    .dataTable({
-        ajax: {
-            url: scoreUrl,
-            cache: true,
-            data: function (d) {
-                d.format = "json";
+        })
+        .on("xhr.dt", function (e, settings, json, xhr) {
+            // fired when an Ajax request is completed
+            // updates time and start Restarts Page Roatation
+            let el = document.getElementById("updatedAt");
+            moment.locale("au");
+            el.innerText = " @ " + moment().format("LT");
+            if (firstPageCallDone) {
+                startPageRotations();
+            }
+        })
+        .on('page.dt', function () {
+            $('#tableFemale').fadeOut("fast").fadeIn("fast");
+        })
+        .dataTable({
+            ajax: {
+                // url: scoreUrl,
+                // cache: true,
+                // dataSrc: "data",
+                // dataType: "jsonp",
+                // data: function (d) {
+                //     d.format = "json";
+                // },
+                data: data,
             },
-            dataSrc: "data",
-        },
 
-        columns: [
-            { data: "gender", visible: false, title: "Gender" },
-            { data: "category", visible: false, title: "Category" },
-            {
-                data: "rank",
-                class: "dt-center",
-                render: function (data, type) {
-                    if (type === "display") {
-                        switch (data) {
-                            case 1:
-                            case 2:
-                            case 3:
-                                return `<span class="text-secondary bg-transparent fw-bold">${data}</span>`;
-                                break;
-                            case 4:
-                            case 5:
-                            case 6:
-                                return `<span class="text-secondary bg-transparent">${data}</span>`;
-                                break;
-                            default:
-                                return `<span class="text-primary bg-transparent">${data}</span>`;
+            columns: [
+                { data: "gender", visible: false, title: "Gender" },
+                { data: "category", visible: false, title: "Category" },
+                {
+                    data: "rank",
+                    class: "dt-center",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            switch (data) {
+                                case 1:
+                                case 2:
+                                case 3:
+                                    return `<span class="text-secondary bg-transparent fw-bold">${data}</span>`;
+                                    break;
+                                case 4:
+                                case 5:
+                                case 6:
+                                    return `<span class="text-secondary bg-transparent">${data}</span>`;
+                                    break;
+                                default:
+                                    return `<span class="text-primary bg-transparent">${data}</span>`;
+                            }
                         }
-                    }
-                    return data;
+                        return data;
+                    },
+                    orderable: false,
+                    class: "align-middle",
                 },
-                orderable: false,
-                class: "align-middle",
-            },
-            {
-                data: "name",
-                title: "Name",
-                orderable: false,
-                class: "align-middle",
-                render: function (data, type) {
-                    if (type === "display") {
-                        return shortName(data);
-                    }
-                    return data;
+                {
+                    data: "name",
+                    title: "Name",
+                    orderable: false,
+                    class: "align-middle",
+                    render: function (data, type) {
+                        if (type === "display") {
+                            return shortName(data);
+                        }
+                        return data;
+                    },
                 },
-            },
-            {
-                data: "score",
-                title: "Score",
-                orderable: false,
-                class: "dt-right align-middle",
-            },
-            {
-                data: null,
-                class: "dt-right py-1",
-                render: function (row, type) {
-                    if (type === "display") {
-                        return sends(row);
-                    }
-                    return;
+                {
+                    data: "score",
+                    title: "Score",
+                    orderable: false,
+                    class: "dt-right align-middle",
                 },
-                orderable: false,
-                title: "",
-                defaultContent: "",
+                {
+                    data: null,
+                    class: "dt-right py-1",
+                    render: function (row, type) {
+                        if (type === "display") {
+                            return sends(row);
+                        }
+                        return;
+                    },
+                    orderable: false,
+                    title: "",
+                    defaultContent: "",
+                },
+            ],
+
+            searchCols: [
+                { search: `\\bfemale\\b`, regex: true },
+                {
+                    search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
+                    regex: true,
+                },
+                null,
+                null,
+                null,
+                null,
+            ],
+
+            //* paging setup
+            lengthChange: false,
+            pageLength: rowsPerPage,
+            pagingType: "numbers",
+            renderer: "bootstrap",
+
+            language: {
+                info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
+                infoFiltered: "",
+                infoEmpty: "No competitors found",
+                lengthMenu: "Display _MENU_ competitors",
             },
-        ],
 
-        searchCols: [
-            { search: `\\bfemale\\b`, regex: true },
-            {
-                search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
-                regex: true,
-            },
-            null,
-            null,
-            null,
-            null,
-        ],
-
-        //* paging setup
-        lengthChange: false,
-        pageLength: rowsPerPage,
-        pagingType: "numbers",
-        renderer: "bootstrap",
-
-        language: {
-            info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
-            infoFiltered: "",
-            infoEmpty: "No competitors found",
-            lengthMenu: "Display _MENU_ competitors",
-        },
-
-        order: [[2, "asc"]],
-        dom: "irt",
-    });
+            order: [[2, "asc"]],
+            dom: "irt",
+        });
+}
 
 function startPageRotations() {
     // calculate time intervals for the page rotating and updates
@@ -537,3 +544,26 @@ function tickIcon(tick = 0, bonus = 0) {
                     </svg>`;
     }
 }
+
+// JSONP Callback Function
+function jsonpCallback(data) {
+    console.log('JSONP Data:', data);
+
+    // Hide spinner after receiving data
+    mySpinner.hide();
+
+    // Initialize or reload DataTables with JSONP data
+    initializeDataTables(data);
+}
+
+// Load JSONP Script
+function loadJsonpScript(url) {
+    const script = document.createElement('script');
+    script.src = url;
+    document.head.appendChild(script);
+}
+
+// Ensure the DOM is loaded before initiating JSONP loading
+document.addEventListener('DOMContentLoaded', function () {
+    loadJsonpScript(scoreUrl);
+});
