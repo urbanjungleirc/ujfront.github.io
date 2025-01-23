@@ -18,11 +18,11 @@ let firstPageCallDone = false;
 const rowsPerPage = 7; // number of rows per page
 let currentCategoryIndex = 0; // filtering data - enter category
 const categories = [
+    "open",
     "advanced",
     "intermediate",
+    "novice",
     "youth",
-    "novice - top rope",
-    "youth - top rope",
 ];
 const competitionEndTime = "2024-03-21 19:00";
 
