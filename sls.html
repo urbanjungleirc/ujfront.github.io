@@ -5,15 +5,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:url" content="https://ujfront.github.io/sls.html" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Summer Lead Series" />
-    <meta property="og:description" content="Urban Jungle's very own social climbing competition" />
-    <!-- <meta property="og:image" content="https://ujfront.github.io/assets/img/SLS24-is-back-facebook.png" /> -->
-    <title>Summer Lead Series 2025 - Urban Jungle IRC</title>
+    <title>Summer Lead Series - Urban Jungle IRC</title>
     <meta name="description"
         content="Join the Urban Jungle's Summer Lead Series, a premier climbing competition in Perth. Compete, enjoy, and connect with the climbing community.">
     <meta name="keywords" content="climbing competition, Urban Jungle, Perth, lead climbing, climbing event, SLS">
+    <meta property="og:url" content="https://ujfront.github.io/sls.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Summer Lead Series" />
+    <meta property="og:description" content="Check out my latest score from the Summer Lead Series!" />
+    <meta property="og:image" content="https://ujfront.github.io/assets/img/sls_score_fbshare.png" />
+
 
     <link href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css" rel="stylesheet">
@@ -54,69 +55,6 @@
             font-family: 'FatFrank', sans-serif;
         }
 
-        .hex-holder {
-            background: #1D2333;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            clip-path: polygon(47.5% 5.66987%,
-                    48.2899% 5.30154%,
-                    49.13176% 5.07596%,
-                    50% 5%,
-                    50.86824% 5.07596%,
-                    51.7101% 5.30154%,
-                    52.5% 5.66987%,
-                    87.14102% 25.66987%,
-                    87.85495% 26.16978%,
-                    88.47124% 26.78606%,
-                    88.97114% 27.5%,
-                    89.33948% 28.2899%,
-                    89.56505% 29.13176%,
-                    89.64102% 30%,
-                    89.64102% 70%,
-                    89.56505% 70.86824%,
-                    89.33948% 71.7101%,
-                    88.97114% 72.5%,
-                    88.47124% 73.21394%,
-                    87.85495% 73.83022%,
-                    87.14102% 74.33013%,
-                    52.5% 94.33013%,
-                    51.7101% 94.69846%,
-                    50.86824% 94.92404%,
-                    50% 95%,
-                    49.13176% 94.92404%,
-                    48.2899% 94.69846%,
-                    47.5% 94.33013%,
-                    12.85898% 74.33013%,
-                    12.14505% 73.83022%,
-                    11.52876% 73.21394%,
-                    11.02886% 72.5%,
-                    10.66052% 71.7101%,
-                    10.43495% 70.86824%,
-                    10.35898% 70%,
-                    10.35898% 30%,
-                    10.43495% 29.13176%,
-                    10.66052% 28.2899%,
-                    11.02886% 27.5%,
-                    11.52876% 26.78606%,
-                    12.14505% 26.16978%,
-                    12.85898% 25.66987%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-image-outer {
-            background: #1D2333;
-            width: 360px;
-            height: 360px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
     </style>
 
 </head>
@@ -233,10 +171,14 @@
         </div>
 
         <!-- Facebook Share Button -->
-        <div class="d-flex justify-content-center my-5">
+        <!-- <div class="d-flex justify-content-center my-5">
             <a class="btn btn-primary"
                 href="https://www.facebook.com/sharer/sharer.php?u=https://ujfront.github.io/sls.html" target="_blank"
                 role="button"><i class="bi bi-facebook me-2"></i>Share your results</a>
+        </div> -->
+
+        <div class="d-flex justify-content-center my-5">
+            <button class="btn btn-primary" onclick="shareOnFacebook()"><i class="bi bi-facebook me-2"></i>Share your results</button>
         </div>
 
         <!-- rules -->

@@ -6,17 +6,11 @@ const scoreUrl =
     "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data
 const ticksUrl =
     "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks"; // public copy data
-const rowsPerPage = 10; // number of rows per page
-const categories = [
-    "open",
-    "advanced",
-    "intermediate",
-    "novice",
-    "youth",
-];
+const rowsPerPage = 10;
+const categories = ["open", "advanced", "intermediate", "novice", "youth"];
 const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
-// setting up Modal element
+// setting up loading graphics
 let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
     keyboard: false,
 });
@@ -201,12 +195,12 @@ $(document).ready(function () {
                 bottom1: "pageLength",
             },
             initComplete: function () {
-                  // wrapping the table with a new div to improve the appearance (adding styles)
-                  let tableElement = this.api().table().node(); // Get the main table element
-                  let $newWrapper = $('<div>', {
-                      class: 'bg-primary rounded rounded-3 px-0 py-1'
-                  });
-                  $(tableElement).wrap($newWrapper);
+                // wrapping the table with a new div to improve the appearance (adding styles)
+                let tableElement = this.api().table().node(); // Get the main table element
+                let $newWrapper = $("<div>", {
+                    class: "bg-primary rounded rounded-3 px-0 py-1",
+                });
+                $(tableElement).wrap($newWrapper);
             },
         });
 });
@@ -227,12 +221,6 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 function clickSearch(e) {
     if (e instanceof Element) {
         switch (e.value) {
-            // case 'tr':
-            //     tblMale.DataTable().columns(1).search(`\\brope\\b`, true ).draw();
-            //     break;
-            // case 'lead':
-            //     tblMale.DataTable().columns(1).search(`\^\\b(advanced|intermediate|youth)\$\\b`, true ).draw();
-            //     break;
             default:
                 tblMale.DataTable().search(`"${e.innerText}"`, false).draw();
         }
@@ -365,3 +353,5 @@ function tickIcon(tick = 0, bonus = 0) {
                     </svg>`;
     }
 }
+
+
