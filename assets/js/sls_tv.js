@@ -6,8 +6,7 @@
     Default setting
     -------------------------------------
 */
-// public copy data in JSON format
-const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data in JSON format
 const minPageDisplay = 10000; // minimum time for a page to be displayed
 const maxPageDisplay = 15000; // maximum time for a page to be displayed
 let dataRefreshInterval = 2 * 60000; // frequency for full data refresh
@@ -171,8 +170,11 @@ $("#tableMale")
         language: {
             info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
             infoFiltered: "",
-            infoEmpty: "No competitors found",
+            infoEmpty: "",
+            emptyTable: "No climbers registered yet – the wall's waiting for your sends!",
+            zeroRecords: "No climbers registered yet – the wall's waiting for your sends!",
             lengthMenu: "Display _MENU_ competitors",
+            
         },
 
         order: [[2, "asc"]],
@@ -187,7 +189,7 @@ $("#tableFemale")
     })
     .on("xhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
-        // updates time and start Restarts Page Roatation
+        // updates time and Restart Page Roatation
         let el = document.getElementById("updatedAt");
         moment.locale("au");
         el.innerText = " @ " + moment().format("LT");
@@ -280,7 +282,7 @@ $("#tableFemale")
             null,
             null,
             null,
-        ],
+        ],  
 
         //* paging setup
         lengthChange: false,
@@ -291,8 +293,10 @@ $("#tableFemale")
         language: {
             info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
             infoFiltered: "",
-            infoEmpty: "No competitors found",
+            infoEmpty: "",
             lengthMenu: "Display _MENU_ competitors",
+            emptyTable: "No climbers registered yet – the wall's waiting for your sends!",
+            zeroRecords: "No climbers registered yet – the wall's waiting for your sends!"
         },
 
         order: [[2, "asc"]],
@@ -325,60 +329,107 @@ function startPageRotations() {
         // console.log ("startPageRotation - ONE page, timePerPage: " + timePerPage)
     }
 
-    document.querySelector("#activeCategory").innerText =
-        categories[currentCategoryIndex].toLocaleUpperCase();
+    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
     mySpinner.hide();
     pageTimer.reset(timePerPage);
 }
 
 function pageFlipper() {
-    let masterTbl = null;
-    let secondaryTbl = null;
+    if (categories[currentCategoryIndex] === 'advanced') {
+        let maleDT = tblMale.DataTable();
+        let femaleDT = tblFemale.DataTable();
+        let totalPages = maleDT.page.info().pages; // both tables share the same data
 
-    if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
-        masterTbl = tblMale.DataTable();
-        secondaryTbl = tblFemale.DataTable();
-    } else {
-        masterTbl = tblFemale.DataTable();
-        secondaryTbl = tblMale.DataTable();
-    }
+        // Get the current male page index (0-based)
+        let currentMalePage = maleDT.page.info().page;
 
-    if (masterTbl.page.info().page < masterTbl.page.info().pages - 1) {
-        // flipping through next page in master table
-        masterTbl.page("next").draw("page");
-        if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1) {
-            // flipping to the next page in secondary table
-            secondaryTbl.page("next").draw("page");
-        } else {
-            // moving to first page in secondary table
-            secondaryTbl.page("first").draw("page");
+        // Compute new page indices:
+        let newMalePage = (currentMalePage + 2) % totalPages;
+        let newFemalePage = (currentMalePage + 3) % totalPages;
+
+        // Draw the new pages
+        maleDT.page(newMalePage).draw("page");
+        femaleDT.page(newFemalePage).draw("page");
+
+        // Optionally, if you want to change the category once the male table wraps around:
+        if (currentMalePage === totalPages - 1) {
+            changeCategory();
+            maleDT.ajax.reload();
+            femaleDT.ajax.reload();
         }
     } else {
-        // last page on master table -> cancel page change, reset category & refresh all data
-        // console.log ("last page, calling data update");
-        changeCategory();
-        tblMale.DataTable().ajax.reload(); // reload full data table
-        tblFemale.DataTable().ajax.reload();
+        // Default behavior for other categories
+        let masterTbl = null;
+        let secondaryTbl = null;
+
+        if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
+            masterTbl = tblMale.DataTable();
+            secondaryTbl = tblFemale.DataTable();
+        } else {
+            masterTbl = tblFemale.DataTable();
+            secondaryTbl = tblMale.DataTable();
+        }
+
+        if (masterTbl.page.info().page < masterTbl.page.info().pages - 1) {
+            masterTbl.page("next").draw("page");
+            if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1) {
+                secondaryTbl.page("next").draw("page");
+            } else {
+                secondaryTbl.page("first").draw("page");
+            }
+        } else {
+            changeCategory();
+            tblMale.DataTable().ajax.reload(null, false);
+            tblFemale.DataTable().ajax.reload(null, false);
+        }
     }
 }
 
+
 function changeCategory() {
-    if (currentCategoryIndex == categories.length - 1) {
+    // Cycle through categories
+    if (currentCategoryIndex === categories.length - 1) {
         currentCategoryIndex = 0;
     } else {
-        currentCategoryIndex = currentCategoryIndex + 1;
+        currentCategoryIndex++;
     }
-    // apply filter
-    tblMale
-        .DataTable()
-        .columns(1)
-        .search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true);
-    tblFemale
-        .DataTable()
-        .columns(1)
-        .search(`\^\\b${categories[currentCategoryIndex]}\$\\b`, true);
+
+    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
+
+    // Apply gender filters for both tables
+    if (categories[currentCategoryIndex] === 'advanced') {
+        // For 'advanced', both tables use male data
+        tblMale.DataTable().columns(0).search(`\\bmale\\b`, true);
+        tblFemale.DataTable().columns(0).search(`\\bmale\\b`, true);
+        document.querySelector("#femaleHeading").style.visibility = "hidden";
+    } else {
+        tblMale.DataTable().columns(0).search(`\\bmale\\b`, true);
+        tblFemale.DataTable().columns(0).search(`\\bfemale\\b`, true);
+        document.querySelector("#femaleHeading").style.visibility = "visible";
+    }
+
+    // Apply category filter for both tables
+    tblMale.DataTable().columns(1).search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
+    tblFemale.DataTable().columns(1).search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
+
+    // For advanced, explicitly set the initial page offset:
+    if (categories[currentCategoryIndex] === 'advanced') {
+        let maleDT = tblMale.DataTable();
+        let femaleDT = tblFemale.DataTable();
+        let totalPages = maleDT.page.info().pages; // should be identical for both tables
+
+        // Set male table to first page (index 0)
+        maleDT.page(0).draw("page");
+        // Set female table to page 1 if it exists, otherwise page 0
+        if (totalPages > 1) {
+            femaleDT.page(1).draw("page");
+        } else {
+            femaleDT.page(0).draw("page");
+        }
+    }
     // console.log ('category changed to ' + categories[currentCategoryIndex].toLocaleUpperCase());
 }
+
 
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
@@ -387,7 +438,7 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 
 //* helper functions/objects
 
-// shorten name
+// shorten competitors name
 function shortName(fullName = "") {
     const maxLetters = 14;
     if (fullName.length > maxLetters) {
@@ -398,30 +449,11 @@ function shortName(fullName = "") {
             let firstName = name[0];
             let middleInitials = "";
             let lastName = name[name.length-1];
-            // console.log(firstName + " " + lastName);
             for (let i = 1; i <= name.length - 2; i++) {
                 middleInitials += name[i][0];
             }
             return `${firstName} ${middleInitials} ${lastName}`.substring(0,maxLetters-1) + "...";       
         }
-    } else {
-        return fullName;
-    }
-}
-function firstNameWithInitials(fullName = "") {
-    if (fullName.length >= 15) {
-        let name = fullName.split(" ");
-        let firstName = name[0];
-        let middleInitials = "";
-        let lastInitial = "";
-        for (let i = 1; i <= name.length - 1; i++) {
-            middleInitials += name[i][0];
-        }
-        //   if (name.length > 2) {
-        //     lastInitial = name[name.length - 1][0];
-        //   }
-        // console.log(`${firstName} ${middleInitials}${lastInitial}`);
-        return `${firstName} ${middleInitials}${lastInitial}`;
     } else {
         return fullName;
     }
