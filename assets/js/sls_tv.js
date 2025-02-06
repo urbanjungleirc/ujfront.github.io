@@ -123,7 +123,8 @@ $("#tableMale")
                 class: "align-middle",
                 render: function (data, type) {
                     if (type === "display") {
-                        return shortName(data);
+                        //return shortName(data);
+                        return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -246,7 +247,8 @@ $("#tableFemale")
                 class: "align-middle",
                 render: function (data, type) {
                     if (type === "display") {
-                        return shortName(data);
+                        //return shortName(data);
+                        return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },

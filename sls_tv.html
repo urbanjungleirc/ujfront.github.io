@@ -18,7 +18,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/uj_sls.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://use.typekit.net/tco5lzp.css"> <!-- font-family: 'fatFrank', sans-serif; -->
-        
+
     <style>
         /* ENDLESS ROTATE */
         .rotate {
@@ -39,11 +39,20 @@
             border-radius: 50%;
             box-shadow: inset -2px 0 0 2px rgb(255, 217, 0);
         }
+
         h1,
         h2,
-        h3, 
+        h3,
         .sls-font {
             font-family: 'FatFrank', sans-serif;
+        }
+
+        /* Apply to the name column */
+        .dataTables_wrapper td.name-cell {
+            white-space: nowrap;             /* Prevents text from wrapping */
+            overflow: hidden;             /* Hides overflow text */
+            text-overflow: ellipsis;             /* Adds "..." when text overflows */
+            max-width: 100%;             /* Dynamically adjust based on DataTable's width */
         }
     </style>
 
@@ -120,7 +129,7 @@
                         </table>
                     </div>
                 </div>
-            </div>      
+            </div>
         </div>
     </div>
 
