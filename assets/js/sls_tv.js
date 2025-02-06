@@ -247,7 +247,10 @@ $("#tableFemale")
                 class: "align-middle",
                 render: function (data, type) {
                     if (type === "display") {
-                        return shortName(data);
+                        //return shortName(data);
+                        return data.length > 11 ? 
+                                data.substr( 0, 11 ) +'…' :
+                                data;
                         // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
