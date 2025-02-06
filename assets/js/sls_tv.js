@@ -335,9 +335,10 @@ function startPageRotations() {
 }
 
 function pageFlipper() {
+    let maleDT = tblMale.DataTable();
+    let femaleDT = tblFemale.DataTable();
+
     if (categories[currentCategoryIndex] === 'advanced') {
-        let maleDT = tblMale.DataTable();
-        let femaleDT = tblFemale.DataTable();
         let totalPages = maleDT.page.info().pages; // both tables share the same data
 
         // Get the current male page index (0-based)
@@ -351,7 +352,7 @@ function pageFlipper() {
         maleDT.page(newMalePage).draw("page");
         femaleDT.page(newFemalePage).draw("page");
 
-        // Optionally, if you want to change the category once the male table wraps around:
+        // When reaching the last page of Advanced, switch category
         if (currentMalePage === totalPages - 1) {
             changeCategory();
             maleDT.ajax.reload();
@@ -359,28 +360,42 @@ function pageFlipper() {
         }
     } else {
         // Default behavior for other categories
-        let masterTbl = null;
-        let secondaryTbl = null;
+        let masterTbl, secondaryTbl;
+        let malePages = maleDT.page.info().pages;
+        let femalePages = femaleDT.page.info().pages;
 
-        if (tblMale.DataTable().page.info().pages > tblFemale.DataTable().page.info().pages) {
-            masterTbl = tblMale.DataTable();
-            secondaryTbl = tblFemale.DataTable();
+        // Set master table as the one with more pages
+        if (malePages > femalePages) {
+            masterTbl = maleDT;
+            secondaryTbl = femaleDT;
         } else {
-            masterTbl = tblFemale.DataTable();
-            secondaryTbl = tblMale.DataTable();
+            masterTbl = femaleDT;
+            secondaryTbl = maleDT;
         }
 
-        if (masterTbl.page.info().page < masterTbl.page.info().pages - 1) {
+        let currentMasterPage = masterTbl.page.info().page;
+        let totalMasterPages = masterTbl.page.info().pages;
+        let currentSecondaryPage = secondaryTbl.page.info().page;
+        let totalSecondaryPages = secondaryTbl.page.info().pages;
+
+        if (currentMasterPage < totalMasterPages - 1) {
+            // Move to the next page
             masterTbl.page("next").draw("page");
-            if (secondaryTbl.page.info().page < secondaryTbl.page.info().pages - 1) {
+            
+            if (currentSecondaryPage < totalSecondaryPages - 1) {
                 secondaryTbl.page("next").draw("page");
             } else {
-                secondaryTbl.page("first").draw("page");
+                secondaryTbl.page("first").draw("page"); // Reset secondary table when it reaches the last page
             }
         } else {
+            // If Master Table reaches the last page, reset and switch category
+            // and Ensure both start at the first page
+            masterTbl.page("first").draw("page");
+            secondaryTbl.page("first").draw("page"); 
+            
             changeCategory();
-            tblMale.DataTable().ajax.reload(null, false);
-            tblFemale.DataTable().ajax.reload(null, false);
+            maleDT.ajax.reload(null, false);
+            femaleDT.ajax.reload(null, false);
         }
     }
 }
