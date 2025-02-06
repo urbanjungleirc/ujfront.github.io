@@ -123,8 +123,8 @@ $("#tableMale")
                 class: "align-middle",
                 render: function (data, type) {
                     if (type === "display") {
-                        //return shortName(data);
-                        return `<span class="name-cell">${data}</span>`;
+                        return shortName(data);
+                        // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -247,8 +247,8 @@ $("#tableFemale")
                 class: "align-middle",
                 render: function (data, type) {
                     if (type === "display") {
-                        //return shortName(data);
-                        return `<span class="name-cell">${data}</span>`;
+                        return shortName(data);
+                        // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -457,7 +457,7 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 
 // shorten competitors name
 function shortName(fullName = "") {
-    const maxLetters = 14;
+    const maxLetters = 12;
     if (fullName.length > maxLetters) {
         let name = fullName.split(" ");
         if (name.length <= 2) {
