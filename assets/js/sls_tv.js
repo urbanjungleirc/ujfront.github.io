@@ -457,23 +457,42 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 //* helper functions/objects
 
 function shortName(fullName = "") {
-    let names = fullName.split(" ");
-    if (names.length <= 2) {
-        return fullName;
-    } else {
-        let firstName = names[0];
-        let middleInitials = "";
-        let lastName = names[names.length - 1];
-        for (let i = 1; i <= names.length - 2; i++) {
-            middleInitials += names[i][0];
+    let maxLetters = 12; // Base limit
+    const wideLetters = /[WMwm]/g; // Regex to match wide letters
+
+    // Count the number of wide letters in the name
+    const wideLetterCount = (fullName.match(wideLetters) || []).length;
+
+    // Adjust maxLetters: reduce by 1 for every 2 wide letters
+    maxLetters -= Math.floor(wideLetterCount / 2);
+
+    if (fullName.length > maxLetters) {
+        let name = fullName.split(" ");
+        if (name.length <= 2) {
+            return fullName.substring(0, maxLetters - 1) + "...";
+        } else {
+            let firstName = name[0];
+            let middleInitials = "";
+            let lastName = name[name.length - 1];
+            for (let i = 1; i <= name.length - 2; i++) {
+                middleInitials += name[i][0];
+            }
+            return (
+                `${firstName} ${middleInitials} ${lastName}`.substring(
+                    0,
+                    maxLetters - 1
+                ) + "..."
+            );
         }
-        return `${firstName} ${middleInitials} ${lastName}`;
+    } else {
+        return fullName;
     }
 }
 
+
 // shorten competitors name
-function shortNameOld(fullName = "") {
-    const maxLetters = 15;
+function shortNameOriginal(fullName = "") {
+    const maxLetters = 12;
     if (fullName.length > maxLetters) {
         let name = fullName.split(" ");
         if (name.length <= 2) {
