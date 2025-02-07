@@ -1,12 +1,12 @@
 // todo: page swap annimations - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
 // or https://www.stechies.com/make-text-blink-javascript/#:~:text=Code%20Explanation&text=To%20make%20it%20blink%2C%20we,This%20makes%20the%20text%20blink.
 
-
 /*  -------------------------------------
     Default setting
     -------------------------------------
 */
-const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data in JSON format
+const scoreUrl =
+    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data in JSON format
 const minPageDisplay = 10000; // minimum time for a page to be displayed
 const maxPageDisplay = 15000; // maximum time for a page to be displayed
 let dataRefreshInterval = 2 * 60000; // frequency for full data refresh
@@ -15,13 +15,7 @@ let firstPageCallDone = false;
 
 const rowsPerPage = 7; // number of rows per page
 let currentCategoryIndex = 0; // filtering data - enter category
-const categories = [
-    "open",
-    "advanced",
-    "intermediate",
-    "novice",
-    "youth",
-];
+const categories = ["open", "advanced", "intermediate", "novice", "youth"];
 const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
 
 // setting up Modal element
@@ -74,9 +68,9 @@ $("#tableMale")
         // fired when an Ajax request is completed
         mySpinner.show();
     })
-    .on('page.dt', function () {
+    .on("page.dt", function () {
         tblMale.fadeOut("fast");
-        tblMale.fadeIn("fast"); 
+        tblMale.fadeIn("fast");
     })
     .dataTable({
         ajax: {
@@ -172,10 +166,11 @@ $("#tableMale")
             info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
             infoFiltered: "",
             infoEmpty: "",
-            emptyTable: "No climbers registered yet – the wall's waiting for your sends!",
-            zeroRecords: "No climbers registered yet – the wall's waiting for your sends!",
+            emptyTable:
+                "No climbers registered yet – the wall's waiting for your sends!",
+            zeroRecords:
+                "No climbers registered yet – the wall's waiting for your sends!",
             lengthMenu: "Display _MENU_ competitors",
-            
         },
 
         order: [[2, "asc"]],
@@ -198,9 +193,9 @@ $("#tableFemale")
             startPageRotations();
         }
     })
-    .on('page.dt', function () {
+    .on("page.dt", function () {
         tblFemale.fadeOut("fast");
-        tblFemale.fadeIn("fast"); 
+        tblFemale.fadeIn("fast");
     })
     .dataTable({
         ajax: {
@@ -247,10 +242,8 @@ $("#tableFemale")
                 class: "align-middle",
                 render: function (data, type) {
                     if (type === "display") {
-                        //return shortName(data);
-                        return data.length > 11 ? 
-                                data.substr( 0, 11 ) +'…' :
-                                data;
+                        return shortName(data);
+                        // return data.length > 11  ? data.substr(0, 11) + "…" : data;
                         // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
@@ -287,7 +280,7 @@ $("#tableFemale")
             null,
             null,
             null,
-        ],  
+        ],
 
         //* paging setup
         lengthChange: false,
@@ -300,8 +293,10 @@ $("#tableFemale")
             infoFiltered: "",
             infoEmpty: "",
             lengthMenu: "Display _MENU_ competitors",
-            emptyTable: "No climbers registered yet – the wall's waiting for your sends!",
-            zeroRecords: "No climbers registered yet – the wall's waiting for your sends!"
+            emptyTable:
+                "No climbers registered yet – the wall's waiting for your sends!",
+            zeroRecords:
+                "No climbers registered yet – the wall's waiting for your sends!",
         },
 
         order: [[2, "asc"]],
@@ -334,7 +329,8 @@ function startPageRotations() {
         // console.log ("startPageRotation - ONE page, timePerPage: " + timePerPage)
     }
 
-    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
+    document.querySelector("#activeCategory").innerText =
+        categories[currentCategoryIndex].toLocaleUpperCase();
     mySpinner.hide();
     pageTimer.reset(timePerPage);
 }
@@ -343,26 +339,27 @@ function pageFlipper() {
     let maleDT = tblMale.DataTable();
     let femaleDT = tblFemale.DataTable();
 
-    if (categories[currentCategoryIndex] === 'advanced') {
+    if (categories[currentCategoryIndex] === "advanced") {
         let totalPages = maleDT.page.info().pages; // both tables share the same data
 
         // Get the current male page index (0-based)
         let currentMalePage = maleDT.page.info().page;
 
-        // Compute new page indices:
-        let newMalePage = (currentMalePage + 2) % totalPages;
-        let newFemalePage = (currentMalePage + 3) % totalPages;
-
-        // Draw the new pages
-        maleDT.page(newMalePage).draw("page");
-        femaleDT.page(newFemalePage).draw("page");
-
-        // When reaching the last page of Advanced, switch category
-        if (currentMalePage === totalPages - 1) {
+        // When reaching the last page of Advanced, switch category (this covers the case where there is less then 2 pages)
+        if (currentMalePage === totalPages - 1 || totalPages <= 2) {
             changeCategory();
             maleDT.ajax.reload();
             femaleDT.ajax.reload();
+        } else {
+            // Compute new page indices:
+            let newMalePage = (currentMalePage + 2) % totalPages;
+            let newFemalePage = (currentMalePage + 3) % totalPages;
+
+            // Draw the new pages
+            maleDT.page(newMalePage).draw("page");
+            femaleDT.page(newFemalePage).draw("page");
         }
+        
     } else {
         // Default behavior for other categories
         let masterTbl, secondaryTbl;
@@ -386,7 +383,7 @@ function pageFlipper() {
         if (currentMasterPage < totalMasterPages - 1) {
             // Move to the next page
             masterTbl.page("next").draw("page");
-            
+
             if (currentSecondaryPage < totalSecondaryPages - 1) {
                 secondaryTbl.page("next").draw("page");
             } else {
@@ -396,15 +393,14 @@ function pageFlipper() {
             // If Master Table reaches the last page, reset and switch category
             // and Ensure both start at the first page
             masterTbl.page("first").draw("page");
-            secondaryTbl.page("first").draw("page"); 
-            
+            secondaryTbl.page("first").draw("page");
+
             changeCategory();
             maleDT.ajax.reload(null, false);
             femaleDT.ajax.reload(null, false);
         }
     }
 }
-
 
 function changeCategory() {
     // Cycle through categories
@@ -414,10 +410,11 @@ function changeCategory() {
         currentCategoryIndex++;
     }
 
-    document.querySelector("#activeCategory").innerText = categories[currentCategoryIndex].toLocaleUpperCase();
+    document.querySelector("#activeCategory").innerText =
+        categories[currentCategoryIndex].toLocaleUpperCase();
 
     // Apply gender filters for both tables
-    if (categories[currentCategoryIndex] === 'advanced') {
+    if (categories[currentCategoryIndex] === "advanced") {
         // For 'advanced', both tables use male data
         tblMale.DataTable().columns(0).search(`\\bmale\\b`, true);
         tblFemale.DataTable().columns(0).search(`\\bmale\\b`, true);
@@ -429,11 +426,17 @@ function changeCategory() {
     }
 
     // Apply category filter for both tables
-    tblMale.DataTable().columns(1).search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
-    tblFemale.DataTable().columns(1).search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
+    tblMale
+        .DataTable()
+        .columns(1)
+        .search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
+    tblFemale
+        .DataTable()
+        .columns(1)
+        .search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
 
     // For advanced, explicitly set the initial page offset:
-    if (categories[currentCategoryIndex] === 'advanced') {
+    if (categories[currentCategoryIndex] === "advanced") {
         let maleDT = tblMale.DataTable();
         let femaleDT = tblFemale.DataTable();
         let totalPages = maleDT.page.info().pages; // should be identical for both tables
@@ -450,7 +453,6 @@ function changeCategory() {
     // console.log ('category changed to ' + categories[currentCategoryIndex].toLocaleUpperCase());
 }
 
-
 /* default class for buttons 
    https://datatables.net/forums/discussion/comment/149769/#Comment_149769
 */
@@ -464,15 +466,20 @@ function shortName(fullName = "") {
     if (fullName.length > maxLetters) {
         let name = fullName.split(" ");
         if (name.length <= 2) {
-            return fullName.substring(0,maxLetters-1) + "...";
+            return fullName.substring(0, maxLetters - 1) + "...";
         } else {
             let firstName = name[0];
             let middleInitials = "";
-            let lastName = name[name.length-1];
+            let lastName = name[name.length - 1];
             for (let i = 1; i <= name.length - 2; i++) {
                 middleInitials += name[i][0];
             }
-            return `${firstName} ${middleInitials} ${lastName}`.substring(0,maxLetters-1) + "...";       
+            return (
+                `${firstName} ${middleInitials} ${lastName}`.substring(
+                    0,
+                    maxLetters - 1
+                ) + "..."
+            );
         }
     } else {
         return fullName;
@@ -557,7 +564,7 @@ function tickIcon(tick = 0, bonus = 0) {
                             height="9.106" 
                             x="2.876" 
                             y="5.908"/>
-                    </svg>`
+                    </svg>`;
         case 50:
             //return `<i class="bi bi-file-fill"></i>`;
             return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
