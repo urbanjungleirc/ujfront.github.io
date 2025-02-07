@@ -47,12 +47,21 @@
             font-family: 'FatFrank', sans-serif;
         }
 
-        /* Apply to the name column */
+        /* Prevent text wrapping for Names */
         .dataTables_wrapper td.name-cell {
-            white-space: nowrap;             /* Prevents text from wrapping */
-            overflow: hidden;             /* Hides overflow text */
-            text-overflow: ellipsis;             /* Adds "..." when text overflows */
-            max-width: 100%;             /* Dynamically adjust based on DataTable's width */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* Prevent scrolling on TV*/
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
     </style>
 
@@ -151,7 +160,6 @@
     <script src="https://cdn.datatables.net/searchpanes/2.3.3/js/dataTables.searchPanes.min.js"></script>
     <script src="https://cdn.datatables.net/searchpanes/2.3.3/js/searchPanes.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/select/2.1.0/js/dataTables.select.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.11.5/dataRender/ellipsis.js"></script>
     <!-- <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countdown/2.6.0/countdown.min.js"></script>

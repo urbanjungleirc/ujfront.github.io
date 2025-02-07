@@ -114,11 +114,10 @@ $("#tableMale")
                 data: "name",
                 title: "Name",
                 orderable: false,
-                class: "align-middle",
+                class: "align-middle name-cell",
                 render: function (data, type) {
                     if (type === "display") {
                         return shortName(data);
-                        // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -239,12 +238,10 @@ $("#tableFemale")
                 data: "name",
                 title: "Name",
                 orderable: false,
-                class: "align-middle",
+                class: "align-middle name-cell",
                 render: function (data, type) {
                     if (type === "display") {
                         return shortName(data);
-                        // return data.length > 11  ? data.substr(0, 11) + "…" : data;
-                        // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -359,7 +356,6 @@ function pageFlipper() {
             maleDT.page(newMalePage).draw("page");
             femaleDT.page(newFemalePage).draw("page");
         }
-        
     } else {
         // Default behavior for other categories
         let masterTbl, secondaryTbl;
@@ -460,9 +456,24 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 
 //* helper functions/objects
 
-// shorten competitors name
 function shortName(fullName = "") {
-    const maxLetters = 12;
+    let names = fullName.split(" ");
+    if (names.length <= 2) {
+        return fullName;
+    } else {
+        let firstName = names[0];
+        let middleInitials = "";
+        let lastName = names[names.length - 1];
+        for (let i = 1; i <= names.length - 2; i++) {
+            middleInitials += names[i][0];
+        }
+        return `${firstName} ${middleInitials} ${lastName}`;
+    }
+}
+
+// shorten competitors name
+function shortNameOld(fullName = "") {
+    const maxLetters = 15;
     if (fullName.length > maxLetters) {
         let name = fullName.split(" ");
         if (name.length <= 2) {
