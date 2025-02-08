@@ -1,6 +1,3 @@
-// todo: page swap annimations - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
-// or https://www.stechies.com/make-text-blink-javascript/#:~:text=Code%20Explanation&text=To%20make%20it%20blink%2C%20we,This%20makes%20the%20text%20blink.
-
 /*  -------------------------------------
     Default setting
     -------------------------------------
@@ -54,14 +51,6 @@ updateCountdown();
 let tblMale = $("#tableMale");
 let tblFemale = $("#tableFemale");
 let pageTimer = new Timer(pageFlipper, 600000);
-
-// $(document).ready(function () {
-//     console.clear();
-//     console.log(`Table initialisation start: ${new Date().getTime()}`);
-// });
-
-// moving dataTable warning to the console -  https://datatables.net/manual/tech-notes/7
-// $.fn.dataTable.ext.errMode = 'throw';
 
 $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
@@ -150,7 +139,7 @@ $("#tableMale")
         renderer: "bootstrap",
 
         searchCols: [
-            { search: `\\bmale\\b`, regex: true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
+            { search: `\\bmale\\b`, regex: true },
             {
                 search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
                 regex: true,
@@ -266,6 +255,7 @@ $("#tableFemale")
                 defaultContent: "",
             },
         ],
+        // columnDefs: [{ width: 200, targets: 3 }],
 
         searchCols: [
             { search: `\\bfemale\\b`, regex: true },
@@ -489,7 +479,6 @@ function shortName(fullName = "") {
     }
 }
 
-
 // shorten competitors name
 function shortNameOriginal(fullName = "") {
     const maxLetters = 12;
@@ -556,19 +545,17 @@ function sends(row) {
     for (i = 1; i < 5; i++) {
         ticks = `${ticks}<span class="p-0 m-0 text-round${i}" >`;
         for (const element of routes) {
-            ticks =
-                ticks +
-                tickIcon(
-                    row["r" + i + "_" + element],
-                    row["r" + i + "_" + element + "_bonus"]
-                );
+            ticks += tickIcon(
+                row["r" + i + "_" + element],
+                row["r" + i + "_" + element + "_bonus"]
+            );
         }
-        ticks = ticks + "</span>";
+        ticks += "</span>";
         if (i == 2) {
-            ticks = ticks + "</br>";
+            ticks += "</br>";
         }
     }
-    return `<div class="fs-6 py-0">${ticks}</div>`;
+    return `<div class="fs-6 p-0 m-0">${ticks}</div>`;
 }
 
 function tickIcon(tick = 0, bonus = 0) {
