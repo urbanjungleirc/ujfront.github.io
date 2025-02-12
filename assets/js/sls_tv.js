@@ -1,6 +1,3 @@
-// todo: page swap annimations - https://datatables.net/forums/discussion/57176/how-to-add-animated-effect-for-auto-datatable-switching
-// or https://www.stechies.com/make-text-blink-javascript/#:~:text=Code%20Explanation&text=To%20make%20it%20blink%2C%20we,This%20makes%20the%20text%20blink.
-
 /*  -------------------------------------
     Default setting
     -------------------------------------
@@ -55,14 +52,6 @@ let tblMale = $("#tableMale");
 let tblFemale = $("#tableFemale");
 let pageTimer = new Timer(pageFlipper, 600000);
 
-// $(document).ready(function () {
-//     console.clear();
-//     console.log(`Table initialisation start: ${new Date().getTime()}`);
-// });
-
-// moving dataTable warning to the console -  https://datatables.net/manual/tech-notes/7
-// $.fn.dataTable.ext.errMode = 'throw';
-
 $("#tableMale")
     .on("preXhr.dt", function (e, settings, json, xhr) {
         // fired when an Ajax request is completed
@@ -114,11 +103,10 @@ $("#tableMale")
                 data: "name",
                 title: "Name",
                 orderable: false,
-                class: "align-middle",
+                class: "align-middle name-cell",
                 render: function (data, type) {
                     if (type === "display") {
                         return shortName(data);
-                        // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -151,7 +139,7 @@ $("#tableMale")
         renderer: "bootstrap",
 
         searchCols: [
-            { search: `\\bmale\\b`, regex: true }, //   (?i)(?<= |^)rum(?= |$)    ---   (?i)\bmale\b
+            { search: `\\bmale\\b`, regex: true },
             {
                 search: `\^\\b${categories[currentCategoryIndex]}\$\\b`,
                 regex: true,
@@ -239,12 +227,10 @@ $("#tableFemale")
                 data: "name",
                 title: "Name",
                 orderable: false,
-                class: "align-middle",
+                class: "align-middle name-cell",
                 render: function (data, type) {
                     if (type === "display") {
                         return shortName(data);
-                        // return data.length > 11  ? data.substr(0, 11) + "…" : data;
-                        // return `<span class="name-cell">${data}</span>`;
                     }
                     return data;
                 },
@@ -269,6 +255,7 @@ $("#tableFemale")
                 defaultContent: "",
             },
         ],
+        // columnDefs: [{ width: 200, targets: 3 }],
 
         searchCols: [
             { search: `\\bfemale\\b`, regex: true },
@@ -359,7 +346,6 @@ function pageFlipper() {
             maleDT.page(newMalePage).draw("page");
             femaleDT.page(newFemalePage).draw("page");
         }
-        
     } else {
         // Default behavior for other categories
         let masterTbl, secondaryTbl;
@@ -460,8 +446,41 @@ $.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
 
 //* helper functions/objects
 
-// shorten competitors name
 function shortName(fullName = "") {
+    let maxLetters = 12; // Base limit
+    const wideLetters = /[WMwm]/g; // Regex to match wide letters
+
+    // Count the number of wide letters in the name
+    const wideLetterCount = (fullName.match(wideLetters) || []).length;
+
+    // Adjust maxLetters: reduce by 1 for every 2 wide letters
+    maxLetters -= Math.floor(wideLetterCount / 2);
+
+    if (fullName.length > maxLetters) {
+        let name = fullName.split(" ");
+        if (name.length <= 2) {
+            return fullName.substring(0, maxLetters - 1) + "...";
+        } else {
+            let firstName = name[0];
+            let middleInitials = "";
+            let lastName = name[name.length - 1];
+            for (let i = 1; i <= name.length - 2; i++) {
+                middleInitials += name[i][0];
+            }
+            return (
+                `${firstName} ${middleInitials} ${lastName}`.substring(
+                    0,
+                    maxLetters - 1
+                ) + "..."
+            );
+        }
+    } else {
+        return fullName;
+    }
+}
+
+// shorten competitors name
+function shortNameOriginal(fullName = "") {
     const maxLetters = 12;
     if (fullName.length > maxLetters) {
         let name = fullName.split(" ");
@@ -526,19 +545,17 @@ function sends(row) {
     for (i = 1; i < 5; i++) {
         ticks = `${ticks}<span class="p-0 m-0 text-round${i}" >`;
         for (const element of routes) {
-            ticks =
-                ticks +
-                tickIcon(
-                    row["r" + i + "_" + element],
-                    row["r" + i + "_" + element + "_bonus"]
-                );
+            ticks += tickIcon(
+                row["r" + i + "_" + element],
+                row["r" + i + "_" + element + "_bonus"]
+            );
         }
-        ticks = ticks + "</span>";
+        ticks += "</span>";
         if (i == 2) {
-            ticks = ticks + "</br>";
+            ticks += "</br>";
         }
     }
-    return `<div class="fs-6 py-0">${ticks}</div>`;
+    return `<div class="fs-6 p-0 m-0">${ticks}</div>`;
 }
 
 function tickIcon(tick = 0, bonus = 0) {
