@@ -5,7 +5,11 @@
  */
 
 // URL for retrieving scores (public data)
-const scoreUrl = "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+const scoreUrl =
+    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+// URL for retrieving ticks (public data)
+const ticksUrl =
+    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
 const categories = ["open", "advanced", "intermediate", "novice", "youth"];
@@ -141,8 +145,10 @@ $("#tableMale")
             info: "Showing _START_ to _END_ of _TOTAL_ competitors",
             infoFiltered: "</br>(filtered from a total of _MAX_ participants)",
             infoEmpty: "No competitors in this category/gender",
-            emptyTable: "No climbers registered yet – the wall's waiting for your sends!",
-            zeroRecords: "No climbers registered yet – the wall's waiting for your sends!",
+            emptyTable:
+                "No climbers registered yet – the wall's waiting for your sends!",
+            zeroRecords:
+                "No climbers registered yet – the wall's waiting for your sends!",
             lengthMenu: "Display _MENU_ competitors",
         },
 
@@ -257,15 +263,26 @@ function updateActiveFilterDisplay() {
     const topRopeCategories = ["novice", "youth"];
 
     if (category) {
-        let filteredCategories = category.replace(/\\b/g, "").replace(/[()]/g, "").split("|");
+        let filteredCategories = category
+            .replace(/\\b/g, "")
+            .replace(/[()]/g, "")
+            .split("|");
         if (filteredCategories.length > 1) {
-            if (leadCategories.every((cat) => filteredCategories.includes(cat))) {
+            if (
+                leadCategories.every((cat) => filteredCategories.includes(cat))
+            ) {
                 displayText = "All lead categories";
-            } else if (topRopeCategories.every((cat) => filteredCategories.includes(cat))) {
-                displayText = "All top rope categories";         
+            } else if (
+                topRopeCategories.every((cat) =>
+                    filteredCategories.includes(cat)
+                )
+            ) {
+                displayText = "All top rope categories";
             }
-        } else {            
-            displayText = filteredCategories[0].charAt(0).toUpperCase() + filteredCategories[0].slice(1);
+        } else {
+            displayText =
+                filteredCategories[0].charAt(0).toUpperCase() +
+                filteredCategories[0].slice(1);
         }
     }
 
@@ -277,7 +294,6 @@ function updateActiveFilterDisplay() {
 
     document.getElementById("activeFilter").textContent = displayText;
 }
-
 
 /**
  * -------------------------------------
@@ -503,3 +519,100 @@ function shareOnFacebook() {
     )}`;
     window.open(facebookShareUrl, "_blank");
 }
+
+// Latest Tick Functions
+
+function fetchLatestTicks() {
+    $.ajax({
+        url: ticksUrl,
+        method: "GET",
+        dataType: "json",
+        success: function (response) {
+            if (response.data) {
+                displayLatestTicks(response.data);
+            }
+        },
+        error: function () {
+            console.error("Failed to fetch tick data.");
+        },
+    });
+}
+
+function displayLatestTicks(data) {
+    const groupedData = {};
+
+    data.forEach(({ date, name, route, tick, bonus, category, gender }) => {
+        const normalizedDate = luxon.DateTime.fromISO(date).toISODate();
+        const key = `${normalizedDate}-${name}`;
+
+        if (!groupedData[key]) {
+            groupedData[key] = {
+                date: normalizedDate,
+                name,
+                category,
+                gender,
+                ticks: [],
+            };
+        }
+
+        const score = tick + bonus;
+        groupedData[key].ticks.push({
+            route: route.toUpperCase(),
+            score,
+            tick,
+            bonus,
+        });
+    });
+
+    const latestTicks = Object.values(groupedData)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+    const container = document.getElementById("latest-ticks");
+    container.innerHTML = "";
+
+    latestTicks.forEach(({ date, name, category, gender, ticks }) => {
+        const item = document.createElement("div");
+        item.className = "list-group-item list-group-item-action align-items-center";
+
+        // Category (first 3 letters)
+        const categoryShort = category
+            ? category.substring(0, 3).toUpperCase()
+            : "";
+
+        // Gender Icon
+        const genderIcon =
+            gender === "Male"
+                ? '<i class="bi bi-gender-male"></i>'
+                : gender === "Female"
+                ? '<i class="bi bi-gender-female"></i>'
+                : '<i class="bi bi-gender-ambiguous"></i>';
+
+        // Render tick icons with colours based on round number
+        const tickIcons = ticks
+            .map(({ route, tick, bonus }) => {
+                const roundNumber = parseInt(route.charAt(0)); // Extract round number from route
+                const routeLetter = route.charAt(2); // Extract route letter (e.g., 'D' from '1_D')
+
+                return `
+                <span class="text-round${roundNumber}">
+                    R${roundNumber}${routeLetter}${tickIcon(tick, bonus)}
+                </span>
+            `;
+            })
+            .join(" - ");
+
+        item.innerHTML = `
+                ${luxon.DateTime.fromISO(date).toFormat("dd MMM yy")} <strong>${name}</strong> 
+                <small >${categoryShort} - ${genderIcon}</small>: 
+                <strong>${tickIcons}<strong>
+        `;
+
+        container.appendChild(item);
+    });
+}
+
+// Trigger the fetch on page load
+$(document).ready(function () {
+    fetchLatestTicks();
+});
