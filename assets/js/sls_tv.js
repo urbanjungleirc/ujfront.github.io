@@ -327,24 +327,22 @@ function pageFlipper() {
     let femaleDT = tblFemale.DataTable();
 
     if (categories[currentCategoryIndex] === "advanced") {
-        let totalPages = maleDT.page.info().pages; // both tables share the same data
-
-        // Get the current male page index (0-based)
+        let totalPages = maleDT.page.info().pages; // Both tables share the same data
         let currentMalePage = maleDT.page.info().page;
 
-        // When reaching the last page of Advanced, switch category (this covers the case where there is less then 2 pages)
-        if (currentMalePage === totalPages - 1 || totalPages <= 2) {
+        // Only change category once we've flipped through all pages
+        if (currentMalePage >= totalPages - 2) {
             changeCategory();
             maleDT.ajax.reload();
             femaleDT.ajax.reload();
         } else {
-            // Compute new page indices:
-            let newMalePage = (currentMalePage + 2) % totalPages;
-            let newFemalePage = (currentMalePage + 3) % totalPages;
+            // Corrected logic for flipping pages in pairs
+            let newMalePage = Math.min(currentMalePage + 2, totalPages - 1);
+            let newFemalePage = Math.min(currentMalePage + 3, totalPages - 1);
 
-            // Draw the new pages
             maleDT.page(newMalePage).draw("page");
             femaleDT.page(newFemalePage).draw("page");
+
         }
     } else {
         // Default behavior for other categories
