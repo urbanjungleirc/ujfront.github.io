@@ -212,6 +212,7 @@ $("#tableMale").on("click", "td.details-control", function () {
  */
 function refreshData() {
     tblMale.DataTable().ajax.reload();
+    fetchLatestTicks();
 }
 
 /**
@@ -524,8 +525,17 @@ function shareOnFacebook() {
     window.open(facebookShareUrl, "_blank");
 }
 
-// Latest Tick Functions
 
+/**
+ * -------------------------------------
+ * Latest Tkcs Functions
+ * -------------------------------------
+ */
+
+/**
+ * Fetches the latest tick data from the server and displays it if the response
+ * contains valid data. Otherwise, logs an error message to the console.
+ */
 function fetchLatestTicks() {
     $.ajax({
         url: ticksUrl,
@@ -542,35 +552,55 @@ function fetchLatestTicks() {
     });
 }
 
+/**
+ * Displays the latest ticks for climbers by grouping and sorting the provided data.
+ * Shows up to 5 unique climbers' tick logs in descending order by date.
+ * 
+ * @param {Array<Object>} data - The array of tick data objects, each including:
+ *   @param {string} data[].date - The timestamp of the tick in ISO format.
+ *   @param {string} data[].name - The climber's name.
+ *   @param {string} data[].route - The route identifier.
+ *   @param {number} data[].tick - The tick score.
+ *   @param {number} data[].bonus - Any bonus score.
+ *   @param {string} data[].category - The climber's category.
+ *   @param {string} data[].gender - The climber's gender.
+ */
 function displayLatestTicks(data) {
     const groupedData = {};
+    const latestPeople = new Set(); // Track latest 5 unique climbers
 
-    data.forEach(({ date, name, route, tick, bonus, category, gender }) => {
-        const normalizedDate = luxon.DateTime.fromISO(date).toISODate();
-        const key = `${normalizedDate}-${name}`;
+    // Sort data by exact timestamp (newest first)
+    const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        if (!groupedData[key]) {
-            groupedData[key] = {
-                date: normalizedDate,
-                name,
-                category,
-                gender,
-                ticks: [],
-            };
+    // Iterate over sorted data and group by unique climbers
+    sortedData.forEach(({ date, name, route, tick, bonus, category, gender }) => {
+        if (latestPeople.size < 5 || latestPeople.has(name)) {
+            const normalizedDate = luxon.DateTime.fromISO(date).toISODate(); // Keep only date part
+            const key = `${normalizedDate}-${name}`;
+
+            if (!groupedData[key]) {
+                groupedData[key] = {
+                    date,
+                    name,
+                    category,
+                    gender,
+                    ticks: [],
+                };
+                latestPeople.add(name);
+            }
+
+            const score = tick + bonus;
+            groupedData[key].ticks.push({
+                route: route.toUpperCase(),
+                score,
+                tick,
+                bonus,
+            });
         }
-
-        const score = tick + bonus;
-        groupedData[key].ticks.push({
-            route: route.toUpperCase(),
-            score,
-            tick,
-            bonus,
-        });
     });
 
-    const latestTicks = Object.values(groupedData)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
+    // Get the latest 5 climbers' logs (already sorted)
+    const latestTicks = Object.values(groupedData).slice(0, 5);
 
     const container = document.getElementById("latest-ticks");
     container.innerHTML = "";
@@ -579,11 +609,8 @@ function displayLatestTicks(data) {
         const item = document.createElement("div");
         item.className = "list-group-item list-group-item-action align-items-center";
 
-        // Category (first 3 letters)
-        const categoryShort = category
-            ? category.toUpperCase()
-            : "";
-        // alternatively to shorten the category: category.substring(0, 3).toUpperCase()
+        // Category
+        const categoryShort = category ? category.toUpperCase() : "";
 
         // Gender Icon
         const genderIcon =
@@ -593,7 +620,7 @@ function displayLatestTicks(data) {
                 ? '<i class="bi bi-gender-female"></i>'
                 : '<i class="bi bi-gender-ambiguous"></i>';
 
-        // Render tick icons with colours based on round number
+        // Render tick icons with round-based colours
         const tickIcons = ticks
             .map(({ route, tick, bonus }) => {
                 const roundNumber = parseInt(route.charAt(0)); // Extract round number from route
@@ -601,22 +628,23 @@ function displayLatestTicks(data) {
 
                 return `
                 <span class="text-round${roundNumber}">
-                    R${roundNumber}${routeLetter}${tickIcon(tick, bonus)}
+                    ${routeLetter} ${tickIcon(tick, bonus)}
                 </span>
             `;
             })
             .join(" - ");
 
         item.innerHTML = `
-                <strong>${name}</strong> 
-                <small >${categoryShort} - ${genderIcon}</small></br>
-                <strong>${tickIcons}<strong>
+            <strong>${name}</strong> 
+            <small>${categoryShort} - ${genderIcon}</small><br>
+            <small class="text-muted">${luxon.DateTime.fromISO(date).toFormat("ccc, dd MMM yy, HH:mm")}</small><br>
+            <strong>${tickIcons}</strong>
         `;
-        // to add date: ${luxon.DateTime.fromISO(date).toFormat("dd MMM yy")}
 
         container.appendChild(item);
     });
 }
+
 
 // Trigger the fetch latest ticks on page load
 $(document).ready(function () {
