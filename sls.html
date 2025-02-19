@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,7 +15,8 @@
     <meta property="og:url" content="https://ujfront.github.io/sls.html" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Summer Lead Series" />
-    <meta property="og:description" content="Urban Jungle's premier climbing competition in Perth. Compete, enjoy, and connect with the climbing community." />
+    <meta property="og:description"
+        content="Urban Jungle's premier climbing competition in Perth. Compete, enjoy, and connect with the climbing community." />
     <meta property="og:image" content="https://ujfront.github.io/assets/img/sls_score_fbshare.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -57,7 +59,6 @@
         .sls-font {
             font-family: 'FatFrank', sans-serif;
         }
-
     </style>
 
 </head>
@@ -108,88 +109,91 @@
     <!-- main container -->
     <main class="container-md p-1">
 
-        <!-- <div class="row p-3">
-            <div class="col-12 col-lg-3">.col-6 .col-md-4</div>
-            <div class="col-12 col-lg-3">.col-6 .col-md-4</div>
-            <div class="col-12 col-lg-6">.col-6 .col-md-4</div>
-          </div> -->
-
-        <div class="container-sm my-4">
-            <h3 class="text-center">Latest Ticks</h3>
-            <div id="latest-ticks" class="list-group"></div>
-            <div class="text-center my-2">
-                <a href="sls_ticks.html" class="btn btn-outline-primary">Check All Ticks</a>
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-3">
+                <!-- latest ticks -->
+                <h3 class="text-center">Latest Ticks</h3>
+                <div id="latest-ticks" class="list-group px-3"></div>
+                <div class="text-center my-2">
+                    <a href="sls_ticks.html" class="btn btn-outline-primary">Check All Ticks</a>
+                </div>
             </div>
-        </div>
-        
-        <!-- filters -->
-        <div class="row p-3">
-            <h3 class="text-center" id="filterHeader">Leaderboard</h3>
-            <div class="d-flex justify-content-between my-2">
-                <div class="py-2">
-                    <div class="btn-group" role="group" aria-label="Gender group">
-                        <input type="radio" class="btn-check" name="radioGender" id="btnradioBoth" autocomplete="off"
-                            checked onchange="changeGender()">
-                        <label class="btn btn-outline-primary" for="btnradioBoth"><i
-                                class="bi bi-gender-ambiguous"></i></label>
-                        <input type="radio" class="btn-check" name="radioGender" id="btnradioMale" autocomplete="off"
-                            onchange="changeGender('male')">
-                        <label class="btn btn-outline-primary" for="btnradioMale"><i
-                                class="bi bi-gender-male"></i></label>
-                        <input type="radio" class="btn-check" name="radioGender" id="btnradioFemale" autocomplete="off"
-                            onchange="changeGender('female')">
-                        <label class="btn btn-outline-primary" for="btnradioFemale"><i
-                                class="bi bi-gender-female"></i></label>
+            <div class="col-12 col-md-6 col-lg-3">
+                <!-- filters -->
+                <h3 class="text-center" id="filterHeader">Filters</h3>
+                <div class="d-flex justify-content-between mb-3 px-3">
+                    <div class="py-2">
+                        <div class="btn-group" role="group" aria-label="Gender group">
+                            <input type="radio" class="btn-check" name="radioGender" id="btnradioBoth"
+                                autocomplete="off" checked onchange="changeGender()">
+                            <label class="btn btn-outline-primary" for="btnradioBoth"><i
+                                    class="bi bi-gender-ambiguous"></i></label>
+                            <input type="radio" class="btn-check" name="radioGender" id="btnradioMale"
+                                autocomplete="off" onchange="changeGender('male')">
+                            <label class="btn btn-outline-primary" for="btnradioMale"><i
+                                    class="bi bi-gender-male"></i></label>
+                            <input type="radio" class="btn-check" name="radioGender" id="btnradioFemale"
+                                autocomplete="off" onchange="changeGender('female')">
+                            <label class="btn btn-outline-primary" for="btnradioFemale"><i
+                                    class="bi bi-gender-female"></i></label>
+                        </div>
+                    </div>
+                    <div class="py-2">
+                        <span id="refreshButton" class="btn btn-outline-primary" data-bs-toggle="tooltip"
+                            data-bs-placement="left" data-bs-title="Reload data" onclick="refreshData()"><i
+                                class="bi bi-arrow-clockwise"></i>
+                            Reload</span>
                     </div>
                 </div>
-                <div class="py-2">
-                    <span id="refreshButton" class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="left"
-                        data-bs-title="Refresh" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i>
-                        Refresh</span>
-                </div>
-            </div>
-            <div class="row m-0 mb-3 p-0">
-                <div class="btn-group justify-content-center">
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off"
-                        value="0" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-primary" for="btnradioAdv">Open</label>
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioInt" autocomplete="off"
-                        value="1" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-primary" for="btnradioInt">Advanced</label>
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioYou" autocomplete="off"
-                        value="2" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-primary" for="btnradioYou">Intermediate</label>
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioLead" autocomplete="off"
-                        value="lead" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-secondary" for="btnradioLead">Lead</label>
-                </div>
-                <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioNov" autocomplete="off"
-                        value="3" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-primary" for="btnradioNov">Novice</label>
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioYouTR" autocomplete="off"
-                        value="4" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-primary" for="btnradioYouTR">Youth</label>
-                    <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off"
-                        value="tr" onchange="filterCategory(this)">
-                    <label class="btn btn-outline-secondary" for="btnradioTR">Top Rope</label>
-                </div>
-            </div>
-        </div>
+                <div class="row m-0 mb-3 p-0">
+                    <div class="btn-group justify-content-center">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off"
+                            value="0" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioAdv">Open</label>
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioInt" autocomplete="off"
+                            value="1" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioInt">Advanced</label>
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioYou" autocomplete="off"
+                            value="2" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioYou">Intermediate</label>
+                    </div>
+                    <div class="btn-group justify-content-center mb-3" style="margin-top: -1px !important;">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioLead" autocomplete="off"
+                            value="lead" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-secondary" for="btnradioLead">Lead categories</label>
+                    </div>
 
-        <!-- table -->
-        <div class="justify-content-center">
-            <h2 class="text-center" id="activeFilter"></h2>
-            <div class="table-responsive mb-3" style="width: 100%;">
-                <table id="tableMale" class="table table-striped align-middle bg-white align-bottom"
-                    style="width: 100%;">
-                </table>
+                    <div class="btn-group justify-content-center">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioNov" autocomplete="off"
+                            value="3" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioNov">Novice</label>
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioYouTR" autocomplete="off"
+                            value="4" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioYouTR">Youth</label>
+                    </div>
+                    <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off"
+                            value="tr" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-secondary" for="btnradioTR">Top Rope categories</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <!-- leaderboard -->
+                <h2 class="text-center" id="activeFilter">Leaderboard</h2>
+                <div class="table-responsive mb-3" style="width: 100%;">
+                    <table id="tableMale" class="table table-striped align-middle bg-white align-bottom"
+                        style="width: 100%;">
+                    </table>
+                </div>
+
             </div>
         </div>
 
         <!-- Facebook Share Button -->
         <div class="d-flex justify-content-center my-5 mx-1">
-            <button class="btn btn-primary" onclick="shareOnFacebook()"><i class="bi bi-facebook me-2"></i>Share your results</button>
+            <button class="btn btn-primary" onclick="shareOnFacebook()"><i class="bi bi-facebook me-2"></i>Share your
+                results</button>
         </div>
 
         <!-- rules -->

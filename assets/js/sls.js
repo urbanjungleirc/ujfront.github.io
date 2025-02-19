@@ -292,6 +292,10 @@ function updateActiveFilterDisplay() {
         displayText += displayText ? ` - ${gender}` : gender;
     }
 
+    if (!displayText) { 
+        displayText = "Leaderboard";
+    }
+
     document.getElementById("activeFilter").textContent = displayText;
 }
 
@@ -577,8 +581,9 @@ function displayLatestTicks(data) {
 
         // Category (first 3 letters)
         const categoryShort = category
-            ? category.substring(0, 3).toUpperCase()
+            ? category.toUpperCase()
             : "";
+        // alternatively to shorten the category: category.substring(0, 3).toUpperCase()
 
         // Gender Icon
         const genderIcon =
@@ -603,16 +608,17 @@ function displayLatestTicks(data) {
             .join(" - ");
 
         item.innerHTML = `
-                ${luxon.DateTime.fromISO(date).toFormat("dd MMM yy")} <strong>${name}</strong> 
-                <small >${categoryShort} - ${genderIcon}</small>: 
+                <strong>${name}</strong> 
+                <small >${categoryShort} - ${genderIcon}</small></br>
                 <strong>${tickIcons}<strong>
         `;
+        // to add date: ${luxon.DateTime.fromISO(date).toFormat("dd MMM yy")}
 
         container.appendChild(item);
     });
 }
 
-// Trigger the fetch on page load
+// Trigger the fetch latest ticks on page load
 $(document).ready(function () {
     fetchLatestTicks();
 });
