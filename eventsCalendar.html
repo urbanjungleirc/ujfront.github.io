@@ -175,7 +175,7 @@
 
                 // Determine the title based on the event name
                 let eventTitle = event.event_name;
-                if (eventNameLower.includes('booking slot')) {
+                if (eventNameLower.includes('booking')) {
                     // Add "(Full)" if B'day event is already booked out = event has 0 or more than 1 space left
                     eventTitle += event.spaces_available == 1 ? '' : ' (Full)';
                 } else {
@@ -192,7 +192,7 @@
                 let eventUrl;
                 if (event.event_full) {
                     eventUrl = null; // If the event is full
-                } else if (eventNameLower.includes('booking slot') && event.spaces_available > 1) {
+                } else if (eventNameLower.includes('booking') && event.spaces_available > 1) {
                     eventUrl = null; // If the name contains "Booking Slot" and spaces available > 1
                 } else {
                     eventUrl = 'https://app.clubworx.com/websites/urban-jungle-indoor-rock-climbing-1/calendar/event/' + event.event_id;
@@ -204,10 +204,9 @@
                     start: event.event_start_at,
                     end: event.event_end_at,
                     url: eventUrl,
-                    className: 'fc-success',
+                    //className: 'fc-success',
                     backgroundColor: backgroundColor,
-                    //classNames: event.event_full ? ['event-full'] : [],
-                    classNames: (eventUrl == null) ? ['event-full'] : [],
+                    classNames: (eventUrl == null) ? ['event-full'] : ['fc-success'],
                     extendedProps: {
                         eventFull: event.event_full,
                         spacesAvailable: event.spaces_available,
