@@ -1,0 +1,162 @@
+<!-- Div for displaying opening hours -->
+<div id="openingHours">Loading opening hours…</div>
+
+<script>
+  // Helper: Get a Date object for the next occurrence of a given day/time.
+  function getDateForDayAndTime(targetDay, timeString) {
+    var now = new Date();
+    var result = new Date(now);
+    var hours = parseInt(timeString.substring(0, 2), 10);
+    var minutes = parseInt(timeString.substring(2), 10);
+    result.setHours(hours, minutes, 0, 0);
+    var dayDiff = targetDay - now.getDay();
+    if (dayDiff < 0 || (dayDiff === 0 && result < now)) {
+      dayDiff += 7;
+    }
+    result.setDate(now.getDate() + dayDiff);
+    return result;
+  }
+  
+  // Helper: Format a Date object to a friendly time string (e.g., "5:30 PM").
+  function formatDateTime(date) {
+    var options = { hour: 'numeric', minute: 'numeric' };
+    return date.toLocaleTimeString([], options);
+  }
+  
+  // Determine the next closing time (if currently open) using the periods array.
+  function getNextClosingDate(periods) {
+    var now = new Date();
+    var nextClosing = null;
+    for (var i = 0; i < periods.length; i++) {
+      var period = periods[i];
+      if (period.open && period.close) {
+        var openDate = getDateForDayAndTime(period.open.day, period.open.time);
+        var closeDate = getDateForDayAndTime(period.close.day, period.close.time);
+        // Adjust for periods that span midnight.
+        if (closeDate < openDate) {
+          closeDate.setDate(closeDate.getDate() + 1);
+        }
+        // If current time is within this period, update nextClosing if earlier.
+        if (now >= openDate && now < closeDate) {
+          if (!nextClosing || closeDate < nextClosing) {
+            nextClosing = closeDate;
+          }
+        }
+      }
+    }
+    return nextClosing;
+  }
+  
+  // Determine the next opening time (if currently closed) using the periods array.
+  function getNextOpeningDate(periods) {
+    var now = new Date();
+    var nextOpening = null;
+    for (var i = 0; i < periods.length; i++) {
+      var period = periods[i];
+      if (period.open) {
+        var openDate = getDateForDayAndTime(period.open.day, period.open.time);
+        if (openDate > now) {
+          if (!nextOpening || openDate < nextOpening) {
+            nextOpening = openDate;
+          }
+        }
+      }
+    }
+    return nextOpening;
+  }
+  
+  function initMap() {
+    var placeId = 'ChIJM2kAb8OXMioRFo3b-nqvNLo';
+    var request = {
+      placeId: placeId,
+      fields: ['opening_hours']
+    };
+    
+    var service = new google.maps.places.PlacesService(document.createElement('div'));
+    service.getDetails(request, function(place, status) {
+      var html = '';
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        var oh = place.opening_hours;
+        console.log("Opening Hours Data:", oh);
+        if (oh) {
+          // Try using the isOpen() method; if it returns undefined, fall back to open_now.
+          var currentlyOpen;
+          if (typeof oh.isOpen === "function") {
+            try {
+              currentlyOpen = oh.isOpen.call(oh);
+            } catch (e) {
+              console.error("Error calling isOpen():", e);
+              currentlyOpen = oh.open_now;
+            }
+          }
+          if (currentlyOpen === undefined) {
+            currentlyOpen = oh.open_now;
+          }
+          console.log("Computed open status:", currentlyOpen);
+          
+          if (currentlyOpen) {
+            var nextClose = oh.periods ? getNextClosingDate(oh.periods) : null;
+            html += '<p style="font-weight:bold; color:green;">We are open';
+            if (nextClose) {
+              html += ' – closing at ' + formatDateTime(nextClose);
+            }
+            html += '.</p>';
+          } else {
+            var nextOpen = oh.periods ? getNextOpeningDate(oh.periods) : null;
+            html += '<p style="font-weight:bold; color:red;">We are closed';
+            if (nextOpen) {
+              html += ' – opening at ' + formatDateTime(nextOpen);
+            }
+            html += '.</p>';
+          }
+          
+          // Format regular hours in a table.
+          if (oh.weekday_text) {
+            html += '<h3>Opening Hours</h3>';
+            html += '<table style="width:100%; border-collapse:collapse;">';
+            oh.weekday_text.forEach(function(dayText) {
+              var parts = dayText.split(': ');
+              if (parts.length === 2) {
+                html += '<tr>';
+                html += '<td style="padding:4px; border-bottom:1px solid #ddd; font-weight:bold;">' + parts[0] + '</td>';
+                html += '<td style="padding:4px; border-bottom:1px solid #ddd;">' + parts[1] + '</td>';
+                html += '</tr>';
+              } else {
+                html += '<tr><td colspan="2" style="padding:4px; border-bottom:1px solid #ddd;">' + dayText + '</td></tr>';
+              }
+            });
+            html += '</table>';
+          } else {
+            html += '<p>Opening hours not available.</p>';
+          }
+          
+          // Attempt to display special hours if available.
+          if (oh.specialDays && oh.specialDays.length > 0) {
+            html += '<h3>Special Hours</h3>';
+            html += '<ul style="list-style:none; padding:0;">';
+            oh.specialDays.forEach(function(special) {
+              console.log("Special Day:", special);
+              html += '<li style="padding:4px 0;"><strong>' + special.date + '</strong>: ' + special.hours + '</li>';
+            });
+            html += '</ul>';
+          } else {
+            html += '<p>No special hours updates available.</p>';
+          }
+          
+          // Add a link for customers to check special hours directly on Google.
+          html += '<p style="margin-top:12px;"><a href="https://www.google.com/maps/place/?q=place_id:' + placeId + '" target="_blank" rel="noopener noreferrer">Check special hours on Google</a></p>';
+        } else {
+          html += '<p>Opening hours data not available.</p>';
+        }
+      } else {
+        html += '<p>Error retrieving hours.</p>';
+      }
+      document.getElementById('openingHours').innerHTML = html;
+    });
+  }
+</script>
+
+<!-- Load the Google Maps JavaScript API with your provided API key -->
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8GDNa0lASp89I1Detf8rki2WD82zBFz4&libraries=places&callback=initMap">
+</script>

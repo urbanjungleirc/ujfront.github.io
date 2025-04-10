@@ -1,0 +1,33 @@
+/* css/custom.css */
+/* Custom styling overrides */
+body {
+    padding-top: 60px;
+}
+
+footer {
+    margin-top: 40px;
+    font-size: 0.9em;
+}
+
+/* Additional inline styles if needed */
+.disabled-config input,
+.disabled-config select,
+.disabled-config button {
+    pointer-events: none;
+    opacity: 0.6;
+}
+.session-choice {
+    text-align: center;
+    margin-top: 100px;
+}
+.session-choice h2 {
+    margin-bottom: 30px;
+}
+.scoring-table button {
+    min-width: 36px;
+    padding: 0 6px;
+}
+.scoring-table td {
+    vertical-align: middle;
+    text-align: center;
+}
