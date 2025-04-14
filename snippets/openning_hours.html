@@ -5,9 +5,58 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Openning hours</title>
+  <style>
+    /* Base fonts and text colour */
+    body {
+      font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      /* Main text colour */
+      background-color: #fff;
+      /* Light background */
+      margin: 0;
+      padding: 20px;
+      /* Adjust as needed */
+    }
+
+    /* Headings styling */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #111;
+      /* Darker for headings */
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      line-height: 1.2;
+    }
+
+    /* Paragraph spacing */
+    p {
+      margin-top: 0;
+      margin-bottom: 1em;
+    }
+
+    /* Link styling with hover state */
+    a {
+      color: #e60000;
+      /* Bold red accent */
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 
 <body>
+  <h2>Openning hours</h2>
   <!-- Div for displaying opening hours -->
   <div id="openingHours">Loading opening hours…</div>
 
@@ -76,6 +125,11 @@
           } else {
             html += '<p>Regular hours not available.</p>';
           }
+
+          html += '<h3>Public Holidays</h3>';
+          html += '<ul style="list-style:none; padding:0;">';
+          html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
+          html += '</ul>';
 
           // --- Attempt to Display Special Hours ---
           // Google’s Places API may include special hours in current_opening_hours.
