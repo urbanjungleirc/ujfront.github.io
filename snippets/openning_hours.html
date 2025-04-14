@@ -1,129 +1,143 @@
-<!-- Div for displaying opening hours -->
-<div id="openingHours">Loading opening hours…</div>
+<!DOCTYPE html>
+<html lang="en">
 
-<script>
-  // Helper: Format a Date object into a friendly time (e.g. "5:30 PM")
-  function formatDateTime(date) {
-    var options = { hour: 'numeric', minute: 'numeric' };
-    return date.toLocaleTimeString([], options);
-  }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Openning hours</title>
+</head>
 
-  // Helper: Create a formatted date string from a date object received in special hours.
-  // (Assumes the API returns a date as an object {year, month, day}).
-  function formatSpecialDate(specialDate) {
-    // JavaScript months are 0-indexed in Date(), but Google returns 1-indexed months.
-    var date = new Date(specialDate.year, specialDate.month - 1, specialDate.day);
-    // Format to locale string e.g. "Mon, Dec 25"
-    return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-  }
+<body>
+  <!-- Div for displaying opening hours -->
+  <div id="openingHours">Loading opening hours…</div>
 
-  // Main initialization function.
-  function initMap() {
-    var placeId = 'ChIJM2kAb8OXMioRFo3b-nqvNLo';
-    // Request both regular opening_hours and the current_opening_hours.
-    var request = {
-      placeId: placeId,
-      fields: ['name', 'opening_hours', 'current_opening_hours']
-    };
+  <script>
+    // Helper: Format a Date object into a friendly time (e.g. "5:30 PM")
+    function formatDateTime(date) {
+      var options = { hour: 'numeric', minute: 'numeric' };
+      return date.toLocaleTimeString([], options);
+    }
 
-    var service = new google.maps.places.PlacesService(document.createElement('div'));
-    service.getDetails(request, function(place, status) {
-      var html = '';
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
-        // For debugging, log the entire response
-        console.log("Place Details:", place);
-        // We'll use the regular opening_hours for our weekly hours,
-        // and try to use current_opening_hours for any special dates.
-        var oh  = place.opening_hours;
-        var coh = place.current_opening_hours; // may include special changes
+    // Helper: Create a formatted date string from a date object received in special hours.
+    // (Assumes the API returns a date as an object {year, month, day}).
+    function formatSpecialDate(specialDate) {
+      // JavaScript months are 0-indexed in Date(), but Google returns 1-indexed months.
+      var date = new Date(specialDate.year, specialDate.month - 1, specialDate.day);
+      // Format to locale string e.g. "Mon, Dec 25"
+      return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
 
-        // --- Open/Closed Message (using fallback as before) ---
-        // Note: We use the legacy open_now check.
-        var currentlyOpen = oh && (oh.open_now === true);
-        if (currentlyOpen) {
-          html += '<p style="font-weight:bold; color:green;">We are open.</p>';
-        } else {
-          html += '<p style="font-weight:bold; color:red;">We are closed.</p>';
-        }
+    // Main initialization function.
+    function initMap() {
+      var placeId = 'ChIJM2kAb8OXMioRFo3b-nqvNLo';
+      // Request both regular opening_hours and the current_opening_hours.
+      var request = {
+        placeId: placeId,
+        fields: ['name', 'opening_hours', 'current_opening_hours']
+      };
 
-        // --- Display Regular Hours (from opening_hours.weekday_text) ---
-        if (oh && oh.weekday_text) {
-          html += '<h3>Regular Hours</h3>';
-          html += '<table style="width:100%; border-collapse:collapse;">';
-          oh.weekday_text.forEach(function(dayText) {
-            // Expecting format like "Monday: 9:30 am – 9:30 pm"
-            var parts = dayText.split(': ');
-            if (parts.length === 2) {
-              html += '<tr>';
-              html += '<td style="padding:4px; border-bottom:1px solid #ddd; font-weight:bold;">' + parts[0] + '</td>';
-              html += '<td style="padding:4px; border-bottom:1px solid #ddd;">' + parts[1] + '</td>';
-              html += '</tr>';
-            } else {
-              html += '<tr><td colspan="2" style="padding:4px; border-bottom:1px solid #ddd;">' + dayText + '</td></tr>';
-            }
-          });
-          html += '</table>';
-        } else {
-          html += '<p>Regular hours not available.</p>';
-        }
+      var service = new google.maps.places.PlacesService(document.createElement('div'));
+      service.getDetails(request, function (place, status) {
+        var html = '';
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          // For debugging, log the entire response
+          console.log("Place Details:", place);
+          // We'll use the regular opening_hours for our weekly hours,
+          // and try to use current_opening_hours for any special dates.
+          var oh = place.opening_hours;
+          var coh = place.current_opening_hours; // may include special changes
 
-        // --- Attempt to Display Special Hours ---
-        // Google’s Places API may include special hours in current_opening_hours.
-        // There are several approaches:
-        // 1. Some locations return a "specialDays" property inside current_opening_hours.
-        // 2. Alternatively, the weekday_text array in current_opening_hours might differ from the standard opening_hours.
-        //
-        // In this example, we’ll check for a property called "specialDays" (an array of dates),
-        // and if it exists, we then display the hours for those dates from current_opening_hours.weekday_text.
-        html += '<h3>Special Hours</h3>';
-        var specialFound = false;
-        if (coh) {
-          // Option 1: Check for a "specialDays" property.
-          if (coh.specialDays && coh.specialDays.length > 0) {
-            html += '<ul style="list-style:none; padding:0;">';
-            coh.specialDays.forEach(function(special) {
-              // Expecting special to have a structure like { date: { year, month, day }, hours: "X – Y" }
-              console.log("Special Day:", special);
-              html += '<li style="padding:4px 0;">';
-              html += '<strong>' + formatSpecialDate(special.date) + '</strong>: ' + special.hours;
-              html += '</li>';
-            });
-            html += '</ul>';
-            specialFound = true;
+          // --- Open/Closed Message (using fallback as before) ---
+          // Note: We use the legacy open_now check.
+          var currentlyOpen = oh && (oh.open_now === true);
+          if (currentlyOpen) {
+            html += '<p style="font-weight:bold; color:green;">We are open.</p>';
           } else {
-            // Option 2: Compare the weekday_text values from current_opening_hours versus opening_hours.
-            // If they differ, assume that difference reflects special hours.
-            if (coh.weekday_text && oh && oh.weekday_text) {
-              // Build a list of days where the texts differ.
-              var diffHTML = '<ul style="list-style:none; padding:0;">';
-              for (var i = 0; i < coh.weekday_text.length; i++) {
-                if (coh.weekday_text[i] !== oh.weekday_text[i]) {
-                  // Extract the day name from the string (assuming format "Monday: …")
-                  var dayName = coh.weekday_text[i].split(':')[0];
-                  diffHTML += '<li style="padding:4px 0;"><strong>' + dayName + '</strong>: ' + coh.weekday_text[i].split(': ')[1] + '</li>';
-                  specialFound = true;
-                }
+            html += '<p style="font-weight:bold; color:red;">We are closed.</p>';
+          }
+
+          // --- Display Regular Hours (from opening_hours.weekday_text) ---
+          if (oh && oh.weekday_text) {
+            html += '<h3>Regular Hours</h3>';
+            html += '<table style="width:100%; border-collapse:collapse;">';
+            oh.weekday_text.forEach(function (dayText) {
+              // Expecting format like "Monday: 9:30 am – 9:30 pm"
+              var parts = dayText.split(': ');
+              if (parts.length === 2) {
+                html += '<tr>';
+                html += '<td style="padding:4px; border-bottom:1px solid #ddd; font-weight:bold;">' + parts[0] + '</td>';
+                html += '<td style="padding:4px; border-bottom:1px solid #ddd;">' + parts[1] + '</td>';
+                html += '</tr>';
+              } else {
+                html += '<tr><td colspan="2" style="padding:4px; border-bottom:1px solid #ddd;">' + dayText + '</td></tr>';
               }
-              diffHTML += '</ul>';
-              html += diffHTML;
+            });
+            html += '</table>';
+          } else {
+            html += '<p>Regular hours not available.</p>';
+          }
+
+          // --- Attempt to Display Special Hours ---
+          // Google’s Places API may include special hours in current_opening_hours.
+          // There are several approaches:
+          // 1. Some locations return a "specialDays" property inside current_opening_hours.
+          // 2. Alternatively, the weekday_text array in current_opening_hours might differ from the standard opening_hours.
+          //
+          // In this example, we’ll check for a property called "specialDays" (an array of dates),
+          // and if it exists, we then display the hours for those dates from current_opening_hours.weekday_text.
+          html += '<h3>Special Hours</h3>';
+          var specialFound = false;
+          if (coh) {
+            // Option 1: Check for a "specialDays" property.
+            if (coh.specialDays && coh.specialDays.length > 0) {
+              html += '<ul style="list-style:none; padding:0;">';
+              coh.specialDays.forEach(function (special) {
+                // Expecting special to have a structure like { date: { year, month, day }, hours: "X – Y" }
+                console.log("Special Day:", special);
+                html += '<li style="padding:4px 0;">';
+                html += '<strong>' + formatSpecialDate(special.date) + '</strong>: ' + special.hours;
+                html += '</li>';
+              });
+              html += '</ul>';
+              specialFound = true;
+            } else {
+              // Option 2: Compare the weekday_text values from current_opening_hours versus opening_hours.
+              // If they differ, assume that difference reflects special hours.
+              if (coh.weekday_text && oh && oh.weekday_text) {
+                // Build a list of days where the texts differ.
+                var diffHTML = '<ul style="list-style:none; padding:0;">';
+                for (var i = 0; i < coh.weekday_text.length; i++) {
+                  if (coh.weekday_text[i] !== oh.weekday_text[i]) {
+                    // Extract the day name from the string (assuming format "Monday: …")
+                    var dayName = coh.weekday_text[i].split(':')[0];
+                    diffHTML += '<li style="padding:4px 0;"><strong>' + dayName + '</strong>: ' + coh.weekday_text[i].split(': ')[1] + '</li>';
+                    specialFound = true;
+                  }
+                }
+                diffHTML += '</ul>';
+                html += diffHTML;
+              }
             }
           }
-        }
-        if (!specialFound) {
-          html += '<p>No special hours updates available.</p>';
-        }
+          if (!specialFound) {
+            html += '<p>No special hours updates available.</p>';
+          }
 
-        // --- Optional: Provide a link to view details on Google ---
-        html += '<p style="margin-top:12px;"><a href="https://www.google.com/maps/place/?q=place_id:' + placeId + '" target="_blank" rel="noopener noreferrer">View full hours on Google</a></p>';
-      } else {
-        html = '<p>Error retrieving hours.</p>';
-      }
-      document.getElementById('openingHours').innerHTML = html;
-    });
-  }
-</script>
+          // --- Optional: Provide a link to view details on Google ---
+          html += '<p style="margin-top:12px;"><a href="https://www.google.com/maps/place/?q=place_id:' + placeId + '" target="_blank" rel="noopener noreferrer">View full hours on Google</a></p>';
+        } else {
+          html = '<p>Error retrieving hours.</p>';
+        }
+        document.getElementById('openingHours').innerHTML = html;
+      });
+    }
+  </script>
 
-<!-- Load the Google Maps JavaScript API with your provided API key -->
-<script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8GDNa0lASp89I1Detf8rki2WD82zBFz4&libraries=places&callback=initMap">
-</script>
+  <!-- Load the Google Maps JavaScript API with your provided API key -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8GDNa0lASp89I1Detf8rki2WD82zBFz4&libraries=places&callback=initMap">
+    </script>
+
+</body>
+
+</html>
