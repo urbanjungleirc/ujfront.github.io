@@ -27,7 +27,6 @@
     h6 {
       font-family: "futura-pt", "Helvetica Neue", Helvetica, Arial, sans-serif;
       color: #525252;
-      /* Darker for headings */
       margin-top: 1em;
       margin-bottom: 0.5em;
       line-height: 1em;
@@ -48,22 +47,29 @@
       font-weight: 700;
     }
 
-    /* Paragraph spacing */
     p {
       margin-top: 0;
       margin-bottom: 1em;
     }
 
-    /* Link styling with hover state */
     a {
       color: #e60000;
-      /* Bold red accent */
       text-decoration: none;
     }
 
     a:hover,
     a:focus {
       text-decoration: underline;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-left: 10px;
+    }
+
+    li {
+      padding: 4px 0;
     }
   </style>
 </head>
@@ -148,8 +154,8 @@
           }
 
           html += '<h3>Public Holidays</h3>';
-          html += '<ul style="list-style:none; padding:0;">';
-          html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
+          html += '<ul>';
+          html += '<li><strong>9:00 am – 7:00 pm</strong></li>';
           html += '</ul>';
 
           // --- Special Hours Display ---
@@ -187,7 +193,7 @@
           }
 
           if (specialEntries.length > 0) {
-            html += '<h3>Special Hours</h3><ul style="list-style:none; padding:0;">';
+            html += '<h3>Special Hours</h3><ul>';
             specialEntries.forEach(function (entry) {
               var dObj = entry.date;
               // Format the date: full weekday, day number with ordinal, full month.
@@ -196,7 +202,7 @@
               var ordinal = getOrdinalSuffix(dayNum);
               var month = dObj.toLocaleDateString(undefined, { month: 'long' });
               var formattedDate = weekday + " " + dayNum + ordinal + " " + month;
-              html += '<li style="padding:4px 0;"><strong>' + formattedDate + '</strong>: ' + entry.schedule + '</li>';
+              html += '<li><strong>' + formattedDate + '</strong>: ' + entry.schedule + '</li>';
             });
             html += '</ul>';
           } else {
