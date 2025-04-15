@@ -139,7 +139,7 @@
           // --- Regular Hours Display ---
           if (oh && oh.weekday_text) {
             html += '<h3>Regular Hours</h3>';
-            html += '<table style="width:100%; border-collapse:collapse;">';
+            html += '<table style="width:100%; border-collapse:collapse; margin-bottom: 0.5em;">';
             oh.weekday_text.forEach(function (dayText) {
               var parts = dayText.split(': ');
               if (parts.length === 2) {
