@@ -12,12 +12,9 @@
       font-size: 16px;
       line-height: 1.6;
       color: #333;
-      /* Main text colour */
-      background-color: #fff;
-      /* Light background */
+      background-color: #FAFAFA;
       margin: 0;
-      padding: 20px;
-      /* Adjust as needed */
+      padding: 0;
     }
 
     /* Headings styling */
@@ -27,8 +24,8 @@
     h4,
     h5,
     h6 {
-      font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: #111;
+      font-family: "futura-pt", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #525252;
       /* Darker for headings */
       margin-top: 1em;
       margin-bottom: 0.5em;
@@ -74,6 +71,16 @@
       var date = new Date(specialDate.year, specialDate.month - 1, specialDate.day);
       // Format to locale string e.g. "Mon, Dec 25"
       return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    // Helper: Convert a time string in HHMM (e.g. "0930") to a friendly time (e.g. "9:30 AM")
+    function formatTime(timeStr) {
+      var hour = parseInt(timeStr.substring(0, 2), 10);
+      var minute = timeStr.substring(2);
+      var ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12;
+      if (hour === 0) hour = 12;
+      return hour + ':' + minute + ' ' + ampm;
     }
 
     // Main initialization function.
@@ -131,49 +138,24 @@
           html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
           html += '</ul>';
 
-          // --- Attempt to Display Special Hours ---
-          // Google’s Places API may include special hours in current_opening_hours.
-          // There are several approaches:
-          // 1. Some locations return a "specialDays" property inside current_opening_hours.
-          // 2. Alternatively, the weekday_text array in current_opening_hours might differ from the standard opening_hours.
-          //
-          // In this example, we’ll check for a property called "specialDays" (an array of dates),
-          // and if it exists, we then display the hours for those dates from current_opening_hours.weekday_text.
-          html += '<h3>Special Hours</h3>';
+          // --- Special Hours ---
+          // Option: Compare current_opening_hours.weekday_text to opening_hours.weekday_text.
+          var specialHTML = '';
           var specialFound = false;
-          if (coh) {
-            // Option 1: Check for a "specialDays" property.
-            if (coh.specialDays && coh.specialDays.length > 0) {
-              html += '<ul style="list-style:none; padding:0;">';
-              coh.specialDays.forEach(function (special) {
-                // Expecting special to have a structure like { date: { year, month, day }, hours: "X – Y" }
-                console.log("Special Day:", special);
-                html += '<li style="padding:4px 0;">';
-                html += '<strong>' + formatSpecialDate(special.date) + '</strong>: ' + special.hours;
-                html += '</li>';
-              });
-              html += '</ul>';
-              specialFound = true;
-            } else {
-              // Option 2: Compare the weekday_text values from current_opening_hours versus opening_hours.
-              // If they differ, assume that difference reflects special hours.
-              if (coh.weekday_text && oh && oh.weekday_text) {
-                // Build a list of days where the texts differ.
-                var diffHTML = '<ul style="list-style:none; padding:0;">';
-                for (var i = 0; i < coh.weekday_text.length; i++) {
-                  if (coh.weekday_text[i] !== oh.weekday_text[i]) {
-                    // Extract the day name from the string (assuming format "Monday: …")
-                    var dayName = coh.weekday_text[i].split(':')[0];
-                    diffHTML += '<li style="padding:4px 0;"><strong>' + dayName + '</strong>: ' + coh.weekday_text[i].split(': ')[1] + '</li>';
-                    specialFound = true;
-                  }
-                }
-                diffHTML += '</ul>';
-                html += diffHTML;
+          if (coh && coh.weekday_text && oh && oh.weekday_text) {
+            for (var i = 0; i < coh.weekday_text.length; i++) {
+              if (coh.weekday_text[i] !== oh.weekday_text[i]) {
+                // The day differs, so assume it has special hours.
+                var dayName = coh.weekday_text[i].split(':')[0];
+                var specialInfo = coh.weekday_text[i].split(': ')[1];
+                specialHTML += '<li style="padding:4px 0;"><strong>' + dayName + '</strong>: ' + specialInfo + ' <em>(Special Hours)</em></li>';
+                specialFound = true;
               }
             }
           }
-          if (!specialFound) {
+          if (specialFound) {
+            html += '<h3>Special Hours</h3><ul style="list-style:none; padding:0;">' + specialHTML + '</ul>';
+          } else {
             html += '<p>No special hours updates available.</p>';
           }
 
