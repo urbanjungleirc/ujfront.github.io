@@ -9,8 +9,9 @@
     /* Base fonts and text colour */
     body {
       font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.8em;
       color: #333;
       background-color: #FAFAFA;
       margin: 0;
@@ -29,7 +30,22 @@
       /* Darker for headings */
       margin-top: 1em;
       margin-bottom: 0.5em;
-      line-height: 1.2;
+      line-height: 1em;
+    }
+
+    h1 {
+      font-size: 3em;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 35px;
+      font-weight: 600;
+    }
+
+    h3 {
+      font-size: 22px;
+      font-weight: 700;
     }
 
     /* Paragraph spacing */
@@ -58,22 +74,8 @@
   <div id="openingHours">Loading opening hours…</div>
 
   <script>
-    // Helper: Format a Date object into a friendly time (e.g. "5:30 PM")
-    function formatDateTime(date) {
-      var options = { hour: 'numeric', minute: 'numeric' };
-      return date.toLocaleTimeString([], options);
-    }
 
-    // Helper: Create a formatted date string from a date object received in special hours.
-    // (Assumes the API returns a date as an object {year, month, day}).
-    function formatSpecialDate(specialDate) {
-      // JavaScript months are 0-indexed in Date(), but Google returns 1-indexed months.
-      var date = new Date(specialDate.year, specialDate.month - 1, specialDate.day);
-      // Format to locale string e.g. "Mon, Dec 25"
-      return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-    }
-
-    // Helper: Convert a time string in HHMM (e.g. "0930") to a friendly time (e.g. "9:30 AM")
+    // Helper: Convert a time string in HHMM (e.g. "0930") to a formatted time (e.g. "9:30 AM")
     function formatTime(timeStr) {
       var hour = parseInt(timeStr.substring(0, 2), 10);
       var minute = timeStr.substring(2);
@@ -81,6 +83,17 @@
       hour = hour % 12;
       if (hour === 0) hour = 12;
       return hour + ':' + minute + ' ' + ampm;
+    }
+
+    // Helper: Get the ordinal suffix for a day number (e.g. "st", "nd", "rd", "th")
+    function getOrdinalSuffix(day) {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+      }
     }
 
     // Main initialization function.
@@ -139,22 +152,74 @@
           html += '</ul>';
 
           // --- Special Hours ---
-          // Option: Compare current_opening_hours.weekday_text to opening_hours.weekday_text.
-          var specialHTML = '';
-          var specialFound = false;
-          if (coh && coh.weekday_text && oh && oh.weekday_text) {
-            for (var i = 0; i < coh.weekday_text.length; i++) {
-              if (coh.weekday_text[i] !== oh.weekday_text[i]) {
-                // The day differs, so assume it has special hours.
-                var dayName = coh.weekday_text[i].split(':')[0];
-                var specialInfo = coh.weekday_text[i].split(': ')[1];
-                specialHTML += '<li style="padding:4px 0;"><strong>' + dayName + '</strong>: ' + specialInfo + ' <em>(Special Hours)</em></li>';
-                specialFound = true;
-              }
+          // Build a mapping of the regular schedule by day number.
+          // API convention: day 0 = Sunday, 1 = Monday, …, 6 = Saturday.
+          // The regular weekday_text from oh is ordered as: Monday, Tuesday, …, Sunday.
+          var regularByDay = {};
+          if (oh && oh.weekday_text) {
+            for (var d = 0; d < 7; d++) {
+              var idx = (d === 0) ? 6 : d - 1;  // Monday maps to index 0, Sunday to index 6.
+              regularByDay[d] = oh.weekday_text[idx].split(': ')[1].trim().toLowerCase();
             }
           }
-          if (specialFound) {
-            html += '<h3>Special Hours</h3><ul style="list-style:none; padding:0;">' + specialHTML + '</ul>';
+
+          // Build an array of special entries from current_opening_hours.periods.
+          var specialEntries = [];
+          if (coh && coh.periods) {
+            for (var i = 0; i < coh.periods.length; i++) {
+              var period = coh.periods[i];
+              if (period.open && period.close && period.open.date) {
+                var specialOpen = formatTime(period.open.time);
+                var specialClose = formatTime(period.close.time);
+                var specialSchedule = specialOpen + " – " + specialClose;
+                // Handle a common scenario: if the period represents a "Closed" day.
+                // (For example, some listings might return a single word "Closed" instead of times.)
+                // Here, if specialClose is "12:00 AM" and specialOpen is "12:00 AM", interpret as "Closed".
+                if (specialOpen === "12:00 AM" && specialClose === "12:00 AM") {
+                  specialSchedule = "Closed";
+                }
+                // Normalize both schedule strings for comparison.
+                var normSpecial = specialSchedule.toLowerCase().trim();
+                var normRegular = (regularByDay[period.open.day] || "").toLowerCase().trim();
+                // If the special schedule differs from the regular one, add it.
+                if (normSpecial !== normRegular) {
+                  specialEntries.push({
+                    dayIndex: period.open.day,
+                    date: period.open.date,  // e.g., "2025-04-14"
+                    schedule: specialSchedule
+                  });
+                }
+              }
+            }
+
+            // Filter out dates that are before today.
+            var today = new Date();
+            specialEntries = specialEntries.filter(function (entry) {
+              // Create a Date object from the entry.date (assumes "YYYY-MM-DD")
+              var entryDate = new Date(entry.date + "T00:00:00");
+              return entryDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            });
+
+            // Sort special entries by date.
+            specialEntries.sort(function (a, b) {
+              return new Date(a.date) - new Date(b.date);
+            });
+          }
+
+          if (specialEntries.length > 0) {
+            html += '<h3>Special Hours</h3><ul style="list-style:none; padding:0;">';
+            for (var j = 0; j < specialEntries.length; j++) {
+              var entry = specialEntries[j];
+              // Create a Date object and format it
+              var dObj = new Date(entry.date + "T00:00:00");
+              var weekday = dObj.toLocaleDateString(undefined, { weekday: 'long' });
+              var dayNum = dObj.getDate();
+              var ordinal = getOrdinalSuffix(dayNum);
+              var month = dObj.toLocaleDateString(undefined, { month: 'long' });
+              var formattedDate = weekday + " " + dayNum + ordinal + " " + month;
+              html += '<li style="padding:4px 0;"><strong>' + formattedDate + '</strong>: ' + entry.schedule + '</li>';
+            }
+            html += '</ul>';
           } else {
             html += '<p>No special hours updates available.</p>';
           }
