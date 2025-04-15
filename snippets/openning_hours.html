@@ -73,156 +73,167 @@
   <!-- Div for displaying opening hours -->
   <div id="openingHours">Loading opening hours…</div>
 
-  <script>
 
-    // Helper: Convert a time string in HHMM (e.g. "0930") to a formatted time (e.g. "9:30 AM")
-    function formatTime(timeStr) {
-      var hour = parseInt(timeStr.substring(0, 2), 10);
-      var minute = timeStr.substring(2);
-      var ampm = hour >= 12 ? 'PM' : 'AM';
-      hour = hour % 12;
-      if (hour === 0) hour = 12;
-      return hour + ':' + minute + ' ' + ampm;
-    }
+<!-- // html += '<h3>Public Holidays</h3>';
+//           html += '<ul style="list-style:none; padding:0;">';
+//           html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
+//           html += '</ul>';
+    // Helper: Convert a time string in HHMM (e.g. "0930") to a formatted time (e.g. "9:30 AM") -->
 
-    // Helper: Get the ordinal suffix for a day number (e.g. "st", "nd", "rd", "th")
-    function getOrdinalSuffix(day) {
-      if (day > 3 && day < 21) return 'th';
-      switch (day % 10) {
-        case 1: return "st";
-        case 2: return "nd";
-        case 3: return "rd";
-        default: return "th";
+    <script>
+      // Helper: Format a time string in HHMM (e.g. "0930") to a friendly 12-hour format (e.g. "9:30 AM")
+      function formatTime(timeStr) {
+        var hour = parseInt(timeStr.substring(0, 2), 10);
+        var minute = timeStr.substring(2);
+        var ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12;
+        if (hour === 0) hour = 12;
+        return hour + ':' + minute + ' ' + ampm;
       }
-    }
-
-    // Main initialization function.
-    function initMap() {
-      var placeId = 'ChIJM2kAb8OXMioRFo3b-nqvNLo';
-      // Request both regular opening_hours and the current_opening_hours.
-      var request = {
-        placeId: placeId,
-        fields: ['name', 'opening_hours', 'current_opening_hours']
-      };
-
-      var service = new google.maps.places.PlacesService(document.createElement('div'));
-      service.getDetails(request, function (place, status) {
-        var html = '';
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          // For debugging, log the entire response
-          console.log("Place Details:", place);
-          // We'll use the regular opening_hours for our weekly hours,
-          // and try to use current_opening_hours for any special dates.
-          var oh = place.opening_hours;
-          var coh = place.current_opening_hours; // may include special changes
-
-          // --- Open/Closed Message (using fallback as before) ---
-          // Note: We use the legacy open_now check.
-          var currentlyOpen = oh && (oh.open_now === true);
-          if (currentlyOpen) {
-            html += '<p style="font-weight:bold; color:green;">We are open.</p>';
-          } else {
-            html += '<p style="font-weight:bold; color:red;">We are closed.</p>';
-          }
-
-          // --- Display Regular Hours (from opening_hours.weekday_text) ---
-          if (oh && oh.weekday_text) {
-            html += '<h3>Regular Hours</h3>';
-            html += '<table style="width:100%; border-collapse:collapse;">';
-            oh.weekday_text.forEach(function (dayText) {
-              // Expecting format like "Monday: 9:30 am – 9:30 pm"
-              var parts = dayText.split(': ');
-              if (parts.length === 2) {
-                html += '<tr>';
-                html += '<td style="padding:4px; border-bottom:1px solid #ddd; font-weight:bold;">' + parts[0] + '</td>';
-                html += '<td style="padding:4px; border-bottom:1px solid #ddd;">' + parts[1] + '</td>';
-                html += '</tr>';
-              } else {
-                html += '<tr><td colspan="2" style="padding:4px; border-bottom:1px solid #ddd;">' + dayText + '</td></tr>';
-              }
-            });
-            html += '</table>';
-          } else {
-            html += '<p>Regular hours not available.</p>';
-          }
-
-          html += '<h3>Public Holidays</h3>';
-          html += '<ul style="list-style:none; padding:0;">';
-          html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
-          html += '</ul>';
-
-          // --- Special Hours ---
-          // --- Special Hours Display ---
-          // Build a mapping of the regular schedule by day number.
-          // API convention: regular weekday_text is ordered as: Monday, Tuesday, …, Sunday.
-          // Our mapping: day 1 = Monday (index 0), ... day 0 = Sunday (index 6).
-          var regularByDay = {};
-          if (oh && oh.weekday_text) {
-            for (var d = 0; d < 7; d++) {
-              var idx = (d === 0) ? 6 : d - 1;
-              var parts = oh.weekday_text[idx].split(': ');
-              regularByDay[d] = parts[1] ? normalizeSchedule(parts[1]) : "";
-            }
-          }
-
-          // Build an array of special entries from current_opening_hours.periods.
-          var specialEntries = [];
-          if (coh && coh.periods) {
-            for (var i = 0; i < coh.periods.length; i++) {
-              var period = coh.periods[i];
-              if (period.open && period.close && period.open.time && period.close.time) {
-                var specialSchedule = formatTime(period.open.time) + " – " + formatTime(period.close.time);
-                // Special case: if both times format as "12:00 AM", treat as "Closed".
-                if (specialSchedule === "12:00 AM – 12:00 AM") {
-                  specialSchedule = "Closed";
-                }
-                var normSpecial = normalizeSchedule(specialSchedule);
-                var normRegular = regularByDay[period.open.day] || "";
-                // Only add if special schedule differs from regular.
-                if (normSpecial !== normRegular) {
-                  // Compute the upcoming occurrence date for this day-of-week.
-                  var occurrenceDate = getNextOccurrenceDate(period.open.day);
-                  specialEntries.push({
-                    dayIndex: period.open.day,
-                    occurrenceDate: occurrenceDate,
-                    schedule: specialSchedule
-                  });
-                }
-              }
-            }
-            // Sort special entries by occurrenceDate.
-            specialEntries.sort(function (a, b) {
-              return a.occurrenceDate - b.occurrenceDate;
-            });
-          }
-
-          if (specialEntries.length > 0) {
-            html += '<h3>Special Hours</h3><ul style="list-style:none; padding:0;">';
-            for (var j = 0; j < specialEntries.length; j++) {
-              var entry = specialEntries[j];
-              var dObj = entry.occurrenceDate;
-              // Format the date: e.g. "Friday 18th April"
-              var weekday = dObj.toLocaleDateString(undefined, { weekday: 'long' });
-              var dayNum = dObj.getDate();
-              var ordinal = getOrdinalSuffix(dayNum);
-              var month = dObj.toLocaleDateString(undefined, { month: 'long' });
-              var formattedDate = weekday + " " + dayNum + ordinal + " " + month;
-              html += '<li style="padding:4px 0;"><strong>' + formattedDate + '</strong>: ' + entry.schedule + ' <em>(Special Hours)</em></li>';
-            }
-            html += '</ul>';
-          } else {
-            html += '<p>No special hours updates available.</p>';
-          }
-
-          // --- Optional: Provide a link to view details on Google ---
-          html += '<p style="margin-top:12px;"><a href="https://www.google.com/maps/place/?q=place_id:' + placeId + '" target="_blank" rel="noopener noreferrer">View full hours on Google</a></p>';
-        } else {
-          html = '<p>Error retrieving hours.</p>';
+      
+      // Helper: Get the ordinal suffix for a day number (e.g. "st", "nd", "rd", "th")
+      function getOrdinalSuffix(day) {
+        if (day > 3 && day < 21) return 'th';
+        switch (day % 10) {
+          case 1:  return "st";
+          case 2:  return "nd";
+          case 3:  return "rd";
+          default: return "th";
         }
-        document.getElementById('openingHours').innerHTML = html;
-      });
-    }
-  </script>
+      }
+      
+      // Helper: Normalize schedule strings (lowercase, trim, and replace dash variants)
+      function normalizeSchedule(str) {
+        return str.toLowerCase().trim().replace(/[–—]/g, '-');
+      }
+      
+      // Helper: Get the next occurrence of a given day index (0=Sunday, 1=Monday, etc.)
+      // This function always returns the upcoming date for that day (if today is that day, it returns next week).
+      function getNextOccurrenceDate(dayIndex) {
+        var today = new Date();
+        var currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        var diff = dayIndex - currentDay;
+        if (diff <= 0) diff += 7;
+        var result = new Date();
+        result.setDate(today.getDate() + diff);
+        return result;
+      }
+      
+      function initMap() {
+        var placeId = 'ChIJM2kAb8OXMioRFo3b-nqvNLo';
+        // Request both regular and current opening hours.
+        var request = {
+          placeId: placeId,
+          fields: ['name', 'opening_hours', 'current_opening_hours']
+        };
+        
+        var service = new google.maps.places.PlacesService(document.createElement('div'));
+        service.getDetails(request, function(place, status) {
+          var html = '';
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log("Place Details:", place);
+            var oh  = place.opening_hours;
+            var coh = place.current_opening_hours;
+            
+            // --- Open/Closed Message (using legacy open_now) ---
+            var currentlyOpen = oh && oh.open_now === true;
+            if (currentlyOpen) {
+              html += '<p style="font-weight:bold; color:green;">We are open.</p>';
+            } else {
+              html += '<p style="font-weight:bold; color:red;">We are closed.</p>';
+            }
+            
+            // --- Regular Hours Display ---
+            if (oh && oh.weekday_text) {
+              html += '<h3>Regular Hours</h3>';
+              html += '<table style="width:100%; border-collapse:collapse;">';
+              oh.weekday_text.forEach(function(dayText) {
+                var parts = dayText.split(': ');
+                if (parts.length === 2) {
+                  html += '<tr>';
+                  html += '<td style="padding:4px; border-bottom:1px solid #ddd; font-weight:bold;">' + parts[0] + '</td>';
+                  html += '<td style="padding:4px; border-bottom:1px solid #ddd;">' + parts[1] + '</td>';
+                  html += '</tr>';
+                } else {
+                  html += '<tr><td colspan="2" style="padding:4px; border-bottom:1px solid #ddd;">' + dayText + '</td></tr>';
+                }
+              });
+              html += '</table>';
+            } else {
+              html += '<p>Regular hours not available.</p>';
+            }
+            
+            // --- Special Hours Display ---
+            // Build a mapping of the regular schedule by day number.
+            // API convention: regular weekday_text is ordered as: Monday, Tuesday, …, Sunday.
+            // Our mapping: day 1 = Monday (index 0), ... day 0 = Sunday (index 6).
+            var regularByDay = {};
+            if (oh && oh.weekday_text) {
+              for (var d = 0; d < 7; d++) {
+                var idx = (d === 0) ? 6 : d - 1;
+                var parts = oh.weekday_text[idx].split(': ');
+                regularByDay[d] = parts[1] ? normalizeSchedule(parts[1]) : "";
+              }
+            }
+            
+            // Build an array of special entries from current_opening_hours.periods.
+            var specialEntries = [];
+            if (coh && coh.periods) {
+              for (var i = 0; i < coh.periods.length; i++) {
+                var period = coh.periods[i];
+                if (period.open && period.close && period.open.time && period.close.time) {
+                  var specialSchedule = formatTime(period.open.time) + " – " + formatTime(period.close.time);
+                  // Special case: if both times format as "12:00 AM", treat as "Closed".
+                  if (specialSchedule === "12:00 AM – 12:00 AM") {
+                    specialSchedule = "Closed";
+                  }
+                  var normSpecial = normalizeSchedule(specialSchedule);
+                  var normRegular = regularByDay[period.open.day] || "";
+                  // Only add if special schedule differs from regular.
+                  if (normSpecial !== normRegular) {
+                    // Compute the upcoming occurrence date for this day-of-week.
+                    var occurrenceDate = getNextOccurrenceDate(period.open.day);
+                    specialEntries.push({
+                      dayIndex: period.open.day,
+                      occurrenceDate: occurrenceDate,
+                      schedule: specialSchedule
+                    });
+                  }
+                }
+              }
+              // Sort special entries by occurrenceDate.
+              specialEntries.sort(function(a, b) {
+                return a.occurrenceDate - b.occurrenceDate;
+              });
+            }
+            
+            if (specialEntries.length > 0) {
+              html += '<h3>Special Hours</h3><ul style="list-style:none; padding:0;">';
+              for (var j = 0; j < specialEntries.length; j++) {
+                var entry = specialEntries[j];
+                var dObj = entry.occurrenceDate;
+                // Format the date: e.g. "Friday 18th April"
+                var weekday = dObj.toLocaleDateString(undefined, { weekday: 'long' });
+                var dayNum = dObj.getDate();
+                var ordinal = getOrdinalSuffix(dayNum);
+                var month = dObj.toLocaleDateString(undefined, { month: 'long' });
+                var formattedDate = weekday + " " + dayNum + ordinal + " " + month;
+                html += '<li style="padding:4px 0;"><strong>' + formattedDate + '</strong>: ' + entry.schedule + ' <em>(Special Hours)</em></li>';
+              }
+              html += '</ul>';
+            } else {
+              html += '<p>No special hours updates available.</p>';
+            }
+            
+            // --- Link to View Full Hours on Google ---
+            html += '<p style="margin-top:12px;"><a href="https://www.google.com/maps/place/?q=place_id:' + placeId + '" target="_blank" rel="noopener noreferrer">View full hours on Google</a></p>';
+          } else {
+            html = '<p>Error retrieving hours.</p>';
+          }
+          document.getElementById('openingHours').innerHTML = html;
+        });
+      }
+    </script>
 
   <!-- Load the Google Maps JavaScript API with your provided API key -->
   <script async defer
