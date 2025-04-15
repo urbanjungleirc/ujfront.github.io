@@ -74,12 +74,6 @@
   <div id="openingHours">Loading opening hours…</div>
 
 
-  <!-- html += '<h3>Public Holidays</h3>';
-  html += '<ul style="list-style:none; padding:0;">';
-  html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
-  html += '</ul>'; -->
-
-
   <script>
     // Helper: Format a time string (HHMM) to a 12-hour format with AM/PM.
     function formatTime(timeStr) {
@@ -153,6 +147,11 @@
             html += '<p>Regular hours not available.</p>';
           }
 
+          html += '<h3>Public Holidays</h3>';
+          html += '<ul style="list-style:none; padding:0;">';
+          html += '<li style="padding:4px 0;"><strong>9:00 am – 7:00 pm</strong></li>';
+          html += '</ul>';
+
           // --- Special Hours Display ---
           // This approach uses the current_opening_hours.special_days array.
           var specialEntries = [];
@@ -197,7 +196,7 @@
               var ordinal = getOrdinalSuffix(dayNum);
               var month = dObj.toLocaleDateString(undefined, { month: 'long' });
               var formattedDate = weekday + " " + dayNum + ordinal + " " + month;
-              html += '<li style="padding:4px 0;"><strong>' + formattedDate + '</strong>: ' + entry.schedule + ' <em>(Special Hours)</em></li>';
+              html += '<li style="padding:4px 0;"><strong>' + formattedDate + '</strong>: ' + entry.schedule + '</li>';
             });
             html += '</ul>';
           } else {
