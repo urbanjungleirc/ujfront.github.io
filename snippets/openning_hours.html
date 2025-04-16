@@ -73,6 +73,18 @@
 
     li {
       padding: 4px 0;
+      border-bottom:1px solid #ddd;
+    }
+
+    table {
+      width:100%; 
+      border-collapse: collapse; 
+      margin: 1em 20px;
+      border-bottom:1px solid #ddd;
+    }
+    td {
+      padding: 4px 0; 
+      border-bottom:1px solid #ddd;
     }
   </style>
 </head>
@@ -139,16 +151,16 @@
           // --- Regular Hours Display ---
           if (oh && oh.weekday_text) {
             html += '<h3>Regular Hours</h3>';
-            html += '<table style="width:100%; border-collapse:collapse; margin-bottom: 0.5em;">';
+            html += '<table>';
             oh.weekday_text.forEach(function (dayText) {
               var parts = dayText.split(': ');
               if (parts.length === 2) {
                 html += '<tr>';
-                html += '<td style="padding:4px; border-bottom:1px solid #ddd; font-weight:bold;">' + parts[0] + '</td>';
-                html += '<td style="padding:4px; border-bottom:1px solid #ddd;">' + parts[1] + '</td>';
+                html += '<td style="font-weight:bold;">' + parts[0] + '</td>';
+                html += '<td >' + parts[1] + '</td>';
                 html += '</tr>';
               } else {
-                html += '<tr><td colspan="2" style="padding:4px; border-bottom:1px solid #ddd;">' + dayText + '</td></tr>';
+                html += '<tr><td colspan="2">' + dayText + '</td></tr>';
               }
             });
             html += '</table>';
