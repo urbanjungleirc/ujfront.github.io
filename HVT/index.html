@@ -3,74 +3,141 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>High Volume Training – Data Entry</title>
-    <!-- Use your main UJ CSS -->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>HVT – Data Entry</title>
     <link rel="stylesheet" href="https://ujfront.github.io/assets/css/uj_colors.min.css">
-    <!-- Bootstrap Icons -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/custom.css">
+    <style>
+        body {
+            padding-top: 70px;
+        }
+
+        .disabled-config input,
+        .disabled-config select,
+        .disabled-config button {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .session-choice {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .session-choice button {
+            margin: 0 10px;
+        }
+
+        .sticky-grade-header th {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 10;
+        }
+
+        .selected-row {
+            background-color: rgba(13, 110, 253, 0.1) !important;
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">High Volume Training</a>
+            <a class="navbar-brand" href="#">Bouldering Training</a>
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
+                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="classes.html" target="_blank">Manage Classes</a></li>
+                        <li><a class="dropdown-item" href="scoring.html" target="_blank">Manage Scoring Systems</a></li>
+                    </ul>
+                </li>
+            </ul>
             <div class="d-flex">
                 <button id="btnReset" class="btn btn-outline-danger me-2">Backup & Reset</button>
-                <a href="results.html" class="btn btn-outline-primary">Results</a>
+                <a href="results.html" class="btn btn-outline-primary" target="_blank">Results</a>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <!-- Main Container -->
-    <main class="container" style="margin-top:80px;">
-        <!-- Session Choice Section -->
+    <main class="container">
+        <!-- Session Choice -->
         <div id="sessionChoice" class="session-choice">
             <h2>Start Your Session</h2>
-            <button id="newSessionBtn" class="btn btn-lg btn-primary me-2">New Session</button>
-            <button id="continueSessionBtn" class="btn btn-lg btn-secondary">Continue Session</button>
+            <button id="newSessionBtn" class="btn btn-lg btn-primary">New Session</button>
+            <button id="continueSessionBtn" class="btn btn-lg btn-secondary" disabled>Resume Session</button>
+            <button id="loadSavedBtn" class="btn btn-lg btn-info" disabled>Restore From Archive</button>
+            <div id="savedSessionContainer" class="d-none mt-3">
+                <select id="savedSessionSelect" class="form-select mb-2"></select>
+                <button id="loadSessionConfirmBtn" class="btn btn-info">Load Selected</button>
+            </div>
         </div>
 
-        <!-- Configuration Section (hidden until needed) -->
+        <!-- Configuration -->
         <div id="configSection" class="d-none">
             <h2>Session Configuration</h2>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="classSelect" class="form-label">Select Class:</label>
+                    <label for="classSelect" class="form-label">Select Class</label>
                     <select id="classSelect" class="form-select"></select>
                 </div>
                 <div class="col-md-6">
-                    <label for="scoringSelect" class="form-label">Select Scoring System:</label>
+                    <label for="scoringSelect" class="form-label">Select Scoring System</label>
                     <select id="scoringSelect" class="form-select"></select>
                 </div>
             </div>
-            <!-- Optionally, include a link or button for managing/updating classes and scoring systems -->
             <div class="mb-3">
-                <a href="scoring.html" class="btn btn-link">Manage Scoring Systems</a>
-                <!-- Similar link for managing class lists could be provided -->
+                <a href="classes.html" class="btn btn-link" target="_blank">Manage Classes</a>
+                <a href="scoring.html" class="btn btn-link" target="_blank">Manage Scoring Systems</a>
             </div>
-            <button id="confirmConfigBtn" class="btn btn-success">Confirm Configuration</button>
+            <button id="confirmConfigBtn" class="btn btn-success" disabled>Start Scoring</button>
         </div>
 
-        <!-- Scoring Table Section (hidden until configuration confirmed) -->
+        <!-- Scoring Table -->
         <div id="scoringSection" class="d-none">
             <h2>Scoring Table</h2>
             <div id="scoringTableContainer" class="table-responsive"></div>
             <button id="saveScoresBtn" class="btn btn-primary btn-lg mt-3">Save Scores</button>
+            <!-- Toast -->
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index:11">
+                <div id="saveToast" class="toast align-items-center text-bg-success border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">Scores saved ✔</div>
+                        <button type="button" class="btn-close btn-close-white ms-auto me-2"
+                            data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
     <!-- Modals -->
-    <!-- (You can add modals here for confirmations, errors, etc.) -->
+    <div class="modal fade" id="backupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Backup & Reset</h5><button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="backupName" class="form-label">Enter backup sheet name</label>
+                    <input id="backupName" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="backupConfirmBtn" class="btn btn-danger">Backup & Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Bootstrap JS Bundle -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- API Module -->
     <script src="js/api.js"></script>
-    <!-- Main Logic -->
     <script src="js/main.js"></script>
 </body>
 
