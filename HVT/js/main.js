@@ -1,202 +1,145 @@
 // js/main.js
 
-// Global variable to hold the current session configuration.
-let currentConfig = null; // Will store the config object returned by getConfig().
-let sessionData = {}; // Object to hold the current tick counts, keyed by student and grade.
+let currentConfig, sessionData={}, sessionStage=localStorage.sessionStage;
+const vGrades = Array.from({length:18},(_,i)=>'V'+i);
+const toast = new bootstrap.Toast(document.getElementById('saveToast'));
 
-// Sample arrays for classes and scoring systems. In production, use API calls.
-const sampleClasses = ["Class A", "Class B", "Class C"];
-const sampleScoringSystems = ["System 1", "System 2"];
+function $(id){return document.getElementById(id);}
 
-// List of V Grades from V0 to V17.
-const vGrades = Array.from({ length: 18 }, (_, i) => "V" + i);
+function init(){
+  // Populate config dropdowns (replace with real api calls if desired)
+  populateDropdown('classSelect',['Class A','Class B','Class C']);
+  populateDropdown('scoringSelect',['System 1','System 2']);
 
-// ------ Utility Functions ------
+  // Enable buttons if state allows
+  if(localStorage.sessionConfig) $('continueSessionBtn').disabled=false;
+  api.getSavedSessions().then(list=>{
+    if(list.length) $('loadSavedBtn').disabled=false;
+  });
 
-/**
- * Sorts an array of strings alphabetically.
- */
-function sortAlphabetically(arr) {
-    return arr.sort((a, b) => a.localeCompare(b));
+  // Listeners
+  $('newSessionBtn').onclick = newSession;
+  $('continueSessionBtn').onclick = resumeSession;
+  $('loadSavedBtn').onclick = showLoadModal;
+  $('loadSessionConfirmBtn').onclick = confirmLoad;
+  $('confirmConfigBtn').onclick = confirmConfig;
+  $('classSelect').onchange = scoringConfigValidator;
+  $('scoringSelect').onchange = scoringConfigValidator;
+  $('saveScoresBtn').onclick = saveScores;
+  $('btnReset').onclick = () => new bootstrap.Modal($('backupModal')).show();
+  $('backupConfirmBtn').onclick = doBackup;
 }
 
-// ------ Session Choice ------
-
-document.addEventListener("DOMContentLoaded", function () {
-    // Populate the dropdowns in configuration section.
-    populateDropdown("classSelect", sampleClasses);
-    populateDropdown("scoringSelect", sampleScoringSystems);
-
-    // Attach event listeners to session choice buttons.
-    document.getElementById("newSessionBtn").addEventListener("click", () => {
-        // Show the configuration section for a new session.
-        document.getElementById("sessionChoice").classList.add("d-none");
-        document.getElementById("configSection").classList.remove("d-none");
-    });
-
-    document
-        .getElementById("continueSessionBtn")
-        .addEventListener("click", () => {
-            // For this demo, we assume configuration is saved in localStorage.
-            const storedConfig = JSON.parse(
-                localStorage.getItem("sessionConfig")
-            );
-            if (storedConfig) {
-                currentConfig = storedConfig;
-                // Lock configuration (disable editing) and generate table.
-                disableConfig();
-                generateScoringTable(currentConfig.climbers);
-            } else {
-                alert("No previous session found. Please start a new session.");
-            }
-        });
-
-    // Confirm configuration button
-    document
-        .getElementById("confirmConfigBtn")
-        .addEventListener("click", function () {
-            const cls = document.getElementById("classSelect").value;
-            const system = document.getElementById("scoringSelect").value;
-            // Call API to get configuration.
-            // For production, you would do: api.getConfig(cls, system).then(config => { ... });
-            // For demo purposes, we simulate config data:
-            const simulatedConfig = {
-                climbers: sortAlphabetically(["Alice", "Bob", "Charlie"]),
-                sendTypes: ["flash", "top", "att"], // For example – although our table will be per V grade.
-                // You can add scoring multipliers etc. here.
-                // Optionally include gradeValues if used.
-            };
-            currentConfig = simulatedConfig;
-            // Save configuration to localStorage for session continuity.
-            localStorage.setItem(
-                "sessionConfig",
-                JSON.stringify(currentConfig)
-            );
-            disableConfig();
-            generateScoringTable(currentConfig.climbers);
-        });
-
-    // Save Scores button functionality (placeholder)
-    document
-        .getElementById("saveScoresBtn")
-        .addEventListener("click", function () {
-            // For demo, log the sessionData object.
-            console.log("Session Data to be saved:", sessionData);
-            // Here you could loop through sessionData and call an API endpoint to save each cell.
-            alert("Scores have been saved (demo).");
-        });
-
-    // btnReset functionality
-    document.getElementById("btnReset").addEventListener("click", () => {
-        const backupName = prompt("Enter backup sheet name:");
-        if (backupName) {
-            api.moveData(backupName)
-                .then((response) => {
-                    alert("Session backed up and reset.");
-                    localStorage.removeItem("sessionConfig");
-                    location.reload();
-                })
-                .catch((err) => console.error(err));
-        }
-    });
-});
-
-/**
- * Populates a dropdown element with given options.
- */
-function populateDropdown(elementId, optionsArray) {
-    const selectElem = document.getElementById(elementId);
-    selectElem.innerHTML = "";
-    optionsArray.forEach((optionText) => {
-        const opt = document.createElement("option");
-        opt.value = optionText;
-        opt.textContent = optionText;
-        selectElem.appendChild(opt);
-    });
+function populateDropdown(id,items){
+  const sel=$(id); sel.innerHTML='';
+  items.forEach(i=>sel.appendChild(new Option(i,i)));
 }
 
-/**
- * Disables the configuration form so that settings cannot be changed.
- */
-function disableConfig() {
-    document.getElementById("configSection").classList.add("disabled-config");
+function scoringConfigValidator(){
+  $('confirmConfigBtn').disabled = !($('classSelect').value && $('scoringSelect').value);
 }
 
-/**
- * Generates the scoring table.
- * @param {Array} climbers - Array of student names.
- */
-function generateScoringTable(climbers) {
-    // Show the scoring table section and hide configuration.
-    document.getElementById("configSection").classList.add("d-none");
-    document.getElementById("scoringSection").classList.remove("d-none");
-
-    // Build the table HTML.
-    let html = `<table class="table table-bordered scoring-table"><thead><tr>
-                <th>Student</th>`;
-    vGrades.forEach((grade) => {
-        html += `<th>${grade}</th>`;
-    });
-    html += `</tr></thead><tbody>`;
-
-    // Assume climbers is already sorted.
-    climbers.forEach((student) => {
-        html += `<tr data-student="${student}">
-              <td>${student}</td>`;
-        // Initialize each cell count to 0.
-        vGrades.forEach((grade) => {
-            // For each cell, include a minus button, a span for the count, and a plus button.
-            html += `<td>
-                <div class="input-group">
-                  <button class="btn btn-sm btn-outline-secondary btn-decrement" data-grade="${grade}">-</button>
-                  <span class="form-control text-center py-1 count-value" data-grade="${grade}">0</span>
-                  <button class="btn btn-sm btn-outline-secondary btn-increment" data-grade="${grade}">+</button>
-                </div>
-              </td>`;
-            // Initialize sessionData for this student and grade.
-            if (!sessionData[student]) {
-                sessionData[student] = {};
-            }
-            sessionData[student][grade] = 0;
-        });
-        html += `</tr>`;
-    });
-    html += `</tbody></table>`;
-
-    document.getElementById("scoringTableContainer").innerHTML = html;
-
-    // Attach event listeners to the increment/decrement buttons.
-    attachTableEventListeners();
+function newSession(){
+  localStorage.clear();
+  localStorage.sessionStage='config';
+  showConfig();
 }
 
-/**
- * Attaches click event listeners to plus and minus buttons in the scoring table.
- */
-function attachTableEventListeners() {
-    // Use event delegation on the table container.
-    const container = document.getElementById("scoringTableContainer");
-    container.addEventListener("click", function (e) {
-        const target = e.target;
-        if (
-            target.classList.contains("btn-increment") ||
-            target.classList.contains("btn-decrement")
-        ) {
-            const grade = target.getAttribute("data-grade");
-            const row = target.closest("tr");
-            const student = row.getAttribute("data-student");
-            // Find the <span> element that holds the count.
-            const countElem = row.querySelector(
-                `span.count-value[data-grade="${grade}"]`
-            );
-            let currentCount = parseInt(countElem.textContent) || 0;
-            if (target.classList.contains("btn-increment")) {
-                currentCount++;
-            } else if (target.classList.contains("btn-decrement")) {
-                currentCount = Math.max(0, currentCount - 1);
-            }
-            countElem.textContent = currentCount;
-            // Update our sessionData object.
-            sessionData[student][grade] = currentCount;
-        }
-    });
+function resumeSession(){
+  const cfg=JSON.parse(localStorage.sessionConfig||'null');
+  if(!cfg) return alert('No session found.');
+  currentConfig=cfg;
+  sessionStage=localStorage.sessionStage;
+  sessionStage==='config'? showConfig() : showScoring(cfg.climbers);
 }
+
+function showLoadModal(){
+  api.getSavedSessions().then(list=>{
+    populateDropdown('savedSessionSelect',list);
+    $('savedSessionContainer').classList.remove('d-none');
+  });
+}
+
+function confirmLoad(){
+  const name=$('savedSessionSelect').value;
+  api.loadSession(name).then(res=>{
+    resumeSession();
+  }).catch(e=>alert(e.error||e));
+}
+
+function confirmConfig(){
+  const cls=$('classSelect').value, sys=$('scoringSelect').value;
+  api.getConfig(cls,sys).then(cfg=>{
+    currentConfig=cfg;
+    localStorage.sessionConfig=JSON.stringify(cfg);
+    localStorage.sessionStage='scoring';
+    showScoring(cfg.climbers);
+  }).catch(e=>alert(e.error||e));
+}
+
+function showConfig(){
+  $('sessionChoice').classList.add('d-none');
+  $('configSection').classList.remove('d-none');
+}
+
+function showScoring(climbers){
+  $('sessionChoice').classList.add('d-none');
+  $('configSection').classList.add('disabled-config');
+  $('scoringSection').classList.remove('d-none');
+  buildTable(climbers);
+}
+
+function buildTable(climbers){
+  sessionData={};
+  let html=`<table class="table table-bordered"><thead class="sticky-grade-header"><tr><th>Student</th>`
+         + vGrades.map(g=>`<th>${g}</th>`).join('') + `</tr></thead><tbody>`;
+  climbers.sort().forEach(st=>{
+    sessionData[st]={};
+    html+=`<tr data-st="${st}"><td>${st}</td>`
+         + vGrades.map(g=>{
+             sessionData[st][g]=0;
+             return `<td><div class="input-group">
+                       <button class="btn btn-sm btn-outline-secondary btn-decrement" data-g="${g}">−</button>
+                       <span class="form-control text-center count-value" data-g="${g}">0</span>
+                       <button class="btn btn-sm btn-outline-secondary btn-increment" data-g="${g}">+</button>
+                     </div></td>`;
+           }).join('')+`</tr>`;
+  });
+  html+=`</tbody></table>`;
+  $('scoringTableContainer').innerHTML=html;
+
+  // Row-click highlight
+  document.querySelectorAll('#scoringTableContainer tbody tr')
+    .forEach(r=>r.onclick=e=>{
+      document.querySelectorAll('.selected-row').forEach(x=>x.classList.remove('selected-row'));
+      r.classList.add('selected-row');
+    });
+
+  // Increment/decrement
+  $('scoringTableContainer').addEventListener('click',e=>{
+    const btn=e.target.closest('button'), g=btn?.dataset.g;
+    if(!g) return;
+    const tr=btn.closest('tr'), st=tr.dataset.st;
+    let v=sessionData[st][g];
+    v=btn.classList.contains('btn-increment')?v+1:Math.max(0,v-1);
+    sessionData[st][g]=v;
+    tr.querySelector(`span[data-g="${g}"]`).textContent=v;
+  });
+}
+
+function saveScores(){
+  // TODO: call API per cell or batch endpoint
+  console.log(sessionData);
+  toast.show();
+}
+
+function doBackup(){
+  const name=$('backupName').value.trim();
+  if(!name) return alert("Enter a name");
+  api.moveData(name).then(r=>{
+    localStorage.clear();
+    location.reload();
+  }).catch(e=>alert(e.error||e));
+}
+
+document.addEventListener('DOMContentLoaded',init);
