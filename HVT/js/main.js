@@ -3,7 +3,21 @@
  * Main application logic for HVT front-end.
  */
 
-// --- Utility Functions ---
+// * --- Utility Functions ---
+
+/**
+ * Show the global overlay spinner.
+ */
+function showGlobalSpinner() {
+    $("globalSpinner").classList.remove("d-none");
+}
+
+/**
+ * Hide the global overlay spinner.
+ */
+function hideGlobalSpinner() {
+    $("globalSpinner").classList.add("d-none");
+}
 
 /**
  * Shortcut to document.getElementById
@@ -35,7 +49,7 @@ function populateDropdown(elementId, items) {
     });
 }
 
-// --- State Variables ---
+// * --- State Variables ---
 
 let currentConfig = null;
 let sessionData = {};
@@ -43,7 +57,7 @@ let sessionStage = localStorage.sessionStage || null;
 // V0–V17 labels
 const vGrades = Array.from({ length: 18 }, (_, i) => "V" + i);
 
-// --- Initialization ---
+// * --- Initialization ---
 
 /**
  * Called once on DOMContentLoaded
@@ -85,8 +99,9 @@ function init() {
         openScoringModal();
     });
 
-    // Populate initial dropdowns and enable Continue/Load if possible
-    refreshConfigDropdowns();
+    // Populate both dropdowns on load—but do them in parallel
+    reloadClassData();
+    reloadScoringData();
     api.getSavedSessions().then((list) => {
         if (list.length) $("loadSavedBtn").disabled = false;
     });
@@ -94,7 +109,11 @@ function init() {
 
 document.addEventListener("DOMContentLoaded", init);
 
-// --- Session Flow ---
+/**
+ * * -----------------------
+ * *    Session Flow
+ * * -----------------------
+ */
 
 /** Start a brand-new session */
 function newSession() {
@@ -156,7 +175,7 @@ function cancelConfig() {
     $("sessionChoice").classList.remove("d-none");
 }
 
-// --- UI Sections ---
+// * --- UI Sections ---
 
 /** Show the Config section */
 function showConfig() {
@@ -173,7 +192,7 @@ function showScoring(climbers) {
     attachScoringListeners();
 }
 
-// --- Scoring Table ---
+// * --- Scoring Table ---
 
 /**
  * Build the HTML table for scoring,
@@ -224,7 +243,7 @@ function attachScoringListeners() {
     });
 }
 
-// --- Save Scores ---
+// * --- Save Scores ---
 
 /** Handle Save Scores button */
 function saveScores() {
@@ -233,12 +252,17 @@ function saveScores() {
     new bootstrap.Toast($("saveToast")).show();
 }
 
-// --- Class Modal Logic ---
+// * --- Class Modal Logic ---
 
 /** Open the Class Management modal */
 function openClassModal() {
-    api.getAvailableClasses().then((classes) => renderClassList(classes));
     new bootstrap.Modal($("classModal")).show();
+
+    showGlobalSpinner();
+    api.getAvailableClasses()
+        .then((classes) => renderClassList(classes))
+        .catch((err) => alert("Failed to load classes:\n" + (err.error || err)))
+        .finally(hideGlobalSpinner);
 }
 
 /**
@@ -246,9 +270,10 @@ function openClassModal() {
  * @param {Array<string>} classes
  */
 function renderClassList(classes) {
+    const safeList = Array.isArray(classes) ? classes : [];
     const ul = $("classListGroup");
     ul.innerHTML = "";
-    classes.forEach((name) => {
+    safeList.forEach((name) => {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between";
         li.textContent = name;
@@ -273,26 +298,37 @@ function refreshClassLists() {
 }
 
 /**
- * Refresh the two config dropdowns:
- *  - classSelect   ← getAvailableClasses()
- *  - scoringSelect ← getAvailableScoringSystems()
+ * Fetch & render only class data:
+ *  - re‐populate the Class‐modal UL
+ *  - re‐populate the main Config classSelect
  */
-function refreshConfigDropdowns() {
-    // Classes
+function reloadClassData() {
+    showGlobalSpinner();
     api.getAvailableClasses()
-        .then((classes) => populateDropdown("classSelect", classes))
-        .catch((err) => {
-            console.error("Failed to load classes:", err);
-            populateDropdown("classSelect", []);
-        });
+        .then((classes) => {
+            renderClassList(classes);
+            populateDropdown("classSelect", classes);
+        })
+        .catch((err) => alert("Failed to load classes:\n" + (err.error || err)))
+        .finally(hideGlobalSpinner);
+}
 
-    // Scoring Systems
+/**
+ * Fetch & render only scoring‐system names:
+ *  - re‐populate the Scoring‐modal UL
+ *  - re‐populate the main Config scoringSelect
+ */
+function reloadScoringData() {
+    showGlobalSpinner();
     api.getAvailableScoringSystems()
-        .then((systems) => populateDropdown("scoringSelect", systems))
-        .catch((err) => {
-            console.error("Failed to load scoring systems:", err);
-            populateDropdown("scoringSelect", []);
-        });
+        .then((systems) => {
+            renderScoringList(systems);
+            populateDropdown("scoringSelect", systems);
+        })
+        .catch((err) =>
+            alert("Failed to load scoring systems:\n" + (err.error || err))
+        )
+        .finally(hideGlobalSpinner);
 }
 
 // Delegate Class-Modal add/delete
@@ -300,27 +336,25 @@ document.body.addEventListener("click", (e) => {
     if (e.target.matches("#addClassBtnModal")) {
         const name = $("newClassName").value.trim();
         if (!name) return alert("Enter a class name");
+
         api.createClass(name)
             .then(() => {
                 $("newClassName").value = "";
-                refreshConfigDropdowns();
-                refreshClassLists();
+                reloadClassData();
             })
-            .catch((err) => alert(err.error || err));
+            .catch((err) => alert("Failed to add:\n" + (err.error || err)));
     }
     if (e.target.matches(".btn-delete-class")) {
         const name = e.target.dataset.name;
         if (!confirm(`Delete class "${name}"?`)) return;
+
         api.deleteClass(name)
-            .then(() => {
-                refreshConfigDropdowns();
-                renderClassList(/*…*/);
-            })
-            .catch((err) => alert(err.error || err));
+            .then(() => reloadClassData())
+            .catch((err) => alert("Failed to delete:\n" + (err.error || err)));
     }
 });
 
-// --- Student Modal Logic ---
+// * --- Student Modal Logic ---
 
 /** Open the Student Management modal */
 function openStudentModal() {
@@ -396,14 +430,14 @@ document.body.addEventListener("click", (e) => {
     }
 });
 
-// --- Scoring Modal Logic ---
+// * --- Scoring Modal Logic ---
 
 /**
  * Open & load the Scoring Systems modal.
  */
 function openScoringModal() {
-  api.getScoringSystems().then(renderScoringSettingsTable);
-  new bootstrap.Modal($("scoringModal")).show();
+    api.getScoringSystems().then(renderScoringSettingsTable);
+    new bootstrap.Modal($("scoringModal")).show();
 }
 
 /**
@@ -411,12 +445,12 @@ function openScoringModal() {
  * @param {Array<Object>} list
  */
 function renderScoringSettingsTable(list) {
-  const tbody = $("scoringTableBody");
-  tbody.innerHTML = "";
-  list.forEach(s => {
-    const tr = document.createElement("tr");
-    tr.dataset.name = s.name;
-    tr.innerHTML = `
+    const tbody = $("scoringTableBody");
+    tbody.innerHTML = "";
+    list.forEach((s) => {
+        const tr = document.createElement("tr");
+        tr.dataset.name = s.name;
+        tr.innerHTML = `
       <td><input class="form-control name-edit" value="${s.name}"></td>
       <td><input type="number" class="form-control vmin-edit"    value="${s.vMin}"></td>
       <td><input type="number" class="form-control vmax-edit"    value="${s.vMax}"></td>
@@ -427,8 +461,8 @@ function renderScoringSettingsTable(list) {
         <button class="btn btn-sm btn-success btn-scoring-save">Save</button>
         <button class="btn btn-sm btn-danger  btn-scoring-delete">Delete</button>
       </td>`;
-    tbody.appendChild(tr);
-  });
+        tbody.appendChild(tr);
+    });
 }
 
 /**
@@ -452,61 +486,60 @@ function renderScoringList(systems) {
 }
 
 // Delegate Scoring‐Modal add/save/delete
-document.body.addEventListener("click", e => {
-  // Add
-  if (e.target.matches("#addScoringBtnModal")) {
-    const name    = $("newScoringName").value.trim();
-    const vMin    = $("newVMin").value;
-    const vMax    = $("newVMax").value;
-    const flash   = $("newFlashMult").value;
-    const top     = $("newTopMult").value;
-    const attempt = $("newAttemptMult").value;
-    if (!name) return alert("Name required");
-    api.addScoringSystem(name,vMin,vMax,flash,top,attempt)
-      .then(() => {
-        refreshConfigDropdowns();
-        return api.getScoringSystems();
-      })
-      .then(renderScoringSettingsTable)
-      .catch(err => alert(err.error||err));
-  }
+document.body.addEventListener("click", (e) => {
+    // Add
+    if (e.target.matches("#addScoringBtnModal")) {
+        const name = $("newScoringName").value.trim();
+        const vMin = $("newVMin").value;
+        const vMax = $("newVMax").value;
+        const flash = $("newFlashMult").value;
+        const top = $("newTopMult").value;
+        const attempt = $("newAttemptMult").value;
+        if (!name) return alert("Name required");
+        api.addScoringSystem(name, vMin, vMax, flash, top, attempt)
+            .then(() => {
+                refreshConfigDropdowns();
+                return api.getScoringSystems();
+            })
+            .then(renderScoringSettingsTable)
+            .catch((err) => alert(err.error || err));
+    }
 
-  // Save
-  if (e.target.matches(".btn-scoring-save")) {
-    const tr   = e.target.closest("tr");
-    const orig = tr.dataset.name;
-    const data = {
-      vMin:    tr.querySelector(".vmin-edit").value,
-      vMax:    tr.querySelector(".vmax-edit").value,
-      flash:   tr.querySelector(".flash-edit").value,
-      top:     tr.querySelector(".top-edit").value,
-      attempt: tr.querySelector(".attempt-edit").value
-    };
-    api.updateScoringSystem(orig, data)
-      .then(() => {
-        refreshConfigDropdowns();
-        return api.getScoringSystems();
-      })
-      .then(renderScoringSettingsTable)
-      .catch(err => alert(err.error||err));
-  }
+    // Save
+    if (e.target.matches(".btn-scoring-save")) {
+        const tr = e.target.closest("tr");
+        const orig = tr.dataset.name;
+        const data = {
+            vMin: tr.querySelector(".vmin-edit").value,
+            vMax: tr.querySelector(".vmax-edit").value,
+            flash: tr.querySelector(".flash-edit").value,
+            top: tr.querySelector(".top-edit").value,
+            attempt: tr.querySelector(".attempt-edit").value,
+        };
+        api.updateScoringSystem(orig, data)
+            .then(() => {
+                refreshConfigDropdowns();
+                return api.getScoringSystems();
+            })
+            .then(renderScoringSettingsTable)
+            .catch((err) => alert(err.error || err));
+    }
 
-  // Delete
-  if (e.target.matches(".btn-scoring-delete")) {
-    const name = e.target.closest("tr").dataset.name;
-    if (!confirm(`Delete scoring system "${name}"?`)) return;
-    api.deleteScoringSystem(name)
-      .then(() => {
-        refreshConfigDropdowns();
-        return api.getScoringSystems();
-      })
-      .then(renderScoringSettingsTable)
-      .catch(err => alert(err.error||err));
-  }
+    // Delete
+    if (e.target.matches(".btn-scoring-delete")) {
+        const name = e.target.closest("tr").dataset.name;
+        if (!confirm(`Delete scoring system "${name}"?`)) return;
+        api.deleteScoringSystem(name)
+            .then(() => {
+                refreshConfigDropdowns();
+                return api.getScoringSystems();
+            })
+            .then(renderScoringSettingsTable)
+            .catch((err) => alert(err.error || err));
+    }
 });
 
-
-// --- Backup & Reset ---
+// * --- Backup & Reset ---
 
 /**
  * Perform backup & reset when user confirms in modal

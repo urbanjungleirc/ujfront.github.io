@@ -9,7 +9,6 @@
 /** Your GAS web app deployment URL */
 const GAS_ENDPOINT =
     "https://script.google.com/a/macros/urbanjungleirc.com/s/AKfycbywmi8TkNgJsYAUYL-njHxSeOGrLTUcoq_WPOrcMLhDnbPOvTW7qK457AAPn4EngjV9sA/exec";
-//old: AKfycbx8fO-LDqXnhAQO2N_TJRrFRIPZDqR9rRaYofkAyKBWOPW6D49e6jlN-daA-0oyXMmWWQ
 // --- JSONP Helper ---
 
 /**
