@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -141,7 +141,7 @@
         }
 
         .student-points {
-            font-size: 20px;
+            font-size: 25px;
             color: #666;
         }
 
@@ -151,7 +151,7 @@
             backdrop-filter: blur(10px);
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            padding: 10px 0;
         }
 
         .grade-row {
@@ -159,8 +159,8 @@
             align-items: center;
             justify-content: space-between;
             padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
             transition: all 0.3s ease;
         }
 
@@ -218,37 +218,52 @@
         }
 
         .count-btn {
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         .count-btn.top-btn {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            background: #dc3545;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
+            border-color: #dc3545;
         }
         
         .count-btn.attempt-btn {
             width: 35px;
             height: 35px;
-            background: linear-gradient(135deg, #feca57, #ff9ff3);
-            color: #333;
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
         }
 
         .count-btn:hover:not(:disabled) {
-            transform: scale(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .count-btn.top-btn:hover:not(:disabled) {
+            background: #c82333;
+            border-color: #c82333;
+        }
+        
+        .count-btn.attempt-btn:hover:not(:disabled) {
+            background: #5a6268;
+            border-color: #5a6268;
         }
 
         .count-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .count-display {
@@ -296,7 +311,7 @@
 
         /* Dark mode styles */
         [data-bs-theme="dark"] body {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #9b59b6 100%);
+            background: linear-gradient(135deg, #212529 0%, #343a40 50%, #495057 100%);
             color: #dee2e6;
         }
 
