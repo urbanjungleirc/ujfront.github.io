@@ -2,120 +2,148 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HVT Live Scoreboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <style>
-        body { 
+        body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             font-family: 'Arial', sans-serif;
             overflow-x: hidden;
         }
+
         .scoreboard-container {
             padding: 20px;
             min-height: 100vh;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             font-size: 3rem;
         }
+
         .session-info {
             text-align: center;
             margin-bottom: 30px;
             font-size: 1.2rem;
             opacity: 0.9;
         }
+
         .leaderboard {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 0;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
         .leaderboard-header {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             padding: 20px;
             border-radius: 15px 15px 0 0;
             font-weight: bold;
             font-size: 1.1rem;
         }
+
         .student-row {
             padding: 15px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             transition: all 0.3s ease;
         }
+
         .student-row:last-child {
             border-bottom: none;
             border-radius: 0 0 15px 15px;
         }
+
         .student-row:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
+
         .rank {
             font-size: 1.5rem;
             font-weight: bold;
             width: 60px;
             text-align: center;
         }
-        .rank.first { color: #ffd700; }
-        .rank.second { color: silver; }
-        .rank.third { color: #cd7f32; }
-        
+
+        .rank.first {
+            color: #ffd700;
+        }
+
+        .rank.second {
+            color: silver;
+        }
+
+        .rank.third {
+            color: #cd7f32;
+        }
+
         .student-name {
             flex-grow: 1;
             font-size: 1.3rem;
             font-weight: 500;
             padding-left: 20px;
         }
+
         .stat {
             text-align: center;
             min-width: 80px;
             padding: 0 10px;
         }
+
         .stat-value {
             font-size: 1.4rem;
             font-weight: bold;
             display: block;
         }
+
         .stat-label {
             font-size: 0.8rem;
             opacity: 0.8;
             text-transform: uppercase;
         }
+
         .points {
             background: rgba(40, 167, 69, 0.3);
             border-radius: 10px;
             padding: 10px;
             min-width: 100px;
         }
+
         .efficiency {
             background: rgba(23, 162, 184, 0.3);
             border-radius: 10px;
             padding: 10px;
         }
+
         .no-session {
             text-align: center;
             padding: 50px;
             font-size: 1.5rem;
             opacity: 0.8;
         }
+
         .last-updated {
             text-align: center;
             margin-top: 20px;
             font-size: 0.9rem;
             opacity: 0.7;
         }
+
         .loading {
             text-align: center;
             padding: 50px;
             font-size: 1.2rem;
         }
+
         .loading-spinner {
-            border: 4px solid rgba(255,255,255,0.3);
+            border: 4px solid rgba(255, 255, 255, 0.3);
             border-top: 4px solid white;
             border-radius: 50%;
             width: 40px;
@@ -123,18 +151,35 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
         .pulse {
             animation: pulse 2s infinite;
         }
+
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
+
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -146,45 +191,74 @@
         [data-bs-theme="dark"] {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         }
+
         [data-bs-theme="dark"] .leaderboard {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         [data-bs-theme="dark"] .leaderboard-header {
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
         }
+
         [data-bs-theme="dark"] .student-row:hover {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
         }
+
         [data-bs-theme="dark"] .points {
             background: rgba(40, 167, 69, 0.4);
         }
+
         [data-bs-theme="dark"] .efficiency {
             background: rgba(23, 162, 184, 0.4);
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .student-name { font-size: 1.1rem; }
-            .stat-value { font-size: 1.2rem; }
-            .student-row { padding: 12px 15px; }
-            .rank { width: 50px; font-size: 1.3rem; }
+            h1 {
+                font-size: 2rem;
+            }
+
+            .student-name {
+                font-size: 1.1rem;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+            }
+
+            .student-row {
+                padding: 12px 15px;
+            }
+
+            .rank {
+                width: 50px;
+                font-size: 1.3rem;
+            }
         }
+
         @media (max-width: 576px) {
-            .stat { min-width: 60px; padding: 0 5px; }
-            .points, .efficiency { min-width: 80px; }
+            .stat {
+                min-width: 60px;
+                padding: 0 5px;
+            }
+
+            .points,
+            .efficiency {
+                min-width: 80px;
+            }
         }
     </style>
 </head>
-<body data-bs-theme="light">
+
+<body>
     <!-- Theme Toggle -->
-    <button class="btn btn-outline-light theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+    <button class="btn btn-sm btn-outline-light theme-toggle" id="themeToggle" title="Toggle Dark Mode">
         🌙
     </button>
 
     <div class="scoreboard-container">
         <h1>🧗‍♂️ Live Scoreboard</h1>
-        
+
         <div id="sessionInfo" class="session-info">
             <div class="loading">
                 <div class="loading-spinner"></div>
@@ -212,7 +286,9 @@
         <div id="lastUpdated" class="last-updated"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
     <script>
         let currentData = null;
         let updateInterval = null;
@@ -236,7 +312,7 @@
             const toggle = document.getElementById('themeToggle');
             toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
             toggle.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-            toggle.className = theme === 'dark' ? 'btn btn-outline-warning theme-toggle' : 'btn btn-outline-light theme-toggle';
+            toggle.className = theme === 'dark' ? 'btn btn-sm btn-outline-warning theme-toggle' : 'btn btn-sm btn-outline-light theme-toggle';
         }
 
         function apiCall(action, data = {}) {
@@ -249,7 +325,7 @@
                     }
                 };
 
-                switch(action) {
+                switch (action) {
                     case 'getScoreboard':
                         google.script.run
                             .withSuccessHandler(handleResponse)
@@ -272,7 +348,7 @@
             try {
                 const response = await apiCall('getScoreboard');
                 const data = response.data;
-                
+
                 if (!data.sessionId) {
                     showNoSession();
                     return;
@@ -281,7 +357,7 @@
                 // Check if we have a session
                 const sessionResponse = await apiCall('getCurrentSession');
                 const session = sessionResponse.data;
-                
+
                 if (!session) {
                     showNoSession();
                     return;
@@ -290,7 +366,7 @@
                 updateSessionInfo(session);
                 updateLeaderboard(data.leaderboard);
                 updateLastUpdated(data.lastUpdated);
-                
+
                 currentData = data;
 
             } catch (error) {
@@ -336,10 +412,10 @@
                 const rank = index + 1;
                 const row = document.createElement('div');
                 row.className = 'student-row';
-                
+
                 let rankClass = '';
                 let rankDisplay = rank;
-                
+
                 if (rank === 1) {
                     rankClass = 'first';
                     rankDisplay = '🥇';
@@ -378,7 +454,7 @@
 
         function updateLastUpdated(timestamp) {
             const date = new Date(timestamp);
-            document.getElementById('lastUpdated').textContent = 
+            document.getElementById('lastUpdated').textContent =
                 `Last updated: ${date.toLocaleTimeString()}`;
         }
 
@@ -386,7 +462,7 @@
             if (updateInterval) {
                 clearInterval(updateInterval);
             }
-            
+
             updateInterval = setInterval(() => {
                 loadScoreboard();
             }, 3000); // Update every 3 seconds
