@@ -164,7 +164,7 @@ function initializeTable() {
                             const rank = parseInt(data);
                             console.log("Rendering rank:", rank);
                             
-                            if (showRankings) {
+                            // if (showRankings) {
                                 if (rank === 1) {
                                     return `<div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; margin: 0 auto; background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00); color: #1C121B; border: 3px solid #FFD700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); animation: goldPulse 2s ease-in-out infinite alternate;">${rank}</div>`;
                                 } else if (rank === 2) {
@@ -172,16 +172,17 @@ function initializeTable() {
                                 } else if (rank === 3) {
                                     return `<div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; margin: 0 auto; background: linear-gradient(45deg, #CD7F32, #B8860B, #A0522D); color: white; border: 3px solid #CD7F32; box-shadow: 0 0 20px rgba(205, 127, 50, 0.6);">${rank}</div>`;
                                 } else {
-                                    return `<div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; margin: 0 auto; background: linear-gradient(45deg, #999999, #757575); color: white; border: 2px solid #999999;">${rank}</div>`;
+                                    return `<div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; margin: 0 auto; color: #999999; border: 2px solid #999999;">${rank}</div>`;
                                 }
-                            } else {
-                                return `<span class="fw-bold">${rank}</span>`;
-                            }
+                            // } else {
+                            //     return `<span class="fw-bold">${rank}</span>`;
+                            // }
                         }
                         return data || '';
                     },
                     visible: true,
                 },
+                
                 { 
                     data: "tops", 
                     title: "Tops", 
