@@ -228,12 +228,12 @@ function resetCategory() {
             currentTitle = "Competition Break";
             bodyTitle = `Next up: ${setting.data.schedule[nextCatID].name.toUpperCase()}`;
             newDate = new Date(setting.data.schedule[nextCatID].start);
-            nextTitle = "Get ready to climb! 🧗‍♀️🧗‍♂️";
+            nextTitle = "Get ready to climb!";
         }
     } else {
         // Competition in progress
         forceModal = false;
-        currentTitle = `🧗‍♀️ ${setting.data.schedule[currentCatID].name.toUpperCase()} 🧗‍♂️`;
+        currentTitle = `${setting.data.schedule[currentCatID].name.toUpperCase()}`;
         bodyTitle = "Time Remaining";
         newDate = new Date(setting.data.schedule[currentCatID].to);
 
