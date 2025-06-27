@@ -25,20 +25,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js">
 
     <style>
-        /* Custom Bootstrap Theme Colors */
-        :root {
-            --bs-primary: #ae222a;
-            --bs-secondary: #999999;
-            --bs-success: #63a623;
-            --bs-info: #1c121b;
-            --bs-warning: #e7750d;
-            --bs-danger: #f44336;
-            --bs-light: #F3F7F4;
-            --bs-dark: #1C121B;
-            --bs-white: #ffffff;
-            --bs-accent-dark: #1C121B;
-        }
-        
         /* Elegant gradient background */
         body {
             /* background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); */
@@ -229,9 +215,9 @@
         
         /* Make competitor names bigger */
         .premium-table tbody td:first-child {
-            font-size: 1.6em;
+            font-size: 1.9em;
             font-weight: 600;
-            max-width: 300px;
+            /* max-width: 300px; */
         }
         
         /* Enhanced ranking badges with working animations */
@@ -546,7 +532,7 @@
         const score = "https://script.google.com/macros/s/AKfycbw64UI2d20Hb-XeIgt9ymAfCD62ZPOTwJKTq_G3_iCXTTBYE2BSAd-f0fYVv-D0kO9qng/exec";
         const minPageDisplay = 10000;
         let dataRefreshInterval = 300000;
-        const rowsPerPage = 15;
+        const rowsPerPage = 12;
         const filter = "";
         const catTimeEnd = new Date('2025-06-27T20:00:00Z');
         const allowModalTimer = false;
