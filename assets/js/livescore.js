@@ -151,7 +151,7 @@ function readSetting() {
             findCurrentNext();
             resetCategory();
             
-            // Update active categories for table filtering
+            // FIXED: Update active categories for table filtering with better normalization
             if (typeof updateActiveCategories === 'function') {
                 updateActiveCategories(setting.data.schedule);
             }
