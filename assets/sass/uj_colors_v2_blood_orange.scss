@@ -1,0 +1,188 @@
+// logo colors
+// dark green #0d4014
+// green	#6fa638
+// light green #d3d923
+// orange #f26e22
+// red #f23827
+
+
+
+// 1. Import Bootstrap's default variables
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+
+// 2. Define missing variables (to prevent errors)
+$mark-bg-dark: #f8d7da;   // Background for marked text (choose any color)
+$mark-color-dark: #721c24; // Text color for marked text
+
+// 3. Override only the colors you care about
+// Urban Jungle Brand Palette
+$white:         #ffffff;
+$primary:       #e87c00;  // updated burnt orange
+$secondary:     #4b2e19;  // warm charcoal
+$success:       #84cc16;  // natural green
+$info:          #3bc7c4;  // jungle river blue
+$warning:       #facc15;  // warm yellow
+$danger:        #ef4444;  // climbing rope red
+$light:         #fffdf9;  // creamy white
+$dark:          #1f2937;  // deep slate
+
+$theme-colors: (
+  "primary":    $primary, 
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark,
+  "white":      $white
+);
+
+
+// change pagination style (colours)
+// https://getbootstrap.com/docs/5.2/components/pagination/#variables
+$pagination-color: $dark;                         // default text color
+$pagination-focus-color: $primary;                // brand accent on focus
+$pagination-active-color: $light;                 // text color on active page
+$pagination-active-bg: $primary;                  // highlight active page with brand colour
+$pagination-active-border-color: $primary;        // border to match
+
+
+// 4. Import the rest of Bootstrap
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
+
+// Custom styles for buttons and cards
+.btn-gradient {
+  background: linear-gradient(135deg, $primary, #fcb900);
+  color: $dark;
+  border: none;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+}
+
+.card-header-gradient {
+  background: linear-gradient(to right, $primary, #fff4c2);
+  color: $dark;
+  font-weight: bold;
+}
+
+.btn-bd-primary {
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-border-radius: .5rem;
+  --bs-btn-hover-color: var(--bs-white);    
+  --bs-btn-hover-bg: #{shade-color($primary, 10%)};
+  --bs-btn-hover-border-color: #{shade-color($primary, 10%)};
+  --bs-btn-focus-shadow-rgb: var(--primary-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: #{shade-color($primary, 20%)};
+  --bs-btn-active-border-color: #{shade-color($primary, 20%)};
+}
+
+$primary-dark:  darken($primary, 20%);
+$primary-light: lighten($primary, 20%);
+
+.primary-dark {
+  background-color: $primary-dark;
+  color: $white;
+}
+
+.primary-light {
+  background-color: $primary-light;
+  color: $dark;
+}
+
+
+// Rumble 2022 colours
+.text-rumble {
+  color: #B3AD40;
+}
+.text-lead {
+  color: #4AF092;
+}
+.text-speed {
+  color: #00DDFF;
+}
+.text-boulder {
+  color: #FF5487;
+}
+
+.bg-rumble {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#B3AD40, var(--bs-bg-opacity)) !important;
+}
+.bg-lead {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#4AF092, var(--bs-bg-opacity)) !important;
+}
+.bg-speed {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#00DDFF, var(--bs-bg-opacity)) !important;
+}
+.bg-boulder {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#FF5487, var(--bs-bg-opacity)) !important;
+}
+
+.bg-rumble-purple-dark {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#351942, var(--bs-bg-opacity)) !important;
+}
+.bg-rumble-purple {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#4F2563, var(--bs-bg-opacity)) !important;
+}
+.bg-rumble-white {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#FAFAFA, var(--bs-bg-opacity)) !important;
+}
+
+
+.blue-hold { 
+    color: $white;
+    background-color: $blue-600;  
+   }
+.red-hold {
+    color: $white;
+    background-color: $red-600; 
+  }
+.yellow-hold {
+    color: $black;
+    background-color: $yellow-400; 
+  }
+.pink-hold {
+    color: $black; 
+    background-color: $pink-400; 
+  }
+.orange-hold {
+    color: $black;
+    background-color: $orange-500;
+}
+.green-hold {
+    color: $black;
+    background-color: #60B36F;
+}
+.black-hold {
+    color: $white;
+    background-color: $black;
+}
+.purple-hold {
+    color: $white;
+    background-color: $purple-700;
+}
+.white-hold {
+    color: $black;
+    background-color: $white;
+}
+
+
+/*
+ * DataTables style pagination controls
+ * source: https://datatables.net/blog/2014-06-06#Paging-controls
+ */
