@@ -26,6 +26,8 @@ $warning:       #facc15;  // warm yellow
 $danger:        #ef4444;  // climbing rope red
 $light:         #fffdf9;  // creamy white
 $dark:          #1f2937;  // deep slate
+$accent-light:  #fcb900;  // bright accent yellow
+$accent-dark:   #cf6e00;  // dark accent orange
 
 $theme-colors: (
   "primary":    $primary, 
@@ -36,7 +38,9 @@ $theme-colors: (
   "danger":     $danger,
   "light":      $light,
   "dark":       $dark,
-  "white":      $white
+  "white":      $white,
+  "accent-light":$accent-light,
+  "accent-dark":$accent-dark,  
 );
 
 
