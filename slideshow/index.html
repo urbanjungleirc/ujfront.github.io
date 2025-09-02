@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #slideshow-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #media-display {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .slide-content.active {
+            opacity: 1;
+        }
+
+        .slide-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .slide-content video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #title-overlay {
+            position: absolute;
+            bottom: 120px;
+            left: 50px;
+            right: 50px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        #title-overlay.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #description-overlay {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            right: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        #description-overlay.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(200, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            font-size: 2rem;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #333;
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Leaderboard Styles */
+        .leaderboard-container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .leaderboard-title {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            color: white;
+        }
+
+        .leaderboard-content {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .leaderboard-category {
+            flex: 1;
+            min-width: 500px;
+            max-width: 600px;
+        }
+
+        .category-header {
+            color: white;
+            font-size: 2.2rem;
+            font-weight: bold;
+            padding: 15px 25px;
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .leaderboard-table td {
+            padding: 12px 20px;
+            font-size: 1.4rem;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+
+        .leaderboard-table tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        .rank-cell {
+            font-weight: bold;
+            text-align: center;
+            width: 60px;
+            background-color: #f0f0f0 !important;
+        }
+
+        .name-cell {
+            font-weight: 600;
+        }
+
+        .time-cell {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .leaderboard-background {
+            position: absolute;
+            right: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.1;
+            width: 600px;
+            height: 800px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="30" r="15" fill="white"/><path d="M50 45 L35 85 L45 85 L45 70 L55 70 L55 85 L65 85 Z" fill="white"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+    </style>
+</head>
+<body>
+    <div id="slideshow-container">
+        <div id="media-display"></div>
+        <div id="title-overlay"></div>
+        <div id="description-overlay"></div>
+    </div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <div>Loading slideshow...</div>
+    </div>
+
+    <div id="error-message" style="display:none;"></div>
+
+    <script>
+        class DriveSlideshow {
+            constructor() {
+                this.apiKey = null;
+                this.folderId = null;
+                this.config = {
+                    default_duration: 10,
+                    folder_title: "Slideshow",
+                    leaderboard_sheet_id: null,
+                    leaderboard_refresh: 300,
+                    leaderboard_slides: []
+                };
+                this.slides = [];
+                this.currentIndex = 0;
+                this.isPlaying = false;
+                this.currentTimeout = null;
+                this.leaderboardCache = new Map();
+                this.lastLeaderboardFetch = 0;
+            }
+
+            async init() {
+                // Get parameters from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                this.folderId = urlParams.get('folder');
+                this.apiKey = urlParams.get('key') || 'AIzaSyBH9kKlEpkFnl8uHoTwHqmh9X4nJ1jO9Eg'; // Default key - user should replace
+
+                if (!this.folderId) {
+                    this.showError('Missing folder parameter. Add ?folder=FOLDER_ID to the URL');
+                    return;
+                }
+
+                try {
+                    await this.loadFolder();
+                    await this.startSlideshow();
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    this.showError(error.message);
+                }
+            }
+
+            async loadFolder() {
+                try {
+                    // First, try to load config
+                    await this.loadConfig();
+                    
+                    // Then load all files
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents&key=${this.apiKey}&fields=files(id,name,mimeType,description,createdTime,modifiedTime,webContentLink,webViewLink,thumbnailLink)`
+                    );
+                    
+                    if (!response.ok) {
+                        if (response.status === 403) {
+                            throw new Error('Access denied. Check if the folder is publicly accessible.');
+                        }
+                        throw new Error(`Failed to access folder: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.files || data.files.length === 0) {
+                        throw new Error('Folder is empty or contains no accessible files.');
+                    }
+
+                    // Process files and create slides
+                    this.slides = await this.processFiles(data.files);
+                    
+                    if (this.slides.length === 0) {
+                        throw new Error('No supported media files found in folder.');
+                    }
+
+                    // Sort alphabetically by filename
+                    this.slides.sort((a, b) => a.filename.localeCompare(b.filename));
+
+                } catch (error) {
+                    throw new Error(`Error loading folder: ${error.message}`);
+                }
+            }
+
+            async loadConfig() {
+                // Try to load config from Google Sheet first
+                const urlParams = new URLSearchParams(window.location.search);
+                const configSheetId = urlParams.get('config') || '1yEFsc5CDnL0Y4gl9Qyigp_h3aOWz3762_okIPoKNwq0'; // Your config sheet ID
+                
+                try {
+                    console.log('Loading configuration from Google Sheet:', configSheetId);
+                    const configResponse = await fetch(
+                        `https://sheets.googleapis.com/v4/spreadsheets/${configSheetId}/values/Config!A:B?key=${this.apiKey}`
+                    );
+                    
+                    if (configResponse.ok) {
+                        const configData = await configResponse.json();
+                        console.log('Config sheet data:', configData);
+                        
+                        if (configData.values && configData.values.length > 0) {
+                            this.parseSheetConfig(configData.values);
+                            console.log('Configuration loaded successfully:', this.config);
+                            return;
+                        }
+                    } else {
+                        console.log('Config sheet not accessible, trying config.md fallback...');
+                    }
+                } catch (error) {
+                    console.log('Sheet config failed, trying config.md fallback:', error.message);
+                }
+                
+                // Fallback to config.md (will likely fail due to CORS)
+                try {
+                    const response = await fetch(
+                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+name='config.md'&key=${this.apiKey}&fields=files(id,name)`
+                    );
+                    
+                    const data = await response.json();
+                    
+                    if (data.files && data.files.length > 0) {
+                        const configFile = data.files[0];
+                        const configResponse = await fetch(`https://drive.google.com/uc?id=${configFile.id}&export=download`);
+                        
+                        if (configResponse.ok) {
+                            const configText = await configResponse.text();
+                            this.parseConfig(configText);
+                            console.log('Config.md loaded successfully:', this.config);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    // Expected to fail due to CORS
+                }
+                
+                console.log('Using default configuration. Current settings:', this.config);
+            }
+
+            parseSheetConfig(values) {
+                // Parse Google Sheet config: Column A = Setting Name, Column B = Value
+                for (const row of values) {
+                    if (row.length >= 2) {
+                        const [key, value] = row;
+                        
+                        switch (key.toLowerCase().trim()) {
+                            case 'default_duration':
+                                this.config.default_duration = parseInt(value) || 10;
+                                break;
+                            case 'folder_title':
+                                this.config.folder_title = value.toString().trim();
+                                break;
+                            case 'leaderboard_sheet_id':
+                                this.config.leaderboard_sheet_id = value.toString().trim();
+                                break;
+                            case 'leaderboard_refresh':
+                                this.config.leaderboard_refresh = parseInt(value) || 300;
+                                break;
+                        }
+                    }
+                }
+            }
+
+            parseConfig(configText) {
+                const lines = configText.split('\n');
+                let currentSection = null;
+                let currentSlide = null;
+                let currentCategory = null;
+
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('#')) continue;
+                    if (!line) continue;
+
+                    if (line.includes(':')) {
+                        const [key, value] = line.split(':').map(s => s.trim());
+                        
+                        switch (key) {
+                            case 'default_duration':
+                                this.config.default_duration = parseInt(value);
+                                break;
+                            case 'folder_title':
+                                this.config.folder_title = value.replace(/['"]/g, '');
+                                break;
+                            case 'leaderboard_sheet_id':
+                                this.config.leaderboard_sheet_id = value.replace(/['"]/g, '');
+                                break;
+                            case 'leaderboard_refresh':
+                                this.config.leaderboard_refresh = parseInt(value);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            async processFiles(files) {
+                const slides = [];
+                
+                for (const file of files) {
+                    if (file.name === 'config.md') continue;
+                    
+                    // Parse title and description from file description field
+                    const { title, description } = this.parseDescriptionField(file.description || '');
+                    
+                    const slide = {
+                        id: file.id,
+                        filename: file.name,
+                        type: this.getFileType(file),
+                        mimeType: file.mimeType,
+                        title: title,
+                        description: description,
+                        duration: this.parseFileDuration(file.name),
+                        url: this.getFileUrl(file),
+                        thumbnailUrl: file.thumbnailLink
+                    };
+                    
+                    if (slide.type !== 'unsupported') {
+                        slides.push(slide);
+                    }
+                }
+                
+                return slides;
+            }
+
+            getFileType(file) {
+                const name = file.name.toLowerCase();
+                const mimeType = file.mimeType;
+                
+                if (name.startsWith('leaderboard_') && name.endsWith('.md')) {
+                    return 'leaderboard';
+                }
+                
+                if (mimeType.startsWith('image/')) {
+                    return 'image';
+                }
+                
+                if (mimeType.startsWith('video/')) {
+                    return 'video';
+                }
+                
+                return 'unsupported';
+            }
+
+            parseFileDuration(filename) {
+                const match = filename.match(/^\[(\d+)\]/);
+                return match ? parseInt(match[1]) : this.config.default_duration;
+            }
+
+            parseDescriptionField(description) {
+                if (!description || !description.trim()) {
+                    return { title: null, description: null };
+                }
+
+                // Split by double line breaks (paragraphs) or single line breaks
+                const paragraphs = description.split(/\n\s*\n|\n/).map(p => p.trim()).filter(p => p);
+                
+                if (paragraphs.length === 0) {
+                    return { title: null, description: null };
+                } else if (paragraphs.length === 1) {
+                    // If only one paragraph, use it as description (no title)
+                    return { title: null, description: paragraphs[0] };
+                } else {
+                    // First paragraph as title, rest as description
+                    return { 
+                        title: paragraphs[0], 
+                        description: paragraphs.slice(1).join('\n\n') 
+                    };
+                }
+            }
+
+            extractTitle(filename) {
+                // Remove duration prefix [30] if present
+                let title = filename.replace(/^\[\d+\]/, '');
+                // Remove file extension
+                title = title.replace(/\.[^.]+$/, '');
+                // Replace underscores and dashes with spaces
+                title = title.replace(/[_-]/g, ' ');
+                // Capitalize first letter of each word
+                title = title.replace(/\b\w/g, l => l.toUpperCase());
+                return title.trim();
+            }
+
+            getFileUrl(file) {
+                if (file.mimeType.startsWith('image/')) {
+                    // Use thumbnail link for better CORS compatibility, fallback to direct link
+                    return `https://drive.google.com/thumbnail?id=${file.id}&sz=w1920-h1080`;
+                } else if (file.mimeType.startsWith('video/')) {
+                    return `https://drive.google.com/file/d/${file.id}/preview`;
+                }
+                return file.webViewLink;
+            }
+
+            async startSlideshow() {
+                document.getElementById('loading').style.display = 'none';
+                this.isPlaying = true;
+                await this.showSlide(0);
+            }
+
+            async showSlide(index) {
+                if (index >= this.slides.length) {
+                    index = 0; // Loop back to start
+                }
+                
+                this.currentIndex = index;
+                const slide = this.slides[index];
+                
+                // Clear previous overlays
+                this.clearOverlays();
+                
+                // Fade out current slide
+                const currentSlide = document.querySelector('.slide-content.active');
+                if (currentSlide) {
+                    currentSlide.classList.remove('active');
+                }
+                
+                // Wait for fade out
+                await new Promise(resolve => setTimeout(resolve, currentSlide ? 400 : 0));
+                
+                // Clear all slide content
+                const mediaDisplay = document.getElementById('media-display');
+                mediaDisplay.innerHTML = '';
+                
+                try {
+                    switch (slide.type) {
+                        case 'image':
+                            await this.showImage(slide);
+                            break;
+                        case 'video':
+                            await this.showVideo(slide);
+                            break;
+                        case 'leaderboard':
+                            await this.showLeaderboard(slide);
+                            break;
+                    }
+                    
+                    // Show metadata with delay for smooth appearance
+                    setTimeout(() => this.showMetadata(slide), 600);
+                    
+                } catch (error) {
+                    console.error('Error showing slide:', error);
+                    this.showError(`Error loading ${slide.filename}: ${error.message}`);
+                    // Skip to next slide after 3 seconds
+                    setTimeout(() => this.nextSlide(), 3000);
+                }
+            }
+
+            async showImage(slide) {
+                const slideWrapper = document.createElement('div');
+                slideWrapper.className = 'slide-content';
+                
+                const img = document.createElement('img');
+                
+                return new Promise((resolve, reject) => {
+                    img.onload = () => {
+                        slideWrapper.appendChild(img);
+                        document.getElementById('media-display').appendChild(slideWrapper);
+                        
+                        // Fade in the slide
+                        setTimeout(() => slideWrapper.classList.add('active'), 50);
+                        
+                        // Schedule next slide
+                        this.currentTimeout = setTimeout(() => this.nextSlide(), slide.duration * 1000);
+                        resolve();
+                    };
+                    
+                    img.onerror = (error) => {
+                        // Try fallback URL format
+                        const fallbackUrl = `https://drive.google.com/uc?id=${slide.id}&export=download`;
+                        
+                        const fallbackImg = document.createElement('img');
+                        fallbackImg.onload = () => {
+                            slideWrapper.appendChild(fallbackImg);
+                            document.getElementById('media-display').appendChild(slideWrapper);
+                            setTimeout(() => slideWrapper.classList.add('active'), 50);
+                            this.currentTimeout = setTimeout(() => this.nextSlide(), slide.duration * 1000);
+                            resolve();
+                        };
+                        
+                        fallbackImg.onerror = () => {
+                            reject(new Error('Failed to load image with both URLs'));
+                        };
+                        
+                        fallbackImg.src = fallbackUrl;
+                    };
+                    
+                    img.src = slide.url;
+                });
+            }
+
+            async showVideo(slide) {
+                const slideWrapper = document.createElement('div');
+                slideWrapper.className = 'slide-content';
+                
+                const video = document.createElement('video');
+                video.controls = false;
+                video.autoplay = true;
+                video.muted = false;
+                
+                return new Promise((resolve, reject) => {
+                    video.onloadeddata = () => {
+                        slideWrapper.appendChild(video);
+                        document.getElementById('media-display').appendChild(slideWrapper);
+                        
+                        // Fade in the slide
+                        setTimeout(() => slideWrapper.classList.add('active'), 50);
+                        resolve();
+                    };
+                    
+                    video.onended = () => {
+                        this.nextSlide();
+                    };
+                    
+                    video.onerror = () => {
+                        reject(new Error('Failed to load video'));
+                    };
+                    
+                    video.src = slide.url;
+                });
+            }
+
+            async showLeaderboard(slide) {
+                // Extract leaderboard type from filename
+                const leaderboardType = slide.filename.replace('leaderboard_', '').replace('.md', '');
+                
+                const slideWrapper = document.createElement('div');
+                slideWrapper.className = 'slide-content';
+                
+                const leaderboardHtml = await this.generateLeaderboard(leaderboardType);
+                slideWrapper.innerHTML = leaderboardHtml;
+                
+                document.getElementById('media-display').appendChild(slideWrapper);
+                
+                // Fade in the slide
+                setTimeout(() => slideWrapper.classList.add('active'), 50);
+                
+                // Schedule next slide
+                this.currentTimeout = setTimeout(() => this.nextSlide(), slide.duration * 1000);
+            }
+
+            async generateLeaderboard(type) {
+                // Sample leaderboard data (in real implementation, this would come from Google Sheets)
+                const sampleData = {
+                    speed: {
+                        title: "Speed Leaderboard",
+                        categories: [
+                            {
+                                name: "Male Youth 13-18 yo",
+                                color: "#cc0000",
+                                data: [
+                                    { rank: 1, name: "Max Botica", time: "4.690" },
+                                    { rank: 2, name: "James Mouton", time: "5.113" },
+                                    { rank: 3, name: "Alfie Wall", time: "6.384" },
+                                    { rank: 4, name: "Ronan Finlay", time: "6.646" },
+                                    { rank: 5, name: "Kristopher Moretti", time: "6.768" }
+                                ]
+                            },
+                            {
+                                name: "Female Youth 13-18 yo",
+                                color: "#cc0000", 
+                                data: [
+                                    { rank: 1, name: "Christel Kotze", time: "9.930" },
+                                    { rank: 2, name: "Olivia Hawryluk", time: "10.070" },
+                                    { rank: 3, name: "Jaiya Marns-morris", time: "10.092" },
+                                    { rank: 4, name: "Catherine Mirasol", time: "10.971" },
+                                    { rank: 5, name: "Audrey Minaee", time: "11.978" }
+                                ]
+                            }
+                        ]
+                    }
+                };
+
+                const leaderboardData = sampleData[type] || sampleData.speed;
+                
+                let html = `
+                    <div class="leaderboard-container">
+                        <div class="leaderboard-background"></div>
+                        <h1 class="leaderboard-title">${leaderboardData.title}</h1>
+                        <div class="leaderboard-content">
+                `;
+                
+                for (const category of leaderboardData.categories) {
+                    html += `
+                        <div class="leaderboard-category">
+                            <div class="category-header" style="background-color: ${category.color}">
+                                ${category.name}
+                            </div>
+                            <table class="leaderboard-table">
+                    `;
+                    
+                    for (const entry of category.data) {
+                        html += `
+                            <tr>
+                                <td class="rank-cell">${entry.rank}</td>
+                                <td class="name-cell">${entry.name}</td>
+                                <td class="time-cell">${entry.time}</td>
+                            </tr>
+                        `;
+                    }
+                    
+                    html += `
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                return html;
+            }
+
+            showMetadata(slide) {
+                const titleEl = document.getElementById('title-overlay');
+                const descEl = document.getElementById('description-overlay');
+                
+                // Show title if parsed from description field
+                if (slide.title && slide.title.trim() && slide.type !== 'leaderboard') {
+                    titleEl.textContent = slide.title;
+                    setTimeout(() => titleEl.classList.add('show'), 100);
+                } else {
+                    titleEl.classList.remove('show');
+                }
+                
+                // Show description if parsed from description field
+                if (slide.description && slide.description.trim() && slide.type !== 'leaderboard') {
+                    descEl.textContent = slide.description;
+                    setTimeout(() => descEl.classList.add('show'), 200);
+                } else {
+                    descEl.classList.remove('show');
+                }
+            }
+
+            clearOverlays() {
+                document.getElementById('title-overlay').classList.remove('show');
+                document.getElementById('description-overlay').classList.remove('show');
+            }
+
+            nextSlide() {
+                if (this.currentTimeout) {
+                    clearTimeout(this.currentTimeout);
+                }
+                this.showSlide(this.currentIndex + 1);
+            }
+
+            showError(message) {
+                document.getElementById('loading').style.display = 'none';
+                const errorEl = document.getElementById('error-message');
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Initialize slideshow when page loads
+        window.addEventListener('load', () => {
+            const slideshow = new DriveSlideshow();
+            slideshow.init();
+        });
+
+        // Handle keyboard controls
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowRight':
+                case ' ':
+                    // Next slide
+                    if (window.slideshow) {
+                        window.slideshow.nextSlide();
+                    }
+                    break;
+                case 'Escape':
+                    // Exit fullscreen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
