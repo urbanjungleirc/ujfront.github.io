@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <style>
+        /* Custom Styling to integrate with UJ's website */
+        table.dataTable {
+            border-collapse: collapse;
+            border: none;
+            width: 100%;
+            background-color: #ffffff;
+            padding: 10px;
+            box-sizing: border-box;
+            /* Ensure padding is included in the width calculation */
+        }
+
+        table.dataTable thead {
+            background-color: var(--uj-main-color);
+            color: white;
+        }
+
+        table.dataTable th,
+        table.dataTable td {
+            padding: 5px;
+            text-align: center;
+        }
+
+        /* Combined filter title and fields styling */
+        #filter-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: var(--grid-bg-color);
+            border: 1px solid var(--grid-border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .filter-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--uj-highlight-color);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #filters .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        #filters label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--uj-secondary-color);
+        }
+
+        #filters select {
+            padding: 3px 6px;
+            font-size: 0.875rem;
+            border: 1px solid var(--uj-secondary-color);
+            border-radius: 5px;
+            width: 100%;
+            max-width: 150px;
+        }
+
+        /* Pagination buttons styling */
+        .dataTables_paginate .paginate_button {
+            font-size: 0.9rem;
+            color: #000 !important;
+            background-color: #f8f9fa;
+            border-radius: 5px !important;
+            cursor: pointer;
+        }
+
+        .dataTables_paginate .paginate_button.current {
+            background-color: var(--uj-main-color) !important;
+            color: #ffffff;
+        }
+
+        .dataTables_paginate .paginate_button:hover {
+            background-color: var(--uj-main-color);
+            color: #ffffff;
+        }
+
+        .dataTables_paginate .ellipsis {
+            padding: 0.15rem;
+            /* Adjust ellipsis to align with button styling */
+            font-size: 0.9rem;
+            color: var(--uj-secondary-color);
+        }
+
+        /* Search field styling */
+        .dataTables_filter {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .dataTables_filter label {
+            font-size: 0.9rem;
+            color: var(--uj-secondary-color);
+        }
+
+        .dataTables_filter input {
+            font-size: 0.9rem;
+            padding: 5px 8px;
+            border: 1px solid var(--uj-secondary-color);
+            border-radius: 5px;
+            width: 150px;
+        }
+
+        /* Label below the table styling */
+        #info-label {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6c757d;
+            /* Muted color */
+            margin-top: 10px;
+        }
+
+        /* Responsive table container */
+        .table-container {
+            overflow-x: hidden;
+            overflow-y: hidden;
+            /* Hide horizontal overflow */
+            width: 100%;
+            /* Ensure container takes full width */
+            max-width: 100%;
+            box-sizing: border-box;
+            /* Include padding and border in element's width */
+            padding-bottom: 1px;
+        }
+
+        /* Responsive table inside container */
+        .table-container table {
+            width: 100%;
+        }
+
+        /* DataTables Info Styling */
+        .dataTables_info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="leaderboard-wrapper">
+        <div id="filter-container">
+            <div id="filter-title" class="filter-title">Official Speed Route - All Competitors - Open Category</div>
+            <div class="">Filter Results Here</div>
+            <div id="filters">
+                <div class="form-group">
+                    <label for="route-filter">Route</label>
+                    <select id="route-filter" class="form-control form-control-sm">
+                        <option value="Official Speed">Official Speed</option>
+                        <option value="Youth Speed">Youth Speed</option>
+                        <option value="Rainbow">Rainbow</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category-filter">Category</label>
+                    <select id="category-filter" class="form-control form-control-sm">
+                        <option value="open">Open</option>
+                        <option value="kids">Kids</option>
+                        <option value="youth">Youth</option>
+                        <option value="masters">Masters</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="gender-filter">Gender</label>
+                    <select id="gender-filter" class="form-control form-control-sm">
+                        <option value="">All</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="leaderboard" class="table compact stripe hover row-border order-column">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Time (seconds)</th>
+                            <th>Route</th>
+                            <th>Gender</th> <!-- Hidden column for filtering -->
+                            <th>Category</th> <!-- Hidden column for filtering -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTable
+            const table = $('#leaderboard').DataTable({
+                "ajax": {
+                    "url": "https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json",
+                    "dataSrc": "data"
+                },
+                "columns": [
+                    { data: "Name", class: "dt-left" },
+                    { data: "Time" },
+                    { data: "Route" },
+                    { data: "Gender", visible: false },  // Hidden column for filtering
+                    { data: "category", visible: false } // Hidden column for filtering
+                ],
+                order: [[1, "asc"]], // Sort by Time in ascending order by default
+                pageLength: 12,
+                lengthChange: false,
+                dom: '<"nav navbar " <"nav-item" B><"nav-item fw-bold" f> >'
+                    + 'rt'
+                    + '<"nav navbar" <"nav-item" i><"nav-item" p> >',
+                renderer: "bootstrap",
+            });
+
+            // Set the default values for the filters
+            $('#category-filter').val('open');
+            $('#route-filter').val('Official Speed');
+
+            // Filtering functionality
+            $('#category-filter, #route-filter, #gender-filter').on('change', function () {
+                const category = $('#category-filter').val();
+                const route = $('#route-filter').val();
+                const gender = $('#gender-filter').val();
+
+                // Custom filter logic for the Category filter
+                if (category.toLowerCase() === 'open') {
+                    // If 'Open' is selected, don't filter by category
+                    table.column(4).search('');
+                } else {
+                    // Otherwise, filter by the selected category
+                    table.column(4).search(category);
+                }
+
+                // Apply filters for Route and Gender as usual
+                table.column(2).search(route);
+                table.column(3).search(gender);
+                table.draw();
+
+                // Update filter title to reflect current filter in a user-friendly way
+                const routeText = route ? `${route} Route` : "All Routes";
+                const genderText = gender ? `${gender} Competitors` : "All Competitors";
+                const categoryText = category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Category` : "All Categories";
+
+                const filterTitle = `${routeText} - ${genderText} - ${categoryText}`;
+                $('#filter-title').text(filterTitle);
+            });
+
+            // Trigger change event to apply the default values on load
+            $('#category-filter, #route-filter, #gender-filter').trigger('change');
+        });
+    </script>
+</body>
+
+</html>

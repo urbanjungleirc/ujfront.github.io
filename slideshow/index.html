@@ -179,52 +179,84 @@
         .category-header {
             color: white;
             font-size: 2.2rem;
-            font-weight: bold;
-            padding: 15px 25px;
-            text-align: center;
-            margin-bottom: 5px;
+            font-weight: 700;
+            padding: 20px 30px;
+            text-align: left;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, var(--header-color), rgba(0,0,0,0.2));
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-header .main-title {
+            flex-grow: 1;
+        }
+
+        .category-header .bracket-info {
+            font-size: 1.8rem;
+            font-weight: 400;
+            opacity: 0.8;
+            margin-left: 20px;
+            text-align: right;
+            flex-shrink: 0;
         }
 
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 0 0 12px 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
         }
 
         .leaderboard-table td {
-            padding: 12px 20px;
-            font-size: 1.4rem;
-            color: #333;
-            border-bottom: 1px solid #ddd;
+            padding: 10px 20px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            border-bottom: 1px solid rgba(52, 73, 94, 0.1);
+            transition: background-color 0.2s ease;
         }
 
         .leaderboard-table tr:nth-child(even) {
-            background-color: #f8f8f8;
+            background-color: rgba(236, 240, 241, 0.6);
         }
 
         .leaderboard-table tr:nth-child(odd) {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
         }
 
         .rank-cell {
-            font-weight: bold;
+            font-weight: 800;
             text-align: center;
-            width: 60px;
-            background-color: #f0f0f0 !important;
+            width: 80px;
+            background: linear-gradient(135deg, #34495e, #2c3e50) !important;
+            color: white !important;
+            font-size: 1.6rem;
+            position: relative;
         }
 
         .name-cell {
             font-weight: 600;
+            font-size: 1.5rem;
         }
 
         .time-cell {
             text-align: right;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #e74c3c;
+            min-width: 100px;
         }
 
         .leaderboard-background {
@@ -272,13 +304,15 @@
                 this.currentTimeout = null;
                 this.leaderboardCache = new Map();
                 this.lastLeaderboardFetch = 0;
+                this.liveLeaderboardData = null;
+                this.liveDataLoadTime = 0;
             }
 
             async init() {
                 // Get parameters from URL
                 const urlParams = new URLSearchParams(window.location.search);
                 this.folderId = urlParams.get('folder');
-                this.apiKey = urlParams.get('key') || 'AIzaSyBH9kKlEpkFnl8uHoTwHqmh9X4nJ1jO9Eg'; // Default key - user should replace
+                this.apiKey = urlParams.get('key') || 'defaultkey'; // Default key - user should replace
 
                 if (!this.folderId) {
                     this.showError('Missing folder parameter. Add ?folder=FOLDER_ID to the URL');
@@ -287,6 +321,7 @@
 
                 try {
                     await this.loadFolder();
+                    await this.loadLeaderboardData(); // Load leaderboard data once at startup
                     await this.startSlideshow();
                 } catch (error) {
                     console.error('Initialization error:', error);
@@ -333,56 +368,80 @@
             }
 
             async loadConfig() {
-                // Try to load config from Google Sheet first
-                const urlParams = new URLSearchParams(window.location.search);
-                const configSheetId = urlParams.get('config') || '1yEFsc5CDnL0Y4gl9Qyigp_h3aOWz3762_okIPoKNwq0'; // Your config sheet ID
-                
+                // Look for settings.txt file in the Drive folder and use its description for config
                 try {
-                    console.log('Loading configuration from Google Sheet:', configSheetId);
-                    const configResponse = await fetch(
-                        `https://sheets.googleapis.com/v4/spreadsheets/${configSheetId}/values/Config!A:B?key=${this.apiKey}`
-                    );
-                    
-                    if (configResponse.ok) {
-                        const configData = await configResponse.json();
-                        console.log('Config sheet data:', configData);
-                        
-                        if (configData.values && configData.values.length > 0) {
-                            this.parseSheetConfig(configData.values);
-                            console.log('Configuration loaded successfully:', this.config);
-                            return;
-                        }
-                    } else {
-                        console.log('Config sheet not accessible, trying config.md fallback...');
-                    }
-                } catch (error) {
-                    console.log('Sheet config failed, trying config.md fallback:', error.message);
-                }
-                
-                // Fallback to config.md (will likely fail due to CORS)
-                try {
+                    console.log('Looking for settings.txt in folder:', this.folderId);
                     const response = await fetch(
-                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+name='config.md'&key=${this.apiKey}&fields=files(id,name)`
+                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+(name='settings.txt'+or+name='config.txt')&key=${this.apiKey}&fields=files(id,name,description)`
                     );
                     
                     const data = await response.json();
                     
                     if (data.files && data.files.length > 0) {
                         const configFile = data.files[0];
-                        const configResponse = await fetch(`https://drive.google.com/uc?id=${configFile.id}&export=download`);
+                        console.log('Found config file:', configFile.name);
                         
-                        if (configResponse.ok) {
-                            const configText = await configResponse.text();
-                            this.parseConfig(configText);
-                            console.log('Config.md loaded successfully:', this.config);
+                        if (configFile.description && configFile.description.trim()) {
+                            console.log('Loading config from file description:', configFile.description);
+                            this.parseDescriptionConfig(configFile.description);
+                            console.log('Configuration loaded successfully:', this.config);
                             return;
+                        } else {
+                            console.log('Config file found but no description set');
                         }
+                    } else {
+                        console.log('No settings.txt or config.txt file found in folder');
                     }
                 } catch (error) {
-                    // Expected to fail due to CORS
+                    console.log('Error loading config from file descriptions:', error.message);
                 }
                 
-                console.log('Using default configuration. Current settings:', this.config);
+                console.log('Using default configuration:', this.config);
+            }
+
+            async loadLeaderboardData() {
+                // Load leaderboard data once at startup (shared across all leaderboard slides)
+                try {
+                    const dataUrl = 'https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json';
+                    console.log('Loading live leaderboard data once at startup...');
+                    
+                    const response = await fetch(dataUrl);
+                    const jsonData = await response.json();
+                    
+                    if (jsonData && jsonData.data) {
+                        this.liveLeaderboardData = jsonData.data;
+                        this.liveDataLoadTime = Date.now();
+                        console.log('Live leaderboard data cached:', this.liveLeaderboardData.length, 'records');
+                    } else {
+                        console.warn('No leaderboard data returned from API');
+                    }
+                } catch (error) {
+                    console.error('Failed to load leaderboard data:', error);
+                    console.log('Leaderboard slides will use sample data');
+                }
+            }
+
+            parseDescriptionConfig(description) {
+                // Parse simple key: value format from file descriptions
+                const lines = description.split('\n');
+                
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine || trimmedLine.startsWith('#')) continue;
+                    
+                    if (trimmedLine.includes(':')) {
+                        const [key, value] = trimmedLine.split(':').map(s => s.trim());
+                        
+                        switch (key.toLowerCase()) {
+                            case 'default_duration':
+                                this.config.default_duration = parseInt(value) || 10;
+                                break;
+                            case 'folder_title':
+                                this.config.folder_title = value;
+                                break;
+                        }
+                    }
+                }
             }
 
             parseSheetConfig(values) {
@@ -445,28 +504,49 @@
                 const slides = [];
                 
                 for (const file of files) {
-                    if (file.name === 'config.md') continue;
+                    if (file.name === 'config.md' || file.name === 'settings.txt' || file.name === 'config.txt') continue;
                     
-                    // Parse title and description from file description field
-                    const { title, description } = this.parseDescriptionField(file.description || '');
+                    const fileType = this.getFileType(file);
+                    
+                    // For leaderboard files, store the raw description for later parsing
+                    let title = null;
+                    let description = null;
+                    let duration = null;
+                    
+                    if (fileType === 'leaderboard') {
+                        // For leaderboards, keep the full description for config parsing
+                        description = file.description || '';
+                        duration = this.parseFileDuration(file.name);
+                    } else {
+                        // For images/videos, parse title/description from description field
+                        const parsed = this.parseDescriptionField(file.description || '');
+                        title = parsed.title;
+                        description = parsed.description;
+                        duration = parsed.duration || this.parseFileDuration(file.name);
+                    }
                     
                     const slide = {
                         id: file.id,
                         filename: file.name,
-                        type: this.getFileType(file),
+                        type: fileType,
                         mimeType: file.mimeType,
                         title: title,
                         description: description,
-                        duration: this.parseFileDuration(file.name),
+                        duration: duration,
                         url: this.getFileUrl(file),
                         thumbnailUrl: file.thumbnailLink
                     };
                     
+                    console.log('Processing file:', file.name, 'Type:', slide.type, 'Duration:', slide.duration);
+                    
                     if (slide.type !== 'unsupported') {
                         slides.push(slide);
+                    } else {
+                        console.log('Skipping unsupported file:', file.name, 'MIME:', file.mimeType);
                     }
                 }
                 
+                console.log('Total slides created:', slides.length);
                 return slides;
             }
 
@@ -474,7 +554,9 @@
                 const name = file.name.toLowerCase();
                 const mimeType = file.mimeType;
                 
-                if (name.startsWith('leaderboard_') && name.endsWith('.md')) {
+                // Detect leaderboard files by checking if filename contains "leaderboard"
+                // This supports: "leaderboard_speed.md", "11 leaderboard kids.md", etc.
+                if (name.includes('leaderboard') && name.endsWith('.md')) {
                     return 'leaderboard';
                 }
                 
@@ -496,22 +578,53 @@
 
             parseDescriptionField(description) {
                 if (!description || !description.trim()) {
-                    return { title: null, description: null };
+                    return { title: null, description: null, duration: null };
                 }
 
-                // Split by double line breaks (paragraphs) or single line breaks
-                const paragraphs = description.split(/\n\s*\n|\n/).map(p => p.trim()).filter(p => p);
-                
-                if (paragraphs.length === 0) {
-                    return { title: null, description: null };
-                } else if (paragraphs.length === 1) {
-                    // If only one paragraph, use it as description (no title)
-                    return { title: null, description: paragraphs[0] };
-                } else {
-                    // First paragraph as title, rest as description
+                let duration = null;
+                let title = null;
+                let lines = description.split('\n').map(line => line.trim()).filter(line => line);
+                let contentLines = [];
+
+                // Look for settings in description (title, duration, etc.)
+                for (const line of lines) {
+                    if (line.toLowerCase().startsWith('duration:')) {
+                        const durationValue = line.split(':')[1];
+                        if (durationValue) {
+                            duration = parseInt(durationValue.trim()) || null;
+                        }
+                    } else if (line.toLowerCase().startsWith('title:')) {
+                        const titleValue = line.split(':')[1];
+                        if (titleValue) {
+                            title = titleValue.trim();
+                        }
+                    } else if (!line.includes(':') || line.startsWith('#')) {
+                        // Only include lines that aren't configuration settings
+                        contentLines.push(line);
+                    }
+                }
+
+                // If we found a title in the config, use it
+                if (title) {
                     return { 
-                        title: paragraphs[0], 
-                        description: paragraphs.slice(1).join('\n\n') 
+                        title: title, 
+                        description: contentLines.length > 0 ? contentLines.join('\n') : null,
+                        duration
+                    };
+                }
+
+                // Otherwise, process remaining content as title/description
+                if (contentLines.length === 0) {
+                    return { title: null, description: null, duration };
+                } else if (contentLines.length === 1) {
+                    // If only one line, use it as description (no title)
+                    return { title: null, description: contentLines[0], duration };
+                } else {
+                    // First line as title, rest as description
+                    return { 
+                        title: contentLines[0], 
+                        description: contentLines.slice(1).join('\n'),
+                        duration
                     };
                 }
             }
@@ -551,6 +664,8 @@
                 
                 this.currentIndex = index;
                 const slide = this.slides[index];
+                
+                console.log('Showing slide:', index, slide.filename, slide.type); // Debug log
                 
                 // Clear previous overlays
                 this.clearOverlays();
@@ -667,13 +782,21 @@
             }
 
             async showLeaderboard(slide) {
-                // Extract leaderboard type from filename
-                const leaderboardType = slide.filename.replace('leaderboard_', '').replace('.md', '');
+                // Extract leaderboard type from filename - handle various formats
+                // Examples: "leaderboard_speed.md", "11 [15] leaderboard kids.md", "05 leaderboard_rainbow.md"
+                let leaderboardType = this.extractLeaderboardType(slide.filename);
+                
+                console.log('Showing leaderboard:', slide.filename, 'Type:', leaderboardType); // Debug log
+                console.log('Slide description for config:', slide.description); // Debug log
                 
                 const slideWrapper = document.createElement('div');
                 slideWrapper.className = 'slide-content';
                 
-                const leaderboardHtml = await this.generateLeaderboard(leaderboardType);
+                // Parse leaderboard config from file description
+                const leaderboardConfig = this.parseLeaderboardConfig(slide.description);
+                console.log('Parsed leaderboard config:', leaderboardConfig); // Debug log
+                
+                const leaderboardHtml = await this.generateLeaderboard(leaderboardType, leaderboardConfig);
                 slideWrapper.innerHTML = leaderboardHtml;
                 
                 document.getElementById('media-display').appendChild(slideWrapper);
@@ -685,39 +808,227 @@
                 this.currentTimeout = setTimeout(() => this.nextSlide(), slide.duration * 1000);
             }
 
-            async generateLeaderboard(type) {
-                // Sample leaderboard data (in real implementation, this would come from Google Sheets)
-                const sampleData = {
-                    speed: {
-                        title: "Speed Leaderboard",
-                        categories: [
-                            {
-                                name: "Male Youth 13-18 yo",
-                                color: "#cc0000",
-                                data: [
-                                    { rank: 1, name: "Max Botica", time: "4.690" },
-                                    { rank: 2, name: "James Mouton", time: "5.113" },
-                                    { rank: 3, name: "Alfie Wall", time: "6.384" },
-                                    { rank: 4, name: "Ronan Finlay", time: "6.646" },
-                                    { rank: 5, name: "Kristopher Moretti", time: "6.768" }
-                                ]
-                            },
-                            {
-                                name: "Female Youth 13-18 yo",
-                                color: "#cc0000", 
-                                data: [
-                                    { rank: 1, name: "Christel Kotze", time: "9.930" },
-                                    { rank: 2, name: "Olivia Hawryluk", time: "10.070" },
-                                    { rank: 3, name: "Jaiya Marns-morris", time: "10.092" },
-                                    { rank: 4, name: "Catherine Mirasol", time: "10.971" },
-                                    { rank: 5, name: "Audrey Minaee", time: "11.978" }
-                                ]
-                            }
-                        ]
-                    }
+            extractLeaderboardType(filename) {
+                // Handle various leaderboard filename formats:
+                // "leaderboard_speed.md" -> "speed"
+                // "11 [15] leaderboard kids.md" -> "kids"  
+                // "05 leaderboard_rainbow.md" -> "rainbow"
+                
+                let name = filename;
+                
+                // Remove file extension
+                name = name.replace(/\.[^.]+$/, '');
+                
+                // Remove duration prefix like [15]
+                name = name.replace(/^\d*\s*\[\d+\]\s*/, '');
+                
+                // Remove number prefix like "11 "
+                name = name.replace(/^\d+\s+/, '');
+                
+                // Handle "leaderboard_type" format
+                if (name.includes('leaderboard_')) {
+                    return name.replace(/.*leaderboard_/, '');
+                }
+                
+                // Handle "leaderboard type" format (space separated)
+                if (name.toLowerCase().startsWith('leaderboard ')) {
+                    return name.replace(/^leaderboard\s+/i, '');
+                }
+                
+                // Fallback - return the cleaned name
+                return name.replace(/leaderboard/gi, '').trim() || 'default';
+            }
+
+            parseLeaderboardConfig(description) {
+                // Parse leaderboard configuration from file description
+                if (!description || !description.trim()) {
+                    return null; // Use default/sample data
+                }
+
+                const config = {
+                    title: '',
+                    route_type: 'Official Speed',
+                    limit: 12,
+                    data_url: 'https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json',
+                    tables: []
                 };
 
-                const leaderboardData = sampleData[type] || sampleData.speed;
+                const lines = description.split('\n');
+                let currentTable = null;
+
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine || trimmedLine.startsWith('#')) continue;
+
+                    if (trimmedLine.includes(':')) {
+                        const [key, value] = trimmedLine.split(':').map(s => s.trim());
+
+                        switch (key.toLowerCase()) {
+                            case 'title':
+                                config.title = value;
+                                break;
+                            case 'route_type':
+                                config.route_type = value;
+                                break;
+                            case 'limit':
+                                config.limit = parseInt(value) || 12;
+                                break;
+                            case 'data_url':
+                                config.data_url = value;
+                                break;
+                            case 'table':
+                                // New table definition
+                                currentTable = {
+                                    name: value,
+                                    gender: '',  // Empty means all genders
+                                    category: 'open',
+                                    color: '#cc0000',
+                                    limit: null  // Per-table limit (will use global if not set)
+                                };
+                                config.tables.push(currentTable);
+                                break;
+                            case 'gender':
+                                if (currentTable) currentTable.gender = value;
+                                break;
+                            case 'category':
+                                if (currentTable) currentTable.category = value.toLowerCase();
+                                break;
+                            case 'color':
+                                if (currentTable) currentTable.color = value;
+                                break;
+                            case 'limit':
+                                if (currentTable) {
+                                    // Per-table limit
+                                    currentTable.limit = parseInt(value) || 12;
+                                } else {
+                                    // Global limit
+                                    config.limit = parseInt(value) || 12;
+                                }
+                                break;
+                        }
+                    }
+                }
+
+                return config.tables.length > 0 ? config : null;
+            }
+
+            async processLiveData(rawData, config) {
+                // Process and filter live data according to config
+                const categories = [];
+                
+                for (const table of config.tables) {
+                    // Filter data for this table
+                    let filteredData = rawData.filter(record => {
+                        // Filter by route type (from config)
+                        if (config.route_type && record.Route !== config.route_type) {
+                            return false;
+                        }
+                        
+                        // Filter by gender (from table config)
+                        if (table.gender && record.Gender !== table.gender) {
+                            return false;
+                        }
+                        
+                        // Filter by category (from table config)
+                        if (table.category !== 'open' && record.category !== table.category) {
+                            return false;
+                        }
+                        
+                        return true;
+                    });
+                    
+                    // Sort by time (ascending - fastest first)
+                    filteredData.sort((a, b) => {
+                        const timeA = parseFloat(a.Time) || 999999;
+                        const timeB = parseFloat(b.Time) || 999999;
+                        return timeA - timeB;
+                    });
+                    
+                    // Limit to top N results - use per-table limit if set, otherwise global limit
+                    const tableLimit = table.limit || config.limit || 12;
+                    filteredData = filteredData.slice(0, tableLimit);
+                    
+                    // Format for display
+                    const formattedData = filteredData.map((record, index) => ({
+                        rank: index + 1,
+                        name: record.Name,
+                        time: record.Time
+                    }));
+                    
+                    categories.push({
+                        name: table.name,
+                        color: table.color,
+                        data: formattedData
+                    });
+                }
+                
+                return categories;
+            }
+
+            async generateLeaderboard(type, config = null) {
+                // Use config from file description if available, otherwise use sample data
+                let leaderboardData;
+                
+                if (config) {
+                    // Use cached live data if available
+                    if (this.liveLeaderboardData) {
+                        console.log('Using cached leaderboard data (' + this.liveLeaderboardData.length + ' records)');
+                        
+                        leaderboardData = {
+                            title: config.title || `${type.charAt(0).toUpperCase() + type.slice(1)} Leaderboard`,
+                            categories: await this.processLiveData(this.liveLeaderboardData, config)
+                        };
+                    } else {
+                        console.log('No cached data available, using sample data');
+                        
+                        // Fallback to sample data structure with config
+                        leaderboardData = {
+                            title: config.title || `${type.charAt(0).toUpperCase() + type.slice(1)} Leaderboard`,
+                            categories: config.tables.map(table => ({
+                                name: table.name,
+                                color: table.color,
+                                data: [
+                                    { rank: 1, name: "Competitor 1", time: "5.123" },
+                                    { rank: 2, name: "Competitor 2", time: "5.456" },
+                                    { rank: 3, name: "Competitor 3", time: "5.789" }
+                                ]
+                            }))
+                        };
+                    }
+                } else {
+                    // Sample leaderboard data (fallback when no config is provided)
+                    const sampleData = {
+                        speed: {
+                            title: "Speed Leaderboard",
+                            categories: [
+                                {
+                                    name: "Male Youth 13-18 yo",
+                                    color: "#cc0000",
+                                    data: [
+                                        { rank: 1, name: "Max Botica", time: "4.690" },
+                                        { rank: 2, name: "James Mouton", time: "5.113" },
+                                        { rank: 3, name: "Alfie Wall", time: "6.384" },
+                                        { rank: 4, name: "Ronan Finlay", time: "6.646" },
+                                        { rank: 5, name: "Kristopher Moretti", time: "6.768" }
+                                    ]
+                                },
+                                {
+                                    name: "Female Youth 13-18 yo",
+                                    color: "#cc0000", 
+                                    data: [
+                                        { rank: 1, name: "Christel Kotze", time: "9.930" },
+                                        { rank: 2, name: "Olivia Hawryluk", time: "10.070" },
+                                        { rank: 3, name: "Jaiya Marns-morris", time: "10.092" },
+                                        { rank: 4, name: "Catherine Mirasol", time: "10.971" },
+                                        { rank: 5, name: "Audrey Minaee", time: "11.978" }
+                                    ]
+                                }
+                            ]
+                        }
+                    };
+
+                    leaderboardData = sampleData[type] || sampleData.speed;
+                }
                 
                 let html = `
                     <div class="leaderboard-container">
@@ -727,10 +1038,16 @@
                 `;
                 
                 for (const category of leaderboardData.categories) {
+                    // Parse title and bracket info (e.g., "Male Youth (13-18yo)")
+                    const titleParts = category.name.match(/^(.+?)(\s*\([^)]+\))?$/);
+                    const mainTitle = titleParts ? titleParts[1].trim() : category.name;
+                    const bracketInfo = titleParts && titleParts[2] ? titleParts[2].trim() : '';
+                    
                     html += `
                         <div class="leaderboard-category">
-                            <div class="category-header" style="background-color: ${category.color}">
-                                ${category.name}
+                            <div class="category-header" style="--header-color: ${category.color}; background: linear-gradient(135deg, ${category.color}, rgba(0,0,0,0.2));">
+                                <span class="main-title">${mainTitle}</span>
+                                ${bracketInfo ? `<span class="bracket-info">${bracketInfo}</span>` : ''}
                             </div>
                             <table class="leaderboard-table">
                     `;
