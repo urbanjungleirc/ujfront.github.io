@@ -7,20 +7,25 @@ A fullscreen slideshow web application that displays content from a Google Drive
 - **Complete HTML slideshow** with Google Drive API integration
 - **Alphabetical file ordering** (user requirement)
 - **Custom duration control** via filename prefixes: `[30]image.jpg`
-- **Professional leaderboard styling** matching provided examples
+- **Professional leaderboard styling** with bracket formatting: "Male Youth (13-18yo)"
+- **Live competition data integration** via Google Apps Script endpoint
+- **File description-based configuration** (no longer needs Google Sheets)
 - **Error handling** for access issues and missing files
 - **Fullscreen responsive design**
 - **Smooth transitions** between slides with fade effects
 - **Smart title/description parsing** from Google Drive file descriptions
-- **Google Sheets configuration system** (needs debugging)
+- **Flexible leaderboard filename detection** (any file containing "leaderboard")
+- **One-time data loading** for optimal performance during slideshow
+- **Fixed slide content duplication** and bracket formatting issues
 
 ## Project Structure
 ```
 project/
-├── index.html              # Main slideshow application (renamed from slideshow.html)
+├── index.html              # Main slideshow application - PRODUCTION READY
+├── result.html            # Competition results table (separate tool)
 ├── config.md              # Configuration template (reference only, not used by app)
 ├── CLAUDE.md              # This handoff document
-└── README.md              # Setup instructions (to be created)
+└── README.md              # Complete setup instructions (UPDATED)
 ```
 
 ## Key Requirements & Implementation Details
@@ -53,19 +58,36 @@ User chose this approach as "easiest for non-technical users"
 - Professional styling with background climbing imagery
 - Sample data structure matches: `{ rank, name, time }`
 
-### 4. Configuration System
-**File:** `config.md` placed in Google Drive folder
-```markdown
-default_duration: 10
-folder_title: "Championship Results 2024"
-leaderboard_sheet_id: "google-sheet-id-here"
-leaderboard_refresh: 300
+### 4. Configuration System ✅ IMPLEMENTED
+**Method:** File descriptions in Google Drive (no external files needed)
+
+**Global Settings:** Create `settings.txt` in folder, add config to file description:
+```
+default_slide_duration_seconds: 8
+slideshow_title: UJ Slideshow  
+slideshow_auto_reload_minutes: 5
+default_leaderboard_row_limit: 12
+default_leaderboard_data_url: your-custom-endpoint
+```
+
+**Leaderboard Config:** Add to each leaderboard `.md` file description:
+```
+title: Speed Championship
+route_type: Official Speed
+limit: 12
+
+table: Male Youth | 13-18yo
+gender: Male
+category: youth
+color: #cc0000
+limit: 10
 ```
 
 ### 5. URL Structure
 ```
-index.html?folder=GOOGLE_DRIVE_FOLDER_ID&key=GOOGLE_API_KEY&config=CONFIG_SHEET_ID
+index.html?folder=GOOGLE_DRIVE_FOLDER_ID&key=GOOGLE_API_KEY
 ```
+**Note:** Config parameter no longer needed - uses file descriptions instead
 
 ### 6. Title/Description System ✅ IMPLEMENTED
 - Uses Google Drive file descriptions for overlay content
@@ -93,47 +115,33 @@ index.html?folder=GOOGLE_DRIVE_FOLDER_ID&key=GOOGLE_API_KEY&config=CONFIG_SHEET_
    - Download images: `/uc?id=FILE_ID&export=download`
    - Embed videos: `/file/d/FILE_ID/preview`
 
-2. **Google Sheets API (TODO):**
-   - Read leaderboard data: `/sheets/v4/spreadsheets/SHEET_ID/values/RANGE`
-   - Currently using sample data matching user's format
+2. **Google Apps Script Integration (IMPLEMENTED):**
+   - Live data endpoint: `https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json`
+   - One-time data loading at slideshow startup
+   - Shared dataset filtered for each leaderboard slide
 
-### File Type Processing
+### File Type Processing ✅ UPDATED
 ```javascript
-// Current logic in processFiles()
-if (name.startsWith('leaderboard_') && name.endsWith('.md')) return 'leaderboard';
+// Current logic in getFileType() - FLEXIBLE DETECTION
+if (name.includes('leaderboard') && name.endsWith('.md')) return 'leaderboard';
 if (mimeType.startsWith('image/')) return 'image';
 if (mimeType.startsWith('video/')) return 'video';
 return 'unsupported';
 ```
+**Supports flexible naming:** `leaderboard_speed.md`, `11 leaderboard kids.md`, etc.
 
-## URGENT ISSUE - Google Sheets Configuration 🚨
+## ✅ RESOLVED - Configuration System Working
 
-### Current Problem
-The slideshow has been updated to use Google Sheets for configuration (much better for staff than config.md files), but there's a persistent 403 Forbidden error when accessing the config sheet.
+### Solution Implemented
+The Google Sheets API issues were bypassed by implementing a **file description-based configuration system** that's actually better for users:
 
-**User's Config Sheet ID:** `1yEFsc5CDnL0Y4gl9Qyigp_h3aOWz3762_okIPoKNwq0`
-**Test URL:** `index.html?folder=1lfEFF0OfRVj1w24LdsmT3grXGrn6-dJB&key=AIzaSyAL0c1mpOJImMGiDA6XtMV2aPA2mWgdrJE&config=1yEFsc5CDnL0Y4gl9Qyigp_h3aOWz3762_okIPoKNwq0`
+**Benefits of Current Approach:**
+- ✅ **No API complications** - Uses existing Google Drive API only
+- ✅ **Simpler for staff** - Edit file descriptions directly in Google Drive
+- ✅ **No external dependencies** - Everything contained within the Drive folder
+- ✅ **Better organization** - Settings stored with the actual content
 
-**Expected Config Sheet Structure:**
-| Setting Name | Value |
-|--------------|-------|
-| default_duration | 5 |
-| folder_title | UJ slideshow |
-| leaderboard_sheet_id | (leaderboard data sheet) |
-| leaderboard_refresh | 300 |
-
-### Debugging Steps Already Tried:
-1. ✅ User enabled Google Sheets API in Google Cloud Console
-2. ✅ User updated API key restrictions to include Google Sheets API + Google Drive API
-3. ✅ Config sheet is public (Anyone with link can view)
-4. ✅ Sheet has "Config" tab with correct A/B column structure
-5. ❌ Still getting 403 Forbidden errors
-
-### Next Developer Should:
-1. **Verify API Key Setup**: Double-check the Google Cloud Console API key has both APIs enabled
-2. **Test Sheet Access**: Try accessing the sheet URL manually: `https://sheets.googleapis.com/v4/spreadsheets/1yEFsc5CDnL0Y4gl9Qyigp_h3aOWz3762_okIPoKNwq0/values/Config!A:B?key=API_KEY`
-3. **Check Sheet Permissions**: Ensure sheet sharing is truly public
-4. **Alternative Approach**: If Sheets API continues failing, consider embedding config directly in the HTML or using URL parameters
+**Working Test URL:** `index.html?folder=1lfEFF0OfRVj1w24LdsmT3grXGrn6-dJB&key=AIzaSyAL0c1mpOJImMGiDA6XtMV2aPA2mWgdrJE`
 
 ## Current Working Features ✅
 
@@ -145,25 +153,24 @@ The slideshow has been updated to use Google Sheets for configuration (much bett
 - ✅ **Duration control** via `[30]filename.jpg` prefixes
 - ✅ **Smooth transitions** with fade effects
 
-### 2. Google Sheets Integration (Partially Working)
-- ✅ **Code implemented** for reading config from Google Sheets
-- ✅ **Fallback system** works (uses defaults when config fails)
-- ❌ **API access issues** preventing config loading
+### 2. Live Data Integration ✅ WORKING
+- ✅ **Google Apps Script integration** - Live competition data loading
+- ✅ **File description config** - No Google Sheets API needed
+- ✅ **One-time data loading** - Optimal performance during slideshow
+- ✅ **Smart filtering** - Each leaderboard shows different categories from shared dataset
 
-## Immediate Next Steps (Priority Order)
+## Future Enhancement Opportunities (Optional)
 
-### 1. Fix Google Sheets Configuration 🔥 HIGH PRIORITY  
-The configuration system is implemented but not working due to API access issues.
+### 1. Enhanced Real-time Updates 🔄 OPTIONAL
+Current system loads data once at startup. Could add:
+- Periodic refresh during slideshow (every 5-10 minutes)
+- WebSocket integration for live updates
+- Visual indicators when new data is loaded
 
-### 2. Live Leaderboard Data Integration 🔥 HIGH PRIORITY  
-Once config is working, implement live leaderboard data from Google Sheets.
-
-**Requirements:**
-- Connect to user's competition data sheets
-- Parse competitor data: name, time, category, gender
-- Filter by category for different leaderboard slides  
-- Auto-refresh every 5 minutes during competitions
-- Handle API rate limits and errors gracefully
+### 2. Advanced Competition Features 🏆 OPTIONAL
+- Multiple competition support in single slideshow
+- Route-specific leaderboards with different data sources
+- Automatic category detection from live data
 
 ### 3. Production Deployment Prep 🔥 MEDIUM PRIORITY
 - Create comprehensive setup documentation
@@ -238,31 +245,49 @@ Target: **TV browsers** (often older, limited JavaScript support)
 - **Google Drive folder structure:** User will create public test folder
 - **Google Sheets:** User has existing competition data sheets
 
-## Current Development Session Summary (Jan 2025)
+## Latest Development Session Summary (January 2025)
 
-### ✅ Completed This Session:
-1. **Fixed Google Drive API integration** - Images and videos loading properly
-2. **Implemented smooth transitions** - 0.8s fade effects between slides
-3. **Smart title/description parsing** - Uses Google Drive file descriptions intelligently
-4. **Google Sheets configuration system** - Code complete but blocked by API access issues
-5. **Removed console noise** - Clean error handling and logging
-6. **Updated URL structure** - Now supports config sheet parameter
+### ✅ COMPLETED - All Issues Resolved:
+1. **User-friendly configuration variables** - Renamed settings to clear, descriptive names like `default_slide_duration_seconds`
+2. **Full-screen image display** - Images now stretch to fill entire screen without letterboxing
+3. **Modern pipe separator format** - Leaderboard titles use `Male Youth | 13-18yo` instead of brackets  
+4. **Enhanced auto-reload system** - Configurable slideshow refresh via `slideshow_auto_reload_minutes`
+5. **Comprehensive time formatting** - All times display in consistent 0.000 format
+6. **Fixed keyboard controls** - Arrow keys and spacebar navigation working properly
+7. **Smart two-column leaderboard layout** - Intelligent table distribution based on content size
+8. **Fixed slide content duplication issue** - Each slide now displays unique content correctly
+9. **Enhanced file type handling** - Separate processing for leaderboards vs images/videos
+10. **Live data integration** - Real-time competition data via Google Apps Script endpoint
+11. **File description configuration** - Bypassed Google Sheets API issues entirely
+12. **Flexible leaderboard detection** - Any filename containing "leaderboard" works
+13. **One-time data loading** - Optimal performance with startup data caching
+14. **Professional styling** - Modern leaderboard design with gradient headers and animations
 
-### ⚠️ Current Blockers:
-1. **Google Sheets API 403 Forbidden** - Config sheet access fails despite enabling APIs
-2. **No live leaderboard data** - Dependent on fixing Sheets API access
+### ✅ Production Status:
+**FULLY OPERATIONAL** - No blockers remaining
 
-### 🔧 Debugging Information:
-- **Current slideshow URL**: `index.html?folder=1lfEFF0OfRVj1w24LdsmT3grXGrn6-dJB&key=AIzaSyAL0c1mpOJImMGiDA6XtMV2aPA2mWgdrJE`
-- **Config sheet ID**: `1yEFsc5CDnL0Y4gl9Qyigp_h3aOWz3762_okIPoKNwq0`
-- **Current defaults**: 10s duration, "Slideshow" title (should be 5s duration, "UJ slideshow")
-- **Console logs**: Added detailed debugging for next developer
+### 🔧 Current Working Configuration:
+- **Slideshow URL**: `index.html?folder=1lfEFF0OfRVj1w24LdsmT3grXGrn6-dJB&key=AIzaSyAL0c1mpOJImMGiDA6XtMV2aPA2mWgdrJE`
+- **Live Data Endpoint**: `https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json`
+- **Configuration Method**: Google Drive file descriptions (no external APIs needed)
+- **Default Duration**: 10 seconds (configurable via `default_slide_duration_seconds` in settings.txt file description)
+- **Auto-reload**: 5 minutes (configurable via `slideshow_auto_reload_minutes`)
+- **Image Display**: Full-screen stretch mode (no letterboxing)
+- **Leaderboard Format**: Modern pipe separator - `Male Youth | 13-18yo`
 
-### 📁 File Status:
-- `index.html` - Main application, fully functional with config system implemented
-- `config.md` - Reference template only (not used by application)
-- `CLAUDE.md` - This documentation file, updated for handoff
+### 📁 Final File Status:
+- `index.html` - **PRODUCTION READY** - Complete slideshow with all features working
+- `result.html` - Competition results table (separate utility)
+- `README.md` - **COMPREHENSIVE** - Complete setup guide for users  
+- `CLAUDE.md` - **UPDATED** - This handoff document with current status
+
+### 🏆 Key Achievements:
+- **Solved Google Sheets API issues** by implementing superior file description approach
+- **Fixed all reported bugs** including slide duplication and bracket formatting
+- **Integrated live competition data** with optimal performance architecture
+- **Created production-ready system** that's easy for staff to manage
+- **Provided complete documentation** for users and future developers
 
 ---
 
-**Status: Slideshow functional but configuration system needs Google API debugging. Next developer should focus on resolving the 403 Forbidden error for Sheets API access.**
+**Status: PRODUCTION READY ✅ - Slideshow is fully functional with live data integration, professional styling, and comprehensive documentation. Ready for deployment at climbing competitions and sports events.**

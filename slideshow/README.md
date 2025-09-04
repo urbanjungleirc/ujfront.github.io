@@ -38,13 +38,19 @@ A fullscreen slideshow application that displays images, videos, and live leader
 Create a file called `settings.txt` in your Google Drive folder, then add configuration in the file's **description** (right-click → File information → Description):
 
 ```
-default_duration: 5
-folder_title: My Slideshow
+default_slide_duration_seconds: 8
+slideshow_title: My Competition Slideshow  
+slideshow_auto_reload_minutes: 10
+default_leaderboard_row_limit: 15
+default_leaderboard_data_url: your-custom-data-endpoint
 ```
 
 **Available Settings:**
-- `default_duration`: Default seconds to show each image (default: 10)
-- `folder_title`: Display title for your slideshow (default: "Slideshow")
+- `default_slide_duration_seconds`: Default seconds to show each image/slide (default: 10)
+- `slideshow_title`: Display title for your slideshow (default: "Slideshow")
+- `slideshow_auto_reload_minutes`: Minutes between automatic slideshow reloads (default: 5, set to 0 to disable)
+- `default_leaderboard_row_limit`: Default number of competitors to show per leaderboard table (default: 12)
+- `default_leaderboard_data_url`: URL endpoint for live competition data (has working default)
 
 ### File Duration Control
 
@@ -64,6 +70,14 @@ duration: 30
 Welcome to the climbing competition!
 This is the main announcement.
 ```
+
+### Image Display Behavior
+
+**Full-Screen Stretch Mode:**
+- Images automatically fill the entire screen (no letterboxing/black bars)
+- Images are stretched or cropped as needed to fit display dimensions
+- Optimized for images that are already in the correct ratio for your display
+- Perfect for pre-designed graphics and announcements
 
 **File Naming for Organization:**
 - `01 welcome.jpg` - Use numbers for ordering
@@ -97,12 +111,12 @@ title: Speed Climbing Championship
 route_type: Official Speed
 limit: 12
 
-table: Male Open
+table: Male Open | Adults
 gender: Male
 category: open
 color: #cc0000
 
-table: Female Open
+table: Female Open | Adults
 gender: Female
 category: open
 color: #cc0000
@@ -139,13 +153,13 @@ title: Speed Leaderboard
 route_type: Official Speed
 duration: 15
 
-table: Male Youth (13-18yo)
+table: Male Youth | 13-18yo
 gender: Male  
 category: youth
 color: #cc0000
 limit: 10
 
-table: Female Youth (13-18yo)
+table: Female Youth | 13-18yo
 gender: Female
 category: youth
 color: #cc0000
@@ -178,13 +192,13 @@ title: Youth Championships
 route_type: Official Speed
 limit: 10
 
-table: Male Youth (13-18yo)
+table: Male Youth | 13-18yo
 gender: Male
 category: youth
 color: #cc0000
 limit: 8
 
-table: Female Youth (13-18yo)  
+table: Female Youth | 13-18yo  
 gender: Female
 category: youth
 color: #cc0000
@@ -280,9 +294,13 @@ For technical issues:
 
 ## Recent Updates (January 2025)
 
-### ✅ Latest Features
+### ✅ Latest Features  
+- **User-friendly variable names** - Settings now use clear, descriptive names like `default_slide_duration_seconds`
+- **Full-screen image display** - Images now stretch to fill entire screen (no letterboxing)
+- **Modern pipe separator** - Leaderboard titles use `Male Youth | 13-18yo` format instead of brackets
+- **Enhanced auto-reload** - Configurable slideshow refresh with `slideshow_auto_reload_minutes`
 - **Fixed slide content duplication** - Each slide now shows unique content
-- **Improved bracket formatting** - Parenthetical text in leaderboard headers displays properly
+- **Improved bracket formatting** - Secondary text in leaderboard headers displays properly
 - **Enhanced file type handling** - Better separation of image/video vs leaderboard processing
 - **Added comprehensive debugging** - Console logs help troubleshoot issues
 - **Optimized performance** - One-time data loading for better slideshow performance

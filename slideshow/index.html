@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- font-family: 'fatFrank', sans-serif; -->
+    <link rel="stylesheet" href="https://use.typekit.net/tco5lzp.css">
     <title>Google Drive Slideshow</title>
     <style>
         * {
@@ -17,6 +19,13 @@
             font-family: 'Arial', sans-serif;
             overflow: hidden;
             height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'FatFrank', sans-serif;
+            text-transform: uppercase; 
         }
 
         #slideshow-container {
@@ -53,9 +62,9 @@
         }
 
         .slide-content img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .slide-content video {
@@ -164,20 +173,28 @@
         }
 
         .leaderboard-content {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 40px;
             justify-content: center;
-            flex-wrap: wrap;
+            align-items: start;
+        }
+
+        .leaderboard-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
         }
 
         .leaderboard-category {
-            flex: 1;
-            min-width: 500px;
-            max-width: 600px;
+            width: 100%;
+            min-width: 450px;
         }
 
         .category-header {
             color: white;
+            font-family: 'FatFrank', sans-serif;
+            text-transform: uppercase; 
             font-size: 2.2rem;
             font-weight: 700;
             padding: 20px 30px;
@@ -185,7 +202,7 @@
             margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
             border-radius: 12px 12px 0 0;
-            background: linear-gradient(135deg, var(--header-color), rgba(0,0,0,0.2));
+            background: linear-gradient(135deg, var(--header-color), rgba(255, 255, 255, 0.9));
             position: relative;
             display: flex;
             justify-content: space-between;
@@ -197,9 +214,11 @@
         }
 
         .category-header .bracket-info {
-            font-size: 1.8rem;
-            font-weight: 400;
-            opacity: 0.8;
+            color: var(--header-color);
+            /* font-size: 1.8rem; */
+            /* font-weight: 400; */
+            /* opacity: 0.8; */
+            text-shadow: 2px 2px 4px rgba(255,255,255,1);
             margin-left: 20px;
             text-align: right;
             flex-shrink: 0;
@@ -292,11 +311,11 @@
                 this.apiKey = null;
                 this.folderId = null;
                 this.config = {
-                    default_duration: 10,
-                    folder_title: "Slideshow",
-                    leaderboard_sheet_id: null,
-                    leaderboard_refresh: 300,
-                    leaderboard_slides: []
+                    default_slide_duration_seconds: 10,
+                    slideshow_title: "Slideshow",
+                    slideshow_slideshow_auto_reload_minutes: 5,
+                    default_leaderboard_data_url: 'https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json',
+                    default_leaderboard_row_limit: 12
                 };
                 this.slides = [];
                 this.currentIndex = 0;
@@ -402,8 +421,8 @@
             async loadLeaderboardData() {
                 // Load leaderboard data once at startup (shared across all leaderboard slides)
                 try {
-                    const dataUrl = 'https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json';
-                    console.log('Loading live leaderboard data once at startup...');
+                    const dataUrl = this.config.default_leaderboard_data_url;
+                    console.log('Loading live leaderboard data once at startup from:', dataUrl);
                     
                     const response = await fetch(dataUrl);
                     const jsonData = await response.json();
@@ -433,11 +452,20 @@
                         const [key, value] = trimmedLine.split(':').map(s => s.trim());
                         
                         switch (key.toLowerCase()) {
-                            case 'default_duration':
-                                this.config.default_duration = parseInt(value) || 10;
+                            case 'default_slide_duration_seconds':
+                                this.config.default_slide_duration_seconds = parseInt(value) || 10;
                                 break;
-                            case 'folder_title':
-                                this.config.folder_title = value;
+                            case 'slideshow_title':
+                                this.config.slideshow_title = value;
+                                break;
+                            case 'slideshow_auto_reload_minutes':
+                                this.config.slideshow_auto_reload_minutes = parseInt(value) || 5;
+                                break;
+                            case 'default_leaderboard_data_url':
+                                this.config.default_leaderboard_data_url = value;
+                                break;
+                            case 'default_leaderboard_row_limit':
+                                this.config.default_leaderboard_row_limit = parseInt(value) || 12;
                                 break;
                         }
                     }
@@ -451,11 +479,11 @@
                         const [key, value] = row;
                         
                         switch (key.toLowerCase().trim()) {
-                            case 'default_duration':
-                                this.config.default_duration = parseInt(value) || 10;
+                            case 'default_slide_duration_seconds':
+                                this.config.default_slide_duration_seconds = parseInt(value) || 10;
                                 break;
-                            case 'folder_title':
-                                this.config.folder_title = value.toString().trim();
+                            case 'slideshow_title':
+                                this.config.slideshow_title = value.toString().trim();
                                 break;
                             case 'leaderboard_sheet_id':
                                 this.config.leaderboard_sheet_id = value.toString().trim();
@@ -483,11 +511,11 @@
                         const [key, value] = line.split(':').map(s => s.trim());
                         
                         switch (key) {
-                            case 'default_duration':
-                                this.config.default_duration = parseInt(value);
+                            case 'default_slide_duration_seconds':
+                                this.config.default_slide_duration_seconds = parseInt(value);
                                 break;
-                            case 'folder_title':
-                                this.config.folder_title = value.replace(/['"]/g, '');
+                            case 'slideshow_title':
+                                this.config.slideshow_title = value.replace(/['"]/g, '');
                                 break;
                             case 'leaderboard_sheet_id':
                                 this.config.leaderboard_sheet_id = value.replace(/['"]/g, '');
@@ -516,7 +544,9 @@
                     if (fileType === 'leaderboard') {
                         // For leaderboards, keep the full description for config parsing
                         description = file.description || '';
-                        duration = this.parseFileDuration(file.name);
+                        // Parse duration from description first, then filename
+                        const parsed = this.parseDescriptionField(file.description || '');
+                        duration = parsed.duration || this.parseFileDuration(file.name);
                     } else {
                         // For images/videos, parse title/description from description field
                         const parsed = this.parseDescriptionField(file.description || '');
@@ -573,7 +603,15 @@
 
             parseFileDuration(filename) {
                 const match = filename.match(/^\[(\d+)\]/);
-                return match ? parseInt(match[1]) : this.config.default_duration;
+                return match ? parseInt(match[1]) : this.config.default_slide_duration_seconds;
+            }
+
+            formatTime(time) {
+                // Format time to always show 3 decimal places (0.000 format)
+                if (!time || isNaN(parseFloat(time))) {
+                    return "0.000";
+                }
+                return parseFloat(time).toFixed(3);
             }
 
             parseDescriptionField(description) {
@@ -654,6 +692,17 @@
             async startSlideshow() {
                 document.getElementById('loading').style.display = 'none';
                 this.isPlaying = true;
+                
+                // Set up auto-reload timer if configured
+                if (this.config.slideshow_auto_reload_minutes > 0) {
+                    const reloadMs = this.config.slideshow_auto_reload_minutes * 60 * 1000;
+                    console.log(`Setting up auto-reload every ${this.config.slideshow_auto_reload_minutes} minutes`);
+                    setTimeout(() => {
+                        console.log('Auto-reloading slideshow...');
+                        window.location.reload();
+                    }, reloadMs);
+                }
+                
                 await this.showSlide(0);
             }
 
@@ -848,8 +897,8 @@
                 const config = {
                     title: '',
                     route_type: 'Official Speed',
-                    limit: 12,
-                    data_url: 'https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json',
+                    limit: this.config.default_leaderboard_row_limit,
+                    data_url: this.config.default_leaderboard_data_url,
                     tables: []
                 };
 
@@ -869,9 +918,6 @@
                                 break;
                             case 'route_type':
                                 config.route_type = value;
-                                break;
-                            case 'limit':
-                                config.limit = parseInt(value) || 12;
                                 break;
                             case 'data_url':
                                 config.data_url = value;
@@ -899,10 +945,10 @@
                             case 'limit':
                                 if (currentTable) {
                                     // Per-table limit
-                                    currentTable.limit = parseInt(value) || 12;
+                                    currentTable.limit = parseInt(value) || this.config.default_leaderboard_row_limit;
                                 } else {
                                     // Global limit
-                                    config.limit = parseInt(value) || 12;
+                                    config.limit = parseInt(value) || this.config.default_leaderboard_row_limit;
                                 }
                                 break;
                         }
@@ -945,14 +991,14 @@
                     });
                     
                     // Limit to top N results - use per-table limit if set, otherwise global limit
-                    const tableLimit = table.limit || config.limit || 12;
+                    const tableLimit = table.limit || config.limit || this.config.default_leaderboard_row_limit;
                     filteredData = filteredData.slice(0, tableLimit);
                     
                     // Format for display
                     const formattedData = filteredData.map((record, index) => ({
                         rank: index + 1,
                         name: record.Name,
-                        time: record.Time
+                        time: this.formatTime(record.Time)
                     }));
                     
                     categories.push({
@@ -1030,24 +1076,77 @@
                     leaderboardData = sampleData[type] || sampleData.speed;
                 }
                 
+                // Smart two-column layout logic
+                const categories = leaderboardData.categories;
+                const { column1, column2 } = this.organizeTablesIntoColumns(categories);
+                
                 let html = `
                     <div class="leaderboard-container">
                         <div class="leaderboard-background"></div>
                         <h1 class="leaderboard-title">${leaderboardData.title}</h1>
                         <div class="leaderboard-content">
+                            <div class="leaderboard-column">
+                                ${this.renderTablesColumn(column1)}
+                            </div>
+                            <div class="leaderboard-column">
+                                ${this.renderTablesColumn(column2)}
+                            </div>
+                        </div>
+                    </div>
                 `;
                 
-                for (const category of leaderboardData.categories) {
-                    // Parse title and bracket info (e.g., "Male Youth (13-18yo)")
-                    const titleParts = category.name.match(/^(.+?)(\s*\([^)]+\))?$/);
-                    const mainTitle = titleParts ? titleParts[1].trim() : category.name;
-                    const bracketInfo = titleParts && titleParts[2] ? titleParts[2].trim() : '';
+                return html;
+            }
+
+            organizeTablesIntoColumns(categories) {
+                // Smart organization based on number of tables:
+                // 1 table: first column only
+                // 2 tables: one per column  
+                // 3 tables: largest in first column, other two stacked in second
+                // 4+ tables: distribute evenly across two columns
+                
+                const numTables = categories.length;
+                let column1 = [];
+                let column2 = [];
+                
+                if (numTables === 1) {
+                    column1 = [categories[0]];
+                } else if (numTables === 2) {
+                    column1 = [categories[0]];
+                    column2 = [categories[1]];
+                } else if (numTables === 3) {
+                    // Find the largest table (most data entries)
+                    const sortedBySize = [...categories].sort((a, b) => b.data.length - a.data.length);
+                    const largest = sortedBySize[0];
+                    const others = categories.filter(cat => cat !== largest);
+                    
+                    column1 = [largest];
+                    column2 = others;
+                } else {
+                    // 4+ tables: split evenly, first column gets extra if odd number
+                    const midpoint = Math.ceil(numTables / 2);
+                    column1 = categories.slice(0, midpoint);
+                    column2 = categories.slice(midpoint);
+                }
+                
+                return { column1, column2 };
+            }
+
+            renderTablesColumn(tables) {
+                if (!tables || tables.length === 0) return '';
+                
+                let html = '';
+                for (const category of tables) {
+                    // Parse title and secondary info using pipe separator (e.g., "Male Youth | 13-18yo")
+                    const parts = category.name.split(' | ');
+                    const mainTitle = parts[0].trim();
+                    const secondaryInfo = parts[1] ? parts[1].trim() : '';
                     
                     html += `
                         <div class="leaderboard-category">
-                            <div class="category-header" style="--header-color: ${category.color}; background: linear-gradient(135deg, ${category.color}, rgba(0,0,0,0.2));">
+                            <div class="category-header" style="--header-color: ${category.color}; background: linear-gradient(135deg, ${category.color}, rgba(255,255,255,0.9));">
                                 <span class="main-title">${mainTitle}</span>
-                                ${bracketInfo ? `<span class="bracket-info">${bracketInfo}</span>` : ''}
+                                ${secondaryInfo ? `<span class="bracket-info">${secondaryInfo}</span>` : ''}
                             </div>
                             <table class="leaderboard-table">
                     `;
@@ -1067,12 +1166,6 @@
                         </div>
                     `;
                 }
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-                
                 return html;
             }
 
@@ -1119,8 +1212,8 @@
 
         // Initialize slideshow when page loads
         window.addEventListener('load', () => {
-            const slideshow = new DriveSlideshow();
-            slideshow.init();
+            window.slideshow = new DriveSlideshow();
+            window.slideshow.init();
         });
 
         // Handle keyboard controls
