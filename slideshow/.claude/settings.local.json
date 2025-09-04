@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\Users\\Jiri\\Downloads/**)",
+      "Read(C:\\Users\\Jiri\\Downloads/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
