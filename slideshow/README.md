@@ -1,316 +1,90 @@
-# Google Drive Slideshow - Setup Guide
+# Google Drive Slideshow
 
-A fullscreen slideshow application that displays images, videos, and live leaderboards from a Google Drive folder. Perfect for climbing gyms, sports events, or any venue needing dynamic content display with real-time competition data.
+Fullscreen slideshow for TV displays with live competition leaderboards. Shows images, videos, and real-time competition data from a Google Drive folder.
 
-## ✨ Features
+## Setup
 
-- **Mixed Content Display**: Images, videos, and leaderboards in alphabetical order
-- **Live Competition Data**: Real-time leaderboard integration via Google Apps Script
-- **Smart Duration Control**: Configure display time via filename prefixes `[30]image.jpg`
-- **File Description Configuration**: Use Google Drive file descriptions for settings
-- **Professional Leaderboard Styling**: Multi-column layouts with custom colors and bracket formatting
-- **Smooth Transitions**: Fade effects between slides with overlay animations
-- **Fullscreen Display**: Optimized for TV browsers and large displays
-
-## Quick Start
-
-1. **Set up Google API**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select existing
-   - Enable **Google Drive API** in APIs & Services > Library
-   - Create an **API Key** in APIs & Services > Credentials
-   - Restrict the key to only Google Drive API
-
-2. **Prepare Google Drive folder**
-   - Create a public folder in Google Drive
-   - Share it: Right-click → Share → "Anyone with the link" → "Viewer"
-   - Copy the folder ID from the URL (long string after `/folders/`)
-
-3. **Launch slideshow**
-   ```
-   index.html?folder=YOUR_FOLDER_ID&key=YOUR_API_KEY
-   ```
+1. **Google Drive**: Create public folder, copy folder ID from URL
+2. **API Key**: Get Google Drive API key from [Google Cloud Console](https://console.cloud.google.com/)
+3. **Launch**: `index.html?folder=FOLDER_ID&key=API_KEY`
 
 ## Configuration
 
-### General Settings (Optional)
-
-Create a file called `settings.txt` in your Google Drive folder, then add configuration in the file's **description** (right-click → File information → Description):
+Create `settings.txt` in Google Drive folder, add config to file **description**:
 
 ```
-default_slide_duration_seconds: 8
-slideshow_title: My Competition Slideshow  
-slideshow_auto_reload_minutes: 10
-default_leaderboard_row_limit: 15
-default_leaderboard_data_url: your-custom-data-endpoint
+default_slide_duration_seconds: 10
+slideshow_auto_reload_minutes: 5
+default_leaderboard_row_limit: 12
 ```
 
-**Available Settings:**
-- `default_slide_duration_seconds`: Default seconds to show each image/slide (default: 10)
-- `slideshow_title`: Display title for your slideshow (default: "Slideshow")
-- `slideshow_auto_reload_minutes`: Minutes between automatic slideshow reloads (default: 5, set to 0 to disable)
-- `default_leaderboard_row_limit`: Default number of competitors to show per leaderboard table (default: 12)
-- `default_leaderboard_data_url`: URL endpoint for live competition data (has working default)
+## File Types
 
-### File Duration Control
+- **Images** (JPG, PNG): Display fullscreen (stretched to fill screen)
+- **Videos** (MP4, MOV): Play full length with audio  
+- **Leaderboards** (any filename containing "leaderboard.md"): Show live competition data
 
-**Method 1: Filename Prefixes (Recommended for Staff)**
-Add `[seconds]` to the beginning of filename:
+## Duration Control
 
-- `[30]important-announcement.jpg` → Shows for 30 seconds
-- `[5]quick-message.png` → Shows for 5 seconds  
-- `regular-image.jpg` → Uses default duration (10s)
-- `video.mp4` → Plays full length
+- **Filename**: `[30]image.jpg` = 30 seconds
+- **File description**: Add `duration: 15` to any file's description
+- **Default**: Uses global setting (10 seconds)
 
-**Method 2: File Description (Advanced)**
-Set duration by adding `duration: X` to the file's description:
+Files display **alphabetically** - use `01_`, `02_` prefixes to control order.
+
+## Leaderboards
+
+Create `.md` files with "leaderboard" in filename. Add config to file **description**:
 
 ```
-duration: 30
-Welcome to the climbing competition!
-This is the main announcement.
-```
-
-### Image Display Behavior
-
-**Full-Screen Stretch Mode:**
-- Images automatically fill the entire screen (no letterboxing/black bars)
-- Images are stretched or cropped as needed to fit display dimensions
-- Optimized for images that are already in the correct ratio for your display
-- Perfect for pre-designed graphics and announcements
-
-**File Naming for Organization:**
-- `01 welcome.jpg` - Use numbers for ordering
-- `02 announcement.png` - Files display in alphabetical order
-- `11 leaderboard kids.md` - Leaderboard files work with any naming
-
-## Content Types
-
-### Images
-- **Supported formats:** JPG, PNG, GIF, WebP
-- **Display:** Centered, scaled to fit screen
-- **Duration:** Configurable via filename or settings
-
-### Videos
-- **Supported formats:** MP4, WebM, MOV
-- **Display:** Fullscreen, plays audio
-- **Duration:** Full video length (auto-advances when finished)
-
-### Leaderboards
-
-Create leaderboard files with flexible naming:
-- `leaderboard_speed.md` 
-- `11 [15] leaderboard kids.md` (with numbering and custom duration)
-- `05 leaderboard_rainbow.md`
-- Any filename containing `leaderboard` and ending in `.md`
-
-Configure live data display by adding this to the file's **description**:
-
-```
-title: Speed Climbing Championship
-route_type: Official Speed
-limit: 12
-
-table: Male Open | Adults
-gender: Male
-category: open
-color: #cc0000
-
-table: Female Open | Adults
-gender: Female
-category: open
-color: #cc0000
-```
-
-**Live Data Integration:**
-- ✅ **Real-time data**: Connects to Google Apps Script endpoint for live competition results
-- ✅ **One-time loading**: Data fetched once at slideshow startup for optimal performance
-- ✅ **Shared dataset**: Same data used across all leaderboard slides with different filters
-- ✅ **Smart filtering**: Each leaderboard can show different categories/genders from the same dataset
-- ✅ **Auto-refresh**: Data refreshes when slideshow restarts
-
-**Global Configuration Options:**
-- `title`: Display title for the leaderboard
-- `route_type`: Filter by route type (see available routes below)
-- `limit`: Number of top competitors to show per table (default: 12)
-- `data_url`: Custom data source URL (optional, uses default competition data)
-
-**Available Route Types:**
-- `Official Speed` - Standard speed climbing route
-- `Youth Speed` - Youth-specific speed route
-- `Rainbow` - Rainbow route climbing
-
-**Table Configuration:**
-- `table`: Display name for the table/column header
-- `gender`: Filter by gender (see options below)
-- `category`: Filter by age category (see options below)  
-- `color`: Header background color (hex color code)
-- `limit`: Number of competitors for this specific table (optional)
-
-**Example with Different Table Limits:**
-```
-title: Speed Leaderboard
-route_type: Official Speed
+title: Speed Championship
 duration: 15
 
 table: Male Youth | 13-18yo
-gender: Male  
-category: youth
-color: #cc0000
-limit: 10
-
-table: Female Youth | 13-18yo
-gender: Female
-category: youth
-color: #cc0000
-limit: 14
-```
-
-**Available Gender Filters:**
-- `Male` - Show only male competitors
-- `Female` - Show only female competitors  
-- *(empty/blank)* - Show all genders
-
-**Available Category Filters:**
-- `open` - Open category (all ages, or shows all when used with gender filters)
-- `kids` - Kids category
-- `youth` - Youth category
-- `masters` - Masters category
-
-**Modern Styling Features:**
-- ✅ **Bracket formatting**: Text in parentheses like "(13-18yo)" appears smaller and right-aligned
-- ✅ **Modern design**: Gradient headers, improved typography, subtle animations  
-- ✅ **Per-table limits**: Each table can show different numbers of competitors
-- ✅ **Multi-column layouts**: Display multiple categories side-by-side
-- ✅ **Professional appearance**: Optimized for large displays and TV screens
-
-**Multiple Tables:** Add more `table:` sections to display multiple columns side-by-side.
-
-**Example Multi-Table Configuration:**
-```
-title: Youth Championships
-route_type: Official Speed
-limit: 10
-
-table: Male Youth | 13-18yo
 gender: Male
 category: youth
 color: #cc0000
-limit: 8
+limit: 10
 
 table: Female Youth | 13-18yo  
 gender: Female
 category: youth
 color: #cc0000
-limit: 12
+limit: 15
 ```
 
-## File Organization
+**Options:**
+- `gender`: Male, Female, or blank (all)
+- `category`: open, youth, kids, masters  
+- `color`: Header color (#cc0000)
+- `limit`: Number of competitors to show
 
-### Alphabetical Ordering
-Files are displayed alphabetically by name. Use prefixes to control order:
-- `01_opening.jpg`
-- `02_results.jpg`
-- `03_closing.jpg`
-- `leaderboard_speed.md`
+## Text Overlays
 
-### Title & Description Overlays
+Add text to images by editing the **file description** in Google Drive:
 
-Add text overlays by editing the **file description** in Google Drive:
+- **Single line**: Shows as description  
+- **Multiple lines**: First line = title, rest = description
 
-**Single paragraph:** Shows as description only
-```
-Great climbing performance today!
-```
-
-**Multiple paragraphs:** First = title, rest = description
-```
-Championship Results
-
-Final standings from today's competition.
-Congratulations to all participants!
-```
-
-## Folder Structure Example
+## Example Folder
 
 ```
-📁 My Slideshow Folder/
-├── settings.txt (description: "default_duration: 5")
+📁 Competition Slideshow/
+├── settings.txt (config in description)
 ├── 01_welcome.jpg
-├── [30]02_important-notice.png
-├── 03_climbing-video.mp4
-├── leaderboard_speed.md (description: leaderboard config)
-├── leaderboard_rainbow.md (description: leaderboard config)
-└── 04_closing.jpg
+├── [30]02_announcement.png  
+├── leaderboard_speed.md (config in description)
+└── 03_closing.mp4
 ```
 
 ## Troubleshooting
 
-### Images Not Loading
-- **Check folder sharing:** Must be "Anyone with the link can view"
-- **Verify API key:** Should only have Google Drive API enabled
-- **Check file formats:** Use standard web formats (JPG, PNG, MP4)
+- **Images not loading**: Check folder is public ("Anyone with link can view")
+- **Config not working**: Put settings in file **description**, not file content  
+- **Leaderboards not showing**: Filename must contain "leaderboard" and end with `.md`
 
-### Configuration Not Loading
-- **File descriptions:** Settings must be in file descriptions, not file contents
-- **Case sensitive:** Setting names like `default_duration` must be exact
-- **Syntax:** Use `key: value` format, one per line
+## TV Display Tips
 
-### Leaderboard Not Showing
-- **Filename format:** Must contain `leaderboard` and end with `.md` (flexible naming supported)
-- **Description format:** Use exact syntax shown above  
-- **Table configuration:** Each table needs `table:`, `gender:`, `category:`, `color:`
-- **Live data:** Check browser console (F12) for data loading errors
-
-## Advanced Configuration
-
-### URL Parameters
-```
-index.html?folder=FOLDER_ID&key=API_KEY&debug=true
-```
-
-### TV/Display Optimization
-- **Fullscreen:** Press F11 or use browser fullscreen mode
-- **Prevent sleep:** Disable computer sleep/screensaver
-- **Auto-start:** Set browser as startup application
-
-### Content Management Tips
-- **Staff training:** Show staff how to edit file descriptions for settings
-- **Duration testing:** Use short durations for testing, longer for production
-- **Backup config:** Keep a copy of your settings and leaderboard configurations
-
-## Support
-
-For technical issues:
-1. Check browser console (F12) for error messages
-2. Verify all files are accessible when logged out of Google
-3. Test API key with the Google APIs Explorer
-4. Ensure stable internet connection for Drive API calls
-
-## File Size Recommendations
-- **Images:** Under 5MB for fast loading
-- **Videos:** Under 50MB for reliable playback
-- **Total folder:** Monitor for smooth performance on TV browsers
-
-## Recent Updates (January 2025)
-
-### ✅ Latest Features  
-- **User-friendly variable names** - Settings now use clear, descriptive names like `default_slide_duration_seconds`
-- **Full-screen image display** - Images now stretch to fill entire screen (no letterboxing)
-- **Modern pipe separator** - Leaderboard titles use `Male Youth | 13-18yo` format instead of brackets
-- **Enhanced auto-reload** - Configurable slideshow refresh with `slideshow_auto_reload_minutes`
-- **Fixed slide content duplication** - Each slide now shows unique content
-- **Improved bracket formatting** - Secondary text in leaderboard headers displays properly
-- **Enhanced file type handling** - Better separation of image/video vs leaderboard processing
-- **Added comprehensive debugging** - Console logs help troubleshoot issues
-- **Optimized performance** - One-time data loading for better slideshow performance
-
-### 🔧 Technical Improvements
-- **Flexible filename detection** - Leaderboard files can use various naming patterns
-- **Smart description parsing** - Different handling for content types
-- **Better error handling** - Graceful fallbacks when data isn't available
-- **Live data integration** - Real-time competition data from Google Apps Script
-
----
-
-**Status:** This slideshow is production-ready with live data integration and modern styling. Perfect for climbing competitions and sports events!
+- Press F11 for fullscreen
+- Disable computer sleep mode  
+- Images fill entire screen (no black bars)
