@@ -4,19 +4,23 @@
 A fullscreen slideshow web application that displays content from a Google Drive folder on TV browsers. Supports images, videos, and dynamic leaderboards for climbing competitions.
 
 ## Current Implementation Status ✅
-- **Complete HTML slideshow** with Google Drive API integration
+- **Complete HTML slideshow** with Google OAuth integration
 - **Alphabetical file ordering** (user requirement)
 - **Custom duration control** via filename prefixes: `[30]image.jpg`
-- **Professional leaderboard styling** with bracket formatting: "Male Youth (13-18yo)"
+- **Professional leaderboard styling** with modern pipe formatting: "Male Youth | 13-18yo"
+- **Dynamic leaderboard backgrounds** with alternating left/right placement
 - **Live competition data integration** via Google Apps Script endpoint
 - **File description-based configuration** (no longer needs Google Sheets)
+- **OAuth authentication** with folder browser interface
+- **Auto-refresh with slideshow persistence** (no re-login required)
 - **Error handling** for access issues and missing files
 - **Fullscreen responsive design**
 - **Smooth transitions** between slides with fade effects
 - **Smart title/description parsing** from Google Drive file descriptions
 - **Flexible leaderboard filename detection** (any file containing "leaderboard")
 - **One-time data loading** for optimal performance during slideshow
-- **Fixed slide content duplication** and bracket formatting issues
+- **Keyboard controls** (Escape to exit, F11 fullscreen, manual navigation)
+- **Background image system** for enhanced leaderboard presentation
 
 ## Project Structure
 ```
@@ -45,18 +49,26 @@ video.mp4                 → Full length playback
 ```
 User chose this approach as "easiest for non-technical users"
 
-### 3. Leaderboard System
+### 3. Enhanced Leaderboard System ✅ UPDATED
 **Trigger Files:** Place `.md` files in Drive folder to trigger leaderboard slides
 - `leaderboard_speed.md` → Speed climbing leaderboard
 - `leaderboard_rainbow.md` → Rainbow route leaderboard  
 - `leaderboard_opens.md` → Opens category leaderboard
 
-**Visual Requirements from User Examples:**
-- Dual-column layout (Male/Female or different age groups)
-- Custom header colors per category (#cc0000 for Speed, #ff8800 for Rainbow)
-- Ranking numbers, competitor names, times
-- Professional styling with background climbing imagery
-- Sample data structure matches: `{ rank, name, time }`
+**Background Images:** Place images with `leaderboard_bg` in filename for dynamic backgrounds
+- `leaderboard_bg1.jpg` → Primary climbing background
+- `leaderboard_bg_action.png` → Action shot background
+- `leaderboard_bg_wall.jpg` → Climbing wall background
+
+**Enhanced Visual Features:**
+- **Dynamic layout**: 33% background area | 66% content area
+- **Alternating placement**: Backgrounds alternate left/right between slides
+- **Professional styling**: Full-height backgrounds with gradient fade effects
+- **Dual-column content**: Smart table distribution within content area
+- **Modern formatting**: Pipe separator format "Male Youth | 13-18yo"
+- **Custom colors**: Per-category header colors (#cc0000, #ff8800, etc.)
+- **Ranking display**: Numbers, names, times with professional styling
+- **Background cycling**: Multiple background images rotate automatically
 
 ### 4. Configuration System ✅ IMPLEMENTED
 **Method:** File descriptions in Google Drive (no external files needed)
@@ -83,11 +95,22 @@ color: #cc0000
 limit: 10
 ```
 
-### 5. URL Structure
+### 5. OAuth Authentication System ✅ IMPLEMENTED
+**User Experience:**
 ```
-index.html?folder=GOOGLE_DRIVE_FOLDER_ID&key=GOOGLE_API_KEY
+1. Open index.html → Google OAuth login screen
+2. Authenticate with Google Drive account
+3. Browse and select slideshow folder from interface
+4. Click green button to start slideshow
 ```
-**Note:** Config parameter no longer needed - uses file descriptions instead
+
+**Features:**
+- **Domain restriction**: Only authorized domains can access (configurable)
+- **Session persistence**: Authentication survives auto-refreshes
+- **Folder browser**: Search, sort, and preview folder contents
+- **Direct slideshow restart**: Auto-refresh resumes slideshow without re-login
+- **Escape key**: Exit slideshow and return to folder selection
+- **Clean logout**: Proper token revocation and state cleanup
 
 ### 6. Title/Description System ✅ IMPLEMENTED
 - Uses Google Drive file descriptions for overlay content
@@ -267,13 +290,14 @@ Target: **TV browsers** (often older, limited JavaScript support)
 **FULLY OPERATIONAL** - No blockers remaining
 
 ### 🔧 Current Working Configuration:
-- **Slideshow URL**: `index.html?folder=1lfEFF0OfRVj1w24LdsmT3grXGrn6-dJB&key=AIzaSyAL0c1mpOJImMGiDA6XtMV2aPA2mWgdrJE`
+- **Access Method**: OAuth authentication via `index.html` (no URL parameters needed)
 - **Live Data Endpoint**: `https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json`
 - **Configuration Method**: Google Drive file descriptions (no external APIs needed)
 - **Default Duration**: 10 seconds (configurable via `default_slide_duration_seconds` in settings.txt file description)
 - **Auto-reload**: 5 minutes (configurable via `slideshow_auto_reload_minutes`)
 - **Image Display**: Full-screen stretch mode (no letterboxing)
 - **Leaderboard Format**: Modern pipe separator - `Male Youth | 13-18yo`
+- **Background System**: Dynamic alternating backgrounds for leaderboard slides
 
 ### 📁 Final File Status:
 - `index.html` - **PRODUCTION READY** - Complete slideshow with all features working
@@ -282,6 +306,11 @@ Target: **TV browsers** (often older, limited JavaScript support)
 - `CLAUDE.md` - **UPDATED** - This handoff document with current status
 
 ### 🏆 Key Achievements:
+- **Implemented Google OAuth** replacing manual API key management
+- **Created dynamic leaderboard backgrounds** with alternating left/right placement
+- **Added slideshow persistence** through auto-refresh without re-login
+- **Built comprehensive folder browser** with search, sort, and preview
+- **Enhanced user experience** with Escape key navigation and clean state management
 - **Solved Google Sheets API issues** by implementing superior file description approach
 - **Fixed all reported bugs** including slide duplication and bracket formatting
 - **Integrated live competition data** with optimal performance architecture
@@ -290,4 +319,24 @@ Target: **TV browsers** (often older, limited JavaScript support)
 
 ---
 
-**Status: PRODUCTION READY ✅ - Slideshow is fully functional with live data integration, professional styling, and comprehensive documentation. Ready for deployment at climbing competitions and sports events.**
+## 🆕 Latest Development Session (January 2025) - OAuth & Enhanced Backgrounds
+
+### ✅ COMPLETED - Major Feature Updates:
+1. **Google OAuth Integration** - Replaced manual API key entry with secure OAuth flow
+2. **Folder Browser Interface** - Professional UI for folder selection with search/sort
+3. **Slideshow Persistence** - Auto-refresh maintains slideshow without re-authentication
+4. **Dynamic Leaderboard Backgrounds** - Alternating left/right placement with blur effects
+5. **Enhanced User Controls** - Escape key navigation, clean state management
+6. **Background Image System** - Supports `leaderboard_bg*` files for dynamic presentation
+7. **Improved Loading States** - Better spinners and visual feedback during transitions
+
+### 🎨 Enhanced Leaderboard System:
+- **33% background area** | **66% content area** layout
+- **Alternating sides**: Left → Right → Left pattern between slides
+- **Full-height backgrounds** with professional gradient fade effects
+- **Multiple background support**: Cycles through `leaderboard_bg1.jpg`, `leaderboard_bg2.png`, etc.
+- **Preserved functionality**: All existing features maintained
+
+---
+
+**Status: PRODUCTION READY ✅ - Slideshow now features OAuth authentication, dynamic backgrounds, and enhanced user experience. Complete system ready for professional deployment at climbing competitions and sports events.**
