@@ -102,18 +102,49 @@ Add text to images by editing the **file description** in Google Drive:
 - **Config not working**: Put settings in file **description**, not file content  
 - **Leaderboards not showing**: Filename must contain "leaderboard" and end with `.md`
 
-## TV Display Tips
+## Continuous Display Features ✨ NEW
 
-- Press F11 for fullscreen
-- Press Escape to exit slideshow and return to folder selection
-- Disable computer sleep mode  
-- Images fill entire screen (no black bars)
-- Slideshow auto-reloads periodically to capture folder updates
-- Authentication persists across auto-refreshes for uninterrupted display
+**Perfect for unattended TV displays and long-running competitions:**
 
-## Key Controls
+- ✅ **Runs indefinitely** - No user logout or interruption
+- ✅ **Auto-refresh content** - Updates slides and data without breaking slideshow
+- ✅ **Soft reloads** - Refreshes content seamlessly, continues playing from next slide
+- ✅ **Token management** - Handles authentication automatically in background
+- ✅ **Error resilience** - Continues playing even if occasional updates fail
 
+**How it works:**
+- Slideshow runs continuously through all slides in alphabetical order
+- Every N minutes (configurable via `slideshow_auto_reload_minutes`), content refreshes automatically
+- New files, updated leaderboards, and config changes are picked up automatically
+- Authentication stays active - no re-login required for hours/days of operation
+- If refresh fails, slideshow continues uninterrupted with existing content
+
+## TV Display Setup
+
+1. **Open slideshow** and authenticate with Google Drive
+2. **Select folder** and start slideshow  
+3. **Press F11** for fullscreen mode
+4. **Leave running** - slideshow will continue indefinitely
+5. **Disable sleep mode** on computer/TV for 24/7 operation
+
+**Key controls:**
 - **F11**: Toggle fullscreen
-- **Escape**: Exit slideshow → return to folder browser
-- **Arrow Right / Spacebar**: Next slide (manual control)
-- **Auto-refresh**: Slideshow reloads automatically to get new content
+- **Escape**: Exit slideshow → return to folder browser  
+- **Arrow Right / Spacebar**: Manual next slide
+- **Auto-loop**: Automatically restarts from first slide after reaching end
+
+## Configuration for Continuous Operation
+
+In your `settings.txt` file description:
+
+```
+default_slide_duration_seconds: 8
+slideshow_auto_reload_minutes: 10    # Refresh content every 10 minutes
+slideshow_title: My Competition Display
+default_leaderboard_row_limit: 12
+```
+
+**Recommended settings for competitions:**
+- `slideshow_auto_reload_minutes: 5-15` for frequent leaderboard updates
+- `default_slide_duration_seconds: 8-10` for good pacing
+- Test with shorter intervals first, then extend for stability

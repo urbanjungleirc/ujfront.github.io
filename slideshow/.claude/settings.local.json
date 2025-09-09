@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Read(C:\\Users\\Jiri\\Downloads/**)",
-      "Read(C:\\Users\\Jiri\\Downloads/**)"
+      "Read(C:\\Users\\Jiri\\Downloads/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)"
     ],
     "deny": [],
     "ask": []
