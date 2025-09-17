@@ -12,9 +12,10 @@ Fullscreen slideshow for TV displays with live speed leaderboards and dynamic ba
 
 ## Opening the slideshow
 
-1. **Google OAuth**: Open `https://tools.urbanjungleirc.com/slideshow/index.html` and authenticate with Google Drive  
-2. **Select Folder**: Choose your slideshow folder from the browser interface  
-3. **Start Slideshow**: Click the green button to begin the presentation
+1. **Google OAuth**: Open `https://tools.urbanjungleirc.com/slideshow/index.html` and authenticate with Google Drive
+2. **Previous Session Detection**: If you were previously running a slideshow, a popup will appear asking if you want to resume
+3. **Select Folder**: Choose your slideshow folder from the browser interface
+4. **Start Slideshow**: Click the green button to begin the presentation (automatically goes fullscreen)
 
 ## Configuration
 
@@ -24,6 +25,7 @@ Use the `settings.txt` file in the Google Drive folder and add the desired confi
 default_slide_duration_seconds: 10
 slideshow_auto_reload_minutes: 5
 default_leaderboard_row_limit: 12
+resume_session_timeout_seconds: 30
 ```
 
 Slides are always displayed **alphabetically** \- use `01_`, `02_` prefixes to control order.
@@ -141,18 +143,44 @@ limit: 15
 
 ## TV Display Setup
 
-1. **Open slideshow** and authenticate with Google Drive  
-2. **Select folder** and start slideshow  
-3. **Automatic fullscreen** \- slideshow automatically enters fullscreen mode when started  
-4. **Leave running** \- slideshow will continue indefinitely  
+1. **Open slideshow** and authenticate with Google Drive
+2. **Resume previous session** (if available) or **select folder** for new slideshow
+3. **Start slideshow** \- automatically enters fullscreen mode when started
+4. **Leave running** \- slideshow will continue indefinitely
 5. **Disable sleep mode** on computer/TV for 24/7 operation
 
 **Key controls:**
 
-- **F11**: Toggle fullscreen  
-- **Escape**: Exit slideshow → return to folder browser  
-- **Arrow Right / Spacebar**: Manual next slide  
+- **F11**: Toggle fullscreen
+- **Escape**: Exit slideshow → return to folder browser
+- **Arrow Right / Spacebar**: Manual next slide
 - **Auto-loop**: Automatically restarts from first slide after reaching end
+
+## Resume Session Feature
+
+**Perfect for multi-tab workflows and unattended displays:**
+
+When you reopen the slideshow (browser refresh, new tab, etc.), the system automatically detects if you were previously running a slideshow and shows a **resume session popup**:
+
+- **Shows folder name** so you know which session you're resuming
+- **Two options**: "Resume Slideshow" or "Start Fresh Session"
+- **Auto-timeout**: Automatically resumes after configurable seconds (default: 30)
+- **Multi-tab safe**: Each browser tab operates independently
+
+**Use cases:**
+
+- **Staff present**: Choose "Resume" or "Start Fresh" manually
+- **Unattended TV**: Auto-resumes after timeout for continuous operation
+- **Multiple tabs**: Different slideshows can run in different tabs
+- **Browser refresh**: Seamlessly continues where you left off
+
+**Configuration:**
+
+```
+resume_session_timeout_seconds: 30   # Auto-resume after 30 seconds
+resume_session_timeout_seconds: 10   # Quick resume for competitions
+resume_session_timeout_seconds: 0    # Manual choice only (no auto-resume)
+```
 
 ## Configuration for Continuous Operation
 
@@ -163,11 +191,13 @@ default_slide_duration_seconds: 8
 slideshow_auto_reload_minutes: 10    # Refresh content every 10 minutes
 slideshow_title: My Competition Display
 default_leaderboard_row_limit: 12
+resume_session_timeout_seconds: 30   # Auto-resume previous session after 30 seconds
 ```
 
 **Recommended settings for competitions:**
 
-- `slideshow_auto_reload_minutes: 5-15` for frequent leaderboard updates  
-- `default_slide_duration_seconds: 8-10` for good pacing  
+- `slideshow_auto_reload_minutes: 5-15` for frequent leaderboard updates
+- `default_slide_duration_seconds: 8-10` for good pacing
+- `resume_session_timeout_seconds: 10-30` for unattended displays (0 = manual choice only)
 - Test with shorter intervals first, then extend for stability
 

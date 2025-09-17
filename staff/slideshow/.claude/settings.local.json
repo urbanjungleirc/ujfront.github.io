@@ -11,7 +11,8 @@
       "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
       "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
       "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
-      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)"
+      "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
+      "Read(//c/Users/Jiri/Downloads/**)"
     ],
     "deny": [],
     "ask": []
