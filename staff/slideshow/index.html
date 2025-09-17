@@ -77,10 +77,10 @@
 
         #title-overlay {
             position: absolute;
-            bottom: 120px;
+            bottom: 100px;
             left: 50px;
             right: 50px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             padding: 20px 30px;
             border-radius: 10px;
             font-size: 2.5rem;
@@ -98,13 +98,13 @@
 
         #description-overlay {
             position: absolute;
-            bottom: 50px;
+            bottom: 20px;
             left: 50px;
             right: 50px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.6);
             padding: 15px 30px;
             border-radius: 8px;
-            font-size: 1.5rem;
+            font-size: 2.5rem;
             text-align: center;
             opacity: 0;
             transform: translateY(20px);
@@ -1283,6 +1283,14 @@
                     return;
                 }
 
+                // Request fullscreen before starting slideshow
+                try {
+                    await document.documentElement.requestFullscreen();
+                } catch (error) {
+                    // Continue anyway if fullscreen fails (older browsers, permissions, etc.)
+                    console.log('Fullscreen request failed:', error.message);
+                }
+
                 // Save folder selection and mark slideshow as active
                 localStorage.setItem('ujSlideshow_folder', JSON.stringify(this.selectedFolder));
                 localStorage.setItem('ujSlideshow_active', 'true');
@@ -1641,43 +1649,31 @@
                 }
 
                 let duration = null;
-                let title = null;
                 let lines = description.split('\n').map(line => line.trim()).filter(line => line);
                 let contentLines = [];
 
-                // Look for settings in description (title, duration, etc.)
+                // Look for settings in description and filter them out
                 for (const line of lines) {
                     if (line.toLowerCase().startsWith('duration:')) {
                         const durationValue = line.split(':')[1];
                         if (durationValue) {
                             duration = parseInt(durationValue.trim()) || null;
                         }
-                    } else if (line.toLowerCase().startsWith('title:')) {
-                        const titleValue = line.split(':')[1];
-                        if (titleValue) {
-                            title = titleValue.trim();
-                        }
-                    } else if (!line.includes(':') || line.startsWith('#')) {
-                        // Only include lines that aren't configuration settings
+                    } else if (line.includes(':') && !line.startsWith('#')) {
+                        // Skip configuration lines (contain colon but not comments)
+                        continue;
+                    } else if (!line.startsWith('#')) {
+                        // Include non-comment, non-setting lines as content
                         contentLines.push(line);
                     }
                 }
 
-                // If we found a title in the config, use it
-                if (title) {
-                    return { 
-                        title: title, 
-                        description: contentLines.length > 0 ? contentLines.join('\n') : null,
-                        duration
-                    };
-                }
-
-                // Otherwise, process remaining content as title/description
+                // Apply new logic: first line = title, rest = description
                 if (contentLines.length === 0) {
                     return { title: null, description: null, duration };
                 } else if (contentLines.length === 1) {
-                    // If only one line, use it as description (no title)
-                    return { title: null, description: contentLines[0], duration };
+                    // Single line becomes title only
+                    return { title: contentLines[0], description: null, duration };
                 } else {
                     // First line as title, rest as description
                     return { 
