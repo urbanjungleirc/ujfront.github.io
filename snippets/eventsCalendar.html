@@ -178,6 +178,11 @@
                 if (eventNameLower.includes('booking')) {
                     // Add "(Full)" if B'day event is already booked out = event has 0 or more than 1 space left
                     eventTitle += event.spaces_available == 1 ? '' : ' (Full)';
+                } else if (eventNameLower.includes('Lead Course')) {
+                    // Add "(Full)" if Lead Course is full
+                    if (event.event_full) {
+                        eventTitle += ' (Full)';
+                    } 
                 } else {
                     // Add "(Full)" if other events are full or add "(# of spaces left)" if event is not full
                     if (event.event_full) {
