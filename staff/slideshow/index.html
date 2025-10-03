@@ -77,10 +77,10 @@
 
         #title-overlay {
             position: absolute;
-            bottom: 120px;
+            bottom: 100px;
             left: 50px;
             right: 50px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             padding: 20px 30px;
             border-radius: 10px;
             font-size: 2.5rem;
@@ -98,13 +98,13 @@
 
         #description-overlay {
             position: absolute;
-            bottom: 50px;
+            bottom: 20px;
             left: 50px;
             right: 50px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.6);
             padding: 15px 30px;
             border-radius: 8px;
-            font-size: 1.5rem;
+            font-size: 2.5rem;
             text-align: center;
             opacity: 0;
             transform: translateY(20px);
@@ -317,6 +317,116 @@
             min-width: 100px;
         }
 
+        /* Resume Session Popup */
+        .resume-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .resume-popup-content {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .resume-popup-content h2 {
+            font-family: 'FatFrank', sans-serif;
+            color: #f3f4f6;
+            margin-bottom: 15px;
+            font-size: 2rem;
+            text-transform: uppercase;
+        }
+
+        .resume-popup-content p {
+            color: #d1d5db;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .resume-popup .folder-icon {
+            font-size: 24px;
+            color: #3b82f6;
+        }
+
+        #resume-folder-name {
+            font-weight: 600;
+            color: #f3f4f6;
+            font-size: 18px;
+        }
+
+        .auto-resume-text {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+            color: #60a5fa;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        #countdown {
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .resume-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .resume-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            text-transform: none;
+        }
+
+        .resume-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .resume-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .resume-secondary {
+            background: #6b7280;
+            color: #f3f4f6;
+            border: 1px solid #9ca3af;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .resume-secondary:hover {
+            transform: translateY(-2px);
+            background: #9ca3af;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
 
         /* Authentication Interface */
         #auth-container {
@@ -464,10 +574,11 @@
 
         .folders-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-            max-height: 55vh;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 6px;
+            max-height: 65vh;
             overflow-y: auto;
+            padding: 5px;
         }
 
         .folder-item {
@@ -494,26 +605,43 @@
             background: rgba(16, 185, 129, 0.2);
         }
 
+        .folder-item.selected .folder-info h3 {
+            color: white;
+        }
+
+        .folder-item.selected .folder-info p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
         .folder-icon {
-            font-size: 1.8rem;
-            color: #3b82f6;
+            font-size: 1.1rem;
+            color: #f6d55c;
             flex-shrink: 0;
         }
 
+        .folder-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .folder-info h3 {
-            color: #f3f4f6;
-            margin: 0 0 4px 0;
-            font-size: 1rem;
-            line-height: 1.3;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
+            color: #f7fafc;
+            margin: 0 0 1px 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .folder-info p {
-            color: #d1d5db;
-            font-size: 0.85rem;
+            color: #9ca6b5;
+            font-size: 0.7rem;
             margin: 0;
-            opacity: 0.8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .start-slideshow-btn {
@@ -716,6 +844,29 @@
         </div>
     </div>
 
+    <!-- Resume Session Popup -->
+    <div id="resume-popup" class="resume-popup" style="display: none;">
+        <div class="resume-popup-content">
+            <h2>Resume Session?</h2>
+            <p>Previous slideshow session found:</p>
+            <div class="folder-info">
+                <span class="folder-icon">📁</span>
+                <span id="resume-folder-name"></span>
+            </div>
+            <div id="auto-resume-text" class="auto-resume-text">
+                Auto-resuming in <span id="countdown">30</span> seconds...
+            </div>
+            <div class="resume-buttons">
+                <button id="resume-slideshow-btn" class="resume-btn resume-primary">
+                    Resume Slideshow
+                </button>
+                <button id="start-fresh-btn" class="resume-btn resume-secondary">
+                    Start Fresh Session
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Folder Browser Interface -->
     <div id="folder-browser">
         <div class="browser-header">
@@ -774,6 +925,107 @@
     <div id="error-message" style="display:none;"></div>
 
     <script>
+        // Global variables for resume session
+        let resumeTimeoutId = null;
+
+        // Resume Session Popup Functions
+        function showResumeSessionPopup(folderData, authData, timeoutSeconds) {
+            // Hide other interfaces
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('folder-browser').style.display = 'none';
+            document.getElementById('slideshow-container').style.display = 'none';
+
+            // Show popup
+            document.getElementById('resume-popup').style.display = 'flex';
+            document.getElementById('resume-folder-name').textContent = folderData.name;
+
+            // Handle timeout (0 = disabled)
+            if (timeoutSeconds > 0) {
+                let remainingTime = timeoutSeconds;
+                document.getElementById('countdown').textContent = remainingTime;
+
+                const countdownInterval = setInterval(() => {
+                    remainingTime--;
+                    document.getElementById('countdown').textContent = remainingTime;
+
+                    if (remainingTime <= 0) {
+                        clearInterval(countdownInterval);
+                        resumeSlideshow(folderData, authData);
+                    }
+                }, 1000);
+
+                // Store interval for cleanup
+                resumeTimeoutId = countdownInterval;
+            } else {
+                // Hide countdown if timeout is disabled
+                document.getElementById('auto-resume-text').style.display = 'none';
+            }
+
+            // Button event listeners
+            document.getElementById('resume-slideshow-btn').onclick = () => {
+                clearResumeTimeout();
+                resumeSlideshow(folderData, authData);
+            };
+
+            document.getElementById('start-fresh-btn').onclick = () => {
+                clearResumeTimeout();
+                startFreshSession();
+            };
+        }
+
+        function clearResumeTimeout() {
+            if (resumeTimeoutId) {
+                clearInterval(resumeTimeoutId);
+                resumeTimeoutId = null;
+            }
+        }
+
+        async function resumeSlideshow(folderData, authData) {
+            // Hide popup
+            document.getElementById('resume-popup').style.display = 'none';
+
+            try {
+                // Initialize DriveAuth object for Escape key functionality
+                window.driveAuth = new DriveAuth();
+                window.driveAuth.accessToken = authData.token;
+                window.driveAuth.selectedFolder = folderData;
+
+                // Hide all interfaces and start slideshow directly
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('folder-browser').style.display = 'none';
+                document.getElementById('slideshow-container').style.display = 'flex';
+                document.getElementById('loading').style.display = 'block';
+
+                // Initialize slideshow directly (like the original working code)
+                window.slideshow = new DriveSlideshow();
+                window.slideshow.folderId = folderData.id;
+                window.slideshow.accessToken = authData.token;
+                await window.slideshow.init();
+            } catch (error) {
+                console.error('Failed to resume slideshow:', error);
+                // Fallback to fresh session
+                startFreshSession();
+            }
+        }
+
+        function startFreshSession() {
+            // Hide popup
+            document.getElementById('resume-popup').style.display = 'none';
+
+            // Clear saved session data
+            localStorage.removeItem('ujSlideshow_folder');
+            localStorage.removeItem('ujSlideshow_active');
+
+            // Start fresh OAuth flow (don't interfere with existing DriveAuth)
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('folder-browser').style.display = 'none';
+            document.getElementById('slideshow-container').style.display = 'none';
+
+            // Initialize fresh OAuth
+            window.driveAuth = new DriveAuth();
+            window.driveAuth.init();
+        }
+
         // OAuth Authentication Class
         class DriveAuth {
             constructor() {
@@ -1283,6 +1535,14 @@
                     return;
                 }
 
+                // Request fullscreen before starting slideshow
+                try {
+                    await document.documentElement.requestFullscreen();
+                } catch (error) {
+                    // Continue anyway if fullscreen fails (older browsers, permissions, etc.)
+                    console.log('Fullscreen request failed:', error.message);
+                }
+
                 // Save folder selection and mark slideshow as active
                 localStorage.setItem('ujSlideshow_folder', JSON.stringify(this.selectedFolder));
                 localStorage.setItem('ujSlideshow_active', 'true');
@@ -1338,7 +1598,8 @@
                     slideshow_title: "Slideshow",
                     slideshow_auto_reload_minutes: 5,
                     default_leaderboard_data_url: 'https://script.google.com/macros/s/AKfycbwBLixPo5OGRVEraXVgdbe_Crndrt9KdypZVb13RZFM-ul6XLO4lR3npHk2FLf2tM0WQw/exec?json',
-                    default_leaderboard_row_limit: 12
+                    default_leaderboard_row_limit: 12,
+                    resume_session_timeout_seconds: 30
                 };
                 this.slides = [];
                 this.backgroundImages = [];
@@ -1471,6 +1732,9 @@
                                 break;
                             case 'default_leaderboard_row_limit':
                                 this.config.default_leaderboard_row_limit = parseInt(value) || 12;
+                                break;
+                            case 'resume_session_timeout_seconds':
+                                this.config.resume_session_timeout_seconds = parseInt(value) || 30;
                                 break;
                         }
                     }
@@ -1641,43 +1905,31 @@
                 }
 
                 let duration = null;
-                let title = null;
                 let lines = description.split('\n').map(line => line.trim()).filter(line => line);
                 let contentLines = [];
 
-                // Look for settings in description (title, duration, etc.)
+                // Look for settings in description and filter them out
                 for (const line of lines) {
                     if (line.toLowerCase().startsWith('duration:')) {
                         const durationValue = line.split(':')[1];
                         if (durationValue) {
                             duration = parseInt(durationValue.trim()) || null;
                         }
-                    } else if (line.toLowerCase().startsWith('title:')) {
-                        const titleValue = line.split(':')[1];
-                        if (titleValue) {
-                            title = titleValue.trim();
-                        }
-                    } else if (!line.includes(':') || line.startsWith('#')) {
-                        // Only include lines that aren't configuration settings
+                    } else if (line.includes(':') && !line.startsWith('#')) {
+                        // Skip configuration lines (contain colon but not comments)
+                        continue;
+                    } else if (!line.startsWith('#')) {
+                        // Include non-comment, non-setting lines as content
                         contentLines.push(line);
                     }
                 }
 
-                // If we found a title in the config, use it
-                if (title) {
-                    return { 
-                        title: title, 
-                        description: contentLines.length > 0 ? contentLines.join('\n') : null,
-                        duration
-                    };
-                }
-
-                // Otherwise, process remaining content as title/description
+                // Apply new logic: first line = title, rest = description
                 if (contentLines.length === 0) {
                     return { title: null, description: null, duration };
                 } else if (contentLines.length === 1) {
-                    // If only one line, use it as description (no title)
-                    return { title: null, description: contentLines[0], duration };
+                    // Single line becomes title only
+                    return { title: contentLines[0], description: null, duration };
                 } else {
                     // First line as title, rest as description
                     return { 
@@ -2351,35 +2603,24 @@
             const wasInSlideshow = localStorage.getItem('ujSlideshow_active');
             
             if (savedAuth && savedFolder && wasInSlideshow === 'true') {
-                // Direct slideshow restart - skip folder browser
-                
+                // Check for previous session - show resume popup if valid
+
                 try {
                     const authData = JSON.parse(savedAuth);
                     const folderData = JSON.parse(savedFolder);
-                    
+
                     // Check if auth is still valid
                     if (authData.expiry > Date.now()) {
-                        // Initialize DriveAuth object for Escape key functionality
-                        window.driveAuth = new DriveAuth();
-                        window.driveAuth.accessToken = authData.token;
-                        window.driveAuth.selectedFolder = folderData;
-                        
-                        // Hide all interfaces and start slideshow directly
-                        document.getElementById('auth-container').style.display = 'none';
-                        document.getElementById('folder-browser').style.display = 'none';
-                        document.getElementById('slideshow-container').style.display = 'flex';
-                        document.getElementById('loading').style.display = 'block';
-                        
-                        // Initialize slideshow directly
-                        window.slideshow = new DriveSlideshow();
-                        window.slideshow.folderId = folderData.id;
-                        window.slideshow.accessToken = authData.token;
-                        await window.slideshow.init();
-                        return;
+                        // Quick validation - just check if we have the necessary data
+                        if (authData.token && folderData.id && folderData.name) {
+                            // Show resume popup with default timeout (we'll load config after user choice)
+                            showResumeSessionPopup(folderData, authData, 30); // Default 30 seconds
+                            return;
+                        }
                     }
                 } catch (error) {
-                    // Failed to restart slideshow directly
-                    // Fall through to normal OAuth flow
+                    // Failed to parse session data - fall through to normal OAuth flow
+                    console.log('Session parsing failed:', error.message);
                 }
             }
             
