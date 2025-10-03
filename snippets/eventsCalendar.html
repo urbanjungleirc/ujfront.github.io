@@ -186,7 +186,8 @@
                     if (event.event_full) {
                         eventTitle += ' (Full)';
                     } else {
-                        eventTitle += ' (' + event.spaces_available + ' spot/s)';
+                        eventTitle += ' (' + event.spaces_available + ' spot ';
+                        eventTitle += event.spaces_available == 1 ? ')' : 's)'; // plural
                     }
                 }
 
@@ -237,7 +238,7 @@
                 initialView: 'listWeek',
                 events: calendarEvents,
                 themeSystem: 'bootstrap5',
-                height: 800,
+                height: 900,
                 validRange: {
                     start: formatDate(minDate),
                     end: formatDate(addDays(maxDate, 1)) // Add 1 day to include the last event date
