@@ -180,15 +180,13 @@
                     eventTitle += event.spaces_available == 1 ? '' : ' (Full)';
                 } else if (eventNameLower.includes('lead') && eventNameLower.includes('course')) {
                     // Add "(Full)" if Lead Course is full
-                    if (event.event_full) {
-                        eventTitle += ' (Full)';
-                    } 
+                    eventTitle += event.event_full ? ' (Full)' : '';
                 } else {
                     // Add "(Full)" if other events are full or add "(# of spaces left)" if event is not full
                     if (event.event_full) {
                         eventTitle += ' (Full)';
                     } else {
-                        eventTitle += ' (' + event.spaces_available + ' spots)';
+                        eventTitle += ' (' + event.spaces_available + ' spot/s)';
                     }
                 }
 
