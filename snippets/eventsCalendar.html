@@ -178,7 +178,7 @@
                 if (eventNameLower.includes('booking')) {
                     // Add "(Full)" if B'day event is already booked out = event has 0 or more than 1 space left
                     eventTitle += event.spaces_available == 1 ? '' : ' (Full)';
-                } else if (eventNameLower.includes('lead course')) {
+                } else if (eventNameLower.includes('lead') && eventNameLower.includes('course')) {
                     // Add "(Full)" if Lead Course is full
                     if (event.event_full) {
                         eventTitle += ' (Full)';
@@ -191,7 +191,6 @@
                         eventTitle += ' (' + event.spaces_available + ' spots)';
                     }
                 }
-
 
                 // Set the event URL only if the event is not full or the name contains "Booking Slot" which is booked
                 let eventUrl;
