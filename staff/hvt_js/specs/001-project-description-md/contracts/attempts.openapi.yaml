@@ -1,0 +1,336 @@
+openapi: 3.0.3
+info:
+  title: HVT Attempts API
+  version: 1.0.0
+  description: API for recording climber performance data (offline-first with sync)
+
+servers:
+  - url: https://{project_id}.supabase.co/rest/v1
+    description: Supabase REST API
+    variables:
+      project_id:
+        default: your-project-id
+
+paths:
+  /attempts:
+    get:
+      summary: Get attempts for a session
+      operationId: getAttempts
+      tags:
+        - attempts
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: climber_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by specific climber
+      responses:
+        '200':
+          description: List of attempts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attempt'
+
+    put:
+      summary: Upsert attempts (batch offline sync - FR-027)
+      operationId: upsertAttempts
+      tags:
+        - attempts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attempts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AttemptUpsert'
+                  maxItems: 100
+                  description: Batch limit 100 for performance
+              required:
+                - attempts
+      responses:
+        '200':
+          description: Attempts upserted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  upserted:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attempt'
+                  conflicts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConflictReport'
+                    description: Attempts rejected due to newer server version (FR-029)
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /attempts/increment:
+    post:
+      summary: Increment attempt count (convenience endpoint)
+      operationId: incrementAttempt
+      tags:
+        - attempts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncrementRequest'
+      responses:
+        '200':
+          description: Count incremented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attempt'
+        '400':
+          description: Validation error
+
+  /rpc/calculate_session_scores:
+    post:
+      summary: Calculate scores for all climbers in session
+      operationId: calculateSessionScores
+      tags:
+        - attempts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                p_session_id:
+                  type: string
+                  format: uuid
+              required:
+                - p_session_id
+      responses:
+        '200':
+          description: Calculated scores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    climber_id:
+                      type: string
+                      format: uuid
+                    climber_name:
+                      type: string
+                    total_score:
+                      type: number
+                    breakdown:
+                      type: object
+                      description: Points by send type
+                      properties:
+                        flash_points:
+                          type: number
+                        top_points:
+                          type: number
+                        attempt_points:
+                          type: number
+
+components:
+  schemas:
+    Attempt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        climber_id:
+          type: string
+          format: uuid
+        grade:
+          type: string
+          pattern: '^V([0-9]|1[0-7])$'
+          description: Boulder grade (V0-V17)
+        send_type:
+          type: string
+          enum: [flash, top, attempt]
+        count:
+          type: integer
+          minimum: 0
+        updated_at:
+          type: string
+          format: date-time
+          description: For conflict resolution (FR-029)
+      required:
+        - id
+        - session_id
+        - climber_id
+        - grade
+        - send_type
+        - count
+        - updated_at
+
+    AttemptUpsert:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        climber_id:
+          type: string
+          format: uuid
+        grade:
+          type: string
+          pattern: '^V([0-9]|1[0-7])$'
+        send_type:
+          type: string
+          enum: [flash, top, attempt]
+        count:
+          type: integer
+          minimum: 0
+        updated_at:
+          type: string
+          format: date-time
+          description: Client timestamp for conflict resolution
+      required:
+        - session_id
+        - climber_id
+        - grade
+        - send_type
+        - count
+        - updated_at
+
+    IncrementRequest:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        climber_id:
+          type: string
+          format: uuid
+        grade:
+          type: string
+          pattern: '^V([0-9]|1[0-7])$'
+        send_type:
+          type: string
+          enum: [flash, top, attempt]
+        delta:
+          type: integer
+          description: Amount to increment (+) or decrement (-)
+          example: 5
+      required:
+        - session_id
+        - climber_id
+        - grade
+        - send_type
+        - delta
+
+    ConflictReport:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        climber_id:
+          type: string
+          format: uuid
+        grade:
+          type: string
+        send_type:
+          type: string
+        reason:
+          type: string
+          enum: [stale_timestamp, newer_server_version]
+        client_timestamp:
+          type: string
+          format: date-time
+        server_timestamp:
+          type: string
+          format: date-time
+      required:
+        - session_id
+        - climber_id
+        - grade
+        - send_type
+        - reason
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+      required:
+        - code
+        - message
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+x-realtime-subscriptions:
+  description: Supabase Realtime configuration for attempts table
+  channels:
+    attempts:
+      event_types:
+        - INSERT
+        - UPDATE
+        - DELETE
+      filter: session_id=eq.{session_id}
+      schema: public
+      table: attempts
+      payload:
+        type: object
+        properties:
+          eventType:
+            type: string
+            enum: [INSERT, UPDATE, DELETE]
+          new:
+            $ref: '#/components/schemas/Attempt'
+          old:
+            $ref: '#/components/schemas/Attempt'
+            nullable: true
+      example_subscription:
+        javascript: |
+          const subscription = supabase
+            .channel(`attempts:${sessionId}`)
+            .on('postgres_changes', {
+              event: '*',
+              schema: 'public',
+              table: 'attempts',
+              filter: `session_id=eq.${sessionId}`
+            }, (payload) => {
+              console.log('Attempt changed:', payload);
+              // Update UI with new data
+            })
+            .subscribe();

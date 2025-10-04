@@ -1,0 +1,463 @@
+openapi: 3.0.3
+info:
+  title: HVT Sessions API
+  version: 1.0.0
+  description: API for managing climbing training sessions
+
+servers:
+  - url: https://{project_id}.supabase.co/rest/v1
+    description: Supabase REST API
+    variables:
+      project_id:
+        default: your-project-id
+
+paths:
+  /sessions:
+    get:
+      summary: List all sessions
+      operationId: listSessions
+      tags:
+        - sessions
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived]
+          description: Filter by session status
+        - name: order
+          in: query
+          schema:
+            type: string
+            default: date.desc
+          description: Sort order
+      responses:
+        '200':
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+
+    post:
+      summary: Create a new session
+      operationId: createSession
+      tags:
+        - sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict - active session already exists (FR-010)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{id}:
+    get:
+      summary: Get session by ID
+      operationId: getSession
+      tags:
+        - sessions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionWithClimbers'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      summary: Update session (e.g., scoring config mid-session - FR-032)
+      operationId: updateSession
+      tags:
+        - sessions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionRequest'
+      responses:
+        '200':
+          description: Session updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Session not found
+
+    delete:
+      summary: Delete archived session (FR-007)
+      operationId: deleteSession
+      tags:
+        - sessions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Session deleted successfully
+        '400':
+          description: Cannot delete active session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Session not found
+
+  /sessions/{id}/clone:
+    post:
+      summary: Clone session (FR-002)
+      operationId: cloneSession
+      tags:
+        - sessions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                date:
+                  type: string
+                  format: date
+              required:
+                - name
+                - date
+      responses:
+        '201':
+          description: Cloned session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '404':
+          description: Source session not found
+        '409':
+          description: Active session already exists
+
+  /sessions/{id}/archive:
+    post:
+      summary: Archive session (FR-003)
+      operationId: archiveSession
+      tags:
+        - sessions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmation_name:
+                  type: string
+                  description: Must match session name for confirmation
+              required:
+                - confirmation_name
+      responses:
+        '200':
+          description: Session archived successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Confirmation name mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Session not found
+
+  /sessions/{id}/reset:
+    post:
+      summary: Reset session - archives current, creates new with same config (FR-003)
+      operationId: resetSession
+      tags:
+        - sessions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmation_name:
+                  type: string
+                  description: Must match session name for confirmation
+              required:
+                - confirmation_name
+      responses:
+        '201':
+          description: New session created, old archived
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archived_session:
+                    $ref: '#/components/schemas/Session'
+                  new_session:
+                    $ref: '#/components/schemas/Session'
+        '400':
+          description: Confirmation name mismatch
+        '404':
+          description: Session not found
+
+components:
+  schemas:
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date:
+          type: string
+          format: date
+        grade_range:
+          type: array
+          items:
+            type: string
+            pattern: '^V([0-9]|1[0-7])$'
+          minItems: 1
+          description: Array of enabled grades (e.g., ['V0', 'V1', ..., 'V10'])
+        scoring_config:
+          type: object
+          description: Point values per grade and send type
+          additionalProperties:
+            type: object
+            properties:
+              flash:
+                type: number
+                minimum: 0
+              top:
+                type: number
+                minimum: 0
+              attempt:
+                type: number
+                minimum: 0
+            required: [flash, top, attempt]
+          example:
+            V5:
+              flash: 10
+              top: 5
+              attempt: 1
+            V6:
+              flash: 12
+              top: 6
+              attempt: 1
+        status:
+          type: string
+          enum: [active, archived]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - date
+        - grade_range
+        - scoring_config
+        - status
+        - created_at
+        - updated_at
+
+    SessionWithClimbers:
+      allOf:
+        - $ref: '#/components/schemas/Session'
+        - type: object
+          properties:
+            climbers:
+              type: array
+              items:
+                $ref: '#/components/schemas/Climber'
+
+    Climber:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+      required:
+        - id
+        - name
+
+    CreateSessionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date:
+          type: string
+          format: date
+        grade_range:
+          type: array
+          items:
+            type: string
+            pattern: '^V([0-9]|1[0-7])$'
+          minItems: 1
+        scoring_config:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              flash:
+                type: number
+                minimum: 0
+              top:
+                type: number
+                minimum: 0
+              attempt:
+                type: number
+                minimum: 0
+            required: [flash, top, attempt]
+        climber_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          description: At least one climber required (FR-004)
+      required:
+        - name
+        - date
+        - grade_range
+        - scoring_config
+        - climber_ids
+
+    UpdateSessionRequest:
+      type: object
+      properties:
+        scoring_config:
+          type: object
+          description: Update scoring mid-session (FR-032)
+          additionalProperties:
+            type: object
+            properties:
+              flash:
+                type: number
+                minimum: 0
+              top:
+                type: number
+                minimum: 0
+              attempt:
+                type: number
+                minimum: 0
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+      required:
+        - code
+        - message
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token (obtained via Cloudflare Zero Trust)
+
+security:
+  - BearerAuth: []
