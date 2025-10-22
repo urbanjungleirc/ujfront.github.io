@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: HVT Class Lists API
+  version: 1.0.0
+  description: API for managing pre-defined climber groups (FR-051, FR-052)
+
+servers:
+  - url: https://{project_id}.supabase.co/rest/v1
+    description: Supabase REST API
+    variables:
+      project_id:
+        default: your-project-id
+
+paths:
+  /class_lists:
+    get:
+      summary: List all class lists
+      operationId: listClassLists
+      tags:
+        - class-lists
+      parameters:
+        - name: order
+          in: query
+          schema:
+            type: string
+            default: name.asc
+          description: Sort order
+      responses:
+        '200':
+          description: List of class lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassList'
+
+    post:
+      summary: Create a new class list
+      operationId: createClassList
+      tags:
+        - class-lists
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClassListRequest'
+      responses:
+        '201':
+          description: Class list created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassList'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Class list with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /class_lists/{id}:
+    get:
+      summary: Get class list by ID with climber details
+      operationId: getClassList
+      tags:
+        - class-lists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Class list details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassListWithClimbers'
+        '404':
+          description: Class list not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update class list
+      operationId: updateClassList
+      tags:
+        - class-lists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClassListRequest'
+      responses:
+        '200':
+          description: Class list updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassList'
+        '400':
+          description: Validation error
+        '404':
+          description: Class list not found
+        '409':
+          description: Name already exists
+
+    delete:
+      summary: Delete class list
+      operationId: deleteClassList
+      tags:
+        - class-lists
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Class list deleted successfully
+        '404':
+          description: Class list not found
+
+  /climbers:
+    get:
+      summary: List all climbers (for class list creation)
+      operationId: listClimbers
+      tags:
+        - climbers
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name
+      responses:
+        '200':
+          description: List of climbers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Climber'
+
+    post:
+      summary: Create a new climber
+      operationId: createClimber
+      tags:
+        - climbers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClimberRequest'
+      responses:
+        '201':
+          description: Climber created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Climber'
+        '400':
+          description: Validation error
+        '409':
+          description: Climber with same name/email already exists
+
+components:
+  schemas:
+    ClassList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        climber_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - climber_ids
+        - created_at
+        - updated_at
+
+    ClassListWithClimbers:
+      allOf:
+        - $ref: '#/components/schemas/ClassList'
+        - type: object
+          properties:
+            climbers:
+              type: array
+              items:
+                $ref: '#/components/schemas/Climber'
+              description: Full climber objects resolved from climber_ids
+
+    Climber:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+
+    CreateClassListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        climber_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          description: At least one climber required
+      required:
+        - name
+        - climber_ids
+      example:
+        name: "Advanced Tuesday"
+        climber_ids: ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001"]
+
+    UpdateClassListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        climber_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+      example:
+        name: "Advanced Tuesday (Updated)"
+        climber_ids: ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002"]
+
+    CreateClimberRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+      required:
+        - name
+      example:
+        name: "Alice Johnson"
+        email: "alice@example.com"
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+      required:
+        - code
+        - message
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []

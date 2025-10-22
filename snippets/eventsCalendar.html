@@ -178,15 +178,18 @@
                 if (eventNameLower.includes('booking')) {
                     // Add "(Full)" if B'day event is already booked out = event has 0 or more than 1 space left
                     eventTitle += event.spaces_available == 1 ? '' : ' (Full)';
+                } else if (eventNameLower.includes('lead') && eventNameLower.includes('course')) {
+                    // Add "(Full)" if Lead Course is full
+                    eventTitle += event.event_full ? ' (Full)' : '';
                 } else {
                     // Add "(Full)" if other events are full or add "(# of spaces left)" if event is not full
                     if (event.event_full) {
                         eventTitle += ' (Full)';
                     } else {
-                        eventTitle += ' (' + event.spaces_available + ' spots)';
+                        eventTitle += ' (' + event.spaces_available + ' spot';
+                        eventTitle += event.spaces_available == 1 ? ')' : 's)'; // plural
                     }
                 }
-
 
                 // Set the event URL only if the event is not full or the name contains "Booking Slot" which is booked
                 let eventUrl;
@@ -235,7 +238,7 @@
                 initialView: 'listWeek',
                 events: calendarEvents,
                 themeSystem: 'bootstrap5',
-                height: 600,
+                height: 900,
                 validRange: {
                     start: formatDate(minDate),
                     end: formatDate(addDays(maxDate, 1)) // Add 1 day to include the last event date
