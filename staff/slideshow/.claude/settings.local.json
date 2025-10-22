@@ -12,7 +12,9 @@
       "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
       "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
       "Read(/C:\\Users\\Jiri\\Documents\\GitReps\\ujfront.github.io\\slideshow/**)",
-      "Read(//c/Users/Jiri/Downloads/**)"
+      "Read(//c/Users/Jiri/Downloads/**)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

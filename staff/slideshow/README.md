@@ -26,9 +26,43 @@ default_slide_duration_seconds: 10
 slideshow_auto_reload_minutes: 5
 default_leaderboard_row_limit: 12
 resume_session_timeout_seconds: 30
+slideshow_title_slide_enabled: false
+slideshow_title_slide_duration: 10
 ```
 
 Slides are always displayed **alphabetically** \- use `01_`, `02_` prefixes to control order.
+
+## Title Slide Feature
+
+**Professional opening slide with automatic image collage:**
+
+When enabled, the slideshow displays a beautiful title slide as the first slide, featuring:
+
+- **Large centered title** using the `slideshow_title` setting
+- **Image collage background** automatically generated from folder images
+- **Professional styling** with blurred, darkened background and overlay
+- **Fallback design** uses gradient background if no images are available
+
+**Configuration:**
+
+```
+slideshow_title: "Competition Finals 2024"    # Title text to display
+slideshow_title_slide_enabled: true           # Enable/disable title slide
+slideshow_title_slide_duration: 15            # How long to show title slide
+```
+
+**Features:**
+
+- **Automatic collage**: Selects up to 6 images evenly distributed from your folder
+- **Dynamic updates**: Refreshes with new images when slideshow reloads
+- **Order preservation**: Always appears first, before alphabetical content
+- **Responsive design**: Adapts to different screen sizes
+
+**Perfect for:**
+- Competition displays
+- Event presentations
+- Professional slideshows
+- TV displays with branding
 
 ## Accepted Files
 
@@ -111,13 +145,21 @@ limit: 15
 
 ```
 📁 Competition Slideshow/
-├── settings.txt (config in description)
+├── settings.txt (config in description - enable title slide here)
 ├── 01_welcome.jpg
-├── [30]02_announcement.png  
+├── [30]02_announcement.png
 ├── leaderboard_speed.md (config in description)
 ├── leaderboard_bg1.jpg (background image)
 ├── leaderboard_bg_climbing.png (background image)
 └── 03_closing.mp4
+
+# With title slide enabled, playback order becomes:
+# 1. Title Slide (auto-generated collage + title)
+# 2. 01_welcome.jpg
+# 3. [30]02_announcement.png
+# 4. 03_closing.mp4
+# 5. leaderboard_speed.md
+# 6. Loop back to title slide
 ```
 
 ## Duration Control logic
@@ -192,6 +234,8 @@ slideshow_auto_reload_minutes: 10    # Refresh content every 10 minutes
 slideshow_title: My Competition Display
 default_leaderboard_row_limit: 12
 resume_session_timeout_seconds: 30   # Auto-resume previous session after 30 seconds
+slideshow_title_slide_enabled: true  # Show title slide with image collage
+slideshow_title_slide_duration: 15   # Title slide duration in seconds
 ```
 
 **Recommended settings for competitions:**
@@ -199,5 +243,7 @@ resume_session_timeout_seconds: 30   # Auto-resume previous session after 30 sec
 - `slideshow_auto_reload_minutes: 5-15` for frequent leaderboard updates
 - `default_slide_duration_seconds: 8-10` for good pacing
 - `resume_session_timeout_seconds: 10-30` for unattended displays (0 = manual choice only)
+- `slideshow_title_slide_enabled: true` for professional presentation
+- `slideshow_title_slide_duration: 10-20` for title display timing
 - Test with shorter intervals first, then extend for stability
 
