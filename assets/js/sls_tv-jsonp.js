@@ -24,10 +24,10 @@ const categories = [
     "open",
     "advanced",
     "intermediate",
-    "novice",
+    "recreational",
     "youth",
 ];
-const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
+const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
 // setting up Modal element
 let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {

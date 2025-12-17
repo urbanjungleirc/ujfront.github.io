@@ -12,8 +12,8 @@ const ticksUrl =
     "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
-const categories = ["open", "advanced", "intermediate", "novice", "youth"];
-const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
+const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
+const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
 // Bootstrap modal for loading spinner (non-dismissible)
 let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
@@ -236,7 +236,7 @@ function filterCategory(e) {
     const table = tblMale.DataTable();
     switch (e.value) {
         case "tr":
-            table.columns(1).search(`\\b(novice|youth)\\b`, true).draw();
+            table.columns(1).search(`\\b(recreational|youth)\\b`, true).draw();
             break;
         case "lead":
             table
@@ -261,7 +261,7 @@ function updateActiveFilterDisplay() {
     let displayText = "";
 
     const leadCategories = ["advanced", "intermediate", "open"];
-    const topRopeCategories = ["novice", "youth"];
+    const topRopeCategories = ["recreational", "youth"];
 
     if (category) {
         let filteredCategories = category

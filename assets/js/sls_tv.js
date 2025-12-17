@@ -12,8 +12,8 @@ let firstPageCallDone = false;
 
 const rowsPerPage = 7; // number of rows per page
 let currentCategoryIndex = 0; // filtering data - enter category
-const categories = ["open", "advanced", "intermediate", "novice", "youth"];
-const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
+const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
+const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
 // setting up Modal element
 let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {

@@ -21,7 +21,7 @@ const categories = [
     "open",
     "advanced",
     "intermediate",
-    "novice",
+    "recreational",
     "youth",
 ];
 const competitionEndTime = "2024-03-21 19:00";

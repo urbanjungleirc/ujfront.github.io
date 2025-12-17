@@ -12,8 +12,8 @@ const ticksUrl =
     "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
-const categories = ["open", "advanced", "intermediate", "novice", "youth"];
-const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
+const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
+const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
 // Bootstrap modal for loading spinner (non-dismissible)
 let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
