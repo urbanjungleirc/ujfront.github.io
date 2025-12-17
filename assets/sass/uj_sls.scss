@@ -104,3 +104,283 @@ $pagination-active-border-color: $secondary;
     color: $black;
     background-color: $white;
 }
+
+// ===============================================
+// MODERN VISUAL EFFECTS - 2026 ENHANCEMENT
+// ===============================================
+
+// --------------------------------------------
+// 1. Animation Keyframes
+// --------------------------------------------
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(37, 108, 118, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(37, 108, 118, 0);
+    }
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+// --------------------------------------------
+// 2. Animation Utility Classes
+// --------------------------------------------
+
+.slide-in-left {
+    animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.slide-in-top {
+    animation: slideInTop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+// Stagger delay classes
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+.stagger-7 { animation-delay: 0.7s; }
+.stagger-8 { animation-delay: 0.8s; }
+
+// --------------------------------------------
+// 3. Glassmorphic Effects
+// --------------------------------------------
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-medium {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+// Fallback for browsers without backdrop-filter
+@supports not (backdrop-filter: blur(10px)) {
+    .glass-light { background: rgba(255, 255, 255, 0.95); }
+    .glass-medium { background: rgba(255, 255, 255, 0.92); }
+}
+
+// --------------------------------------------
+// 4. Hover States and Interactive Effects
+// --------------------------------------------
+
+// Card hover lift effect (vouchers-inspired: 12px lift)
+.card-hover,
+.list-group-item-hover {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+
+    &:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px rgba(5, 42, 54, 0.15);
+        z-index: 10;
+    }
+}
+
+// Lighter card hover (6px lift)
+.card-hover-light {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(5, 42, 54, 0.1);
+    }
+}
+
+// Button hover enhancements
+.btn {
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(5, 42, 54, 0.15);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 4px 8px rgba(5, 42, 54, 0.1);
+    }
+}
+
+// Outline button shimmer effect
+.btn-outline-primary,
+.btn-outline-secondary {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+}
+
+// Table row hover
+.table > tbody > tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: rgba(37, 108, 118, 0.05) !important;
+        transform: scale(1.01);
+    }
+}
+
+// Latest ticks item hover
+.list-group-item-action {
+    transition: all 0.3s ease;
+    border-radius: 12px !important;
+    margin-bottom: 8px;
+
+    &:hover {
+        transform: translateX(8px);
+        box-shadow: 0 8px 20px rgba(5, 42, 54, 0.1);
+        background-color: rgba(249, 245, 214, 0.5) !important;
+    }
+}
+
+// --------------------------------------------
+// 5. Modern Border Radius and Shadows
+// --------------------------------------------
+
+.rounded-modern { border-radius: 20px !important; }
+.rounded-modern-lg { border-radius: 25px !important; }
+.rounded-modern-sm { border-radius: 15px !important; }
+.rounded-top-modern {
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+}
+
+// Shadow hierarchy
+.shadow-depth-1 { box-shadow: 0 4px 15px rgba(5, 42, 54, 0.08); }
+.shadow-depth-2 { box-shadow: 0 8px 25px rgba(5, 42, 54, 0.12); }
+.shadow-depth-3 { box-shadow: 0 15px 50px rgba(5, 42, 54, 0.18); }
+
+// Glowing shadow
+.shadow-glow { box-shadow: 0 0 20px rgba(37, 108, 118, 0.3); }
+.shadow-glow-orange { box-shadow: 0 0 20px rgba(240, 143, 39, 0.3); }
+
+// --------------------------------------------
+// 6. Accessibility - Respect prefers-reduced-motion
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .slide-in-left,
+    .slide-in-right,
+    .slide-in-top,
+    .fade-in {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .card-hover:hover,
+    .list-group-item-action:hover {
+        transform: none !important;
+    }
+}
+
+// --------------------------------------------
+// 7. Responsive Adjustments for Mobile
+// --------------------------------------------
+
+@media (max-width: 768px) {
+    .card-hover:hover,
+    .card-hover-light:hover {
+        transform: translateY(-6px) !important;
+        box-shadow: 0 12px 25px rgba(5, 42, 54, 0.1) !important;
+    }
+
+    .list-group-item-action:hover {
+        transform: translateX(4px) !important;
+    }
+
+    .table > tbody > tr:hover {
+        transform: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .glass-light,
+    .glass-medium {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+}

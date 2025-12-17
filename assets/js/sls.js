@@ -80,6 +80,15 @@ $("#tableMale")
         moment.locale("au");
         updatedAtEl.innerText = moment().format("D MMM YY, HH:mm");
         mySpinner.hide();
+
+        // Animate table rows after load
+        setTimeout(() => {
+            $('#tableMale tbody tr').each(function(index) {
+                if (index < 20) {
+                    $(this).addClass('fade-in').css('animation-delay', `${0.05 * index}s`);
+                }
+            });
+        }, 100);
     })
     .dataTable({
         ajax: {
@@ -107,7 +116,7 @@ $("#tableMale")
                             case 1:
                             case 2:
                             case 3:
-                                return `<span class="text-primary bg-transparent fw-semibold">${data}</span>`;
+                                return `<span class="text-primary bg-transparent fw-semibold shadow-glow">${data}</span>`;
                             case 4:
                             case 5:
                             case 6:
@@ -133,7 +142,7 @@ $("#tableMale")
                 render: function (data, type) {
                     if (type === "display") {
                         // Render score as a styled button
-                        return `<span class="btn btn-sm btn-outline-primary">${data}</span>`;
+                        return `<span class="btn btn-sm btn-outline-primary rounded-modern shadow-depth-1">${data}</span>`;
                     }
                     return data;
                 },
@@ -605,9 +614,9 @@ function displayLatestTicks(data) {
     const container = document.getElementById("latest-ticks");
     container.innerHTML = "";
 
-    latestTicks.forEach(({ date, name, category, gender, ticks }) => {
+    latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
         const item = document.createElement("div");
-        item.className = "list-group-item list-group-item-action align-items-center";
+        item.className = `list-group-item list-group-item-action align-items-center list-group-item-hover fade-in stagger-${Math.min(index + 1, 5)}`;
 
         // Category
         const categoryShort = category ? category.toUpperCase() : "";

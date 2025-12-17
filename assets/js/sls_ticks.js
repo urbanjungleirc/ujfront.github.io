@@ -78,6 +78,15 @@ $(document).ready(function () {
             let now = luxon.DateTime.local().setLocale("en-AU");
             updatedAtEl.innerText = now.toFormat("d MMM yy, HH:mm");
             mySpinner.hide();
+
+            // Animate table rows after load
+            setTimeout(() => {
+                $('#tableMale tbody tr').each(function(index) {
+                    if (index < 20) {
+                        $(this).addClass('fade-in').css('animation-delay', `${0.05 * index}s`);
+                    }
+                });
+            }, 100);
         })
         .dataTable({
             ajax: {

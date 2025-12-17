@@ -67,7 +67,7 @@
 <body class="bg-light">
 
     <header>
-        <div class="px-3 py-2 text-bg-primary border-bottom">
+        <div class="px-3 py-2 text-bg-primary border-bottom slide-in-top stagger-1">
             <div class="container-md">
                 <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                     <div class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white">
@@ -86,7 +86,7 @@
                 </div>
             </div>
         </div>
-        <div class="px-3 py-2 border-bottom mb-3 bg-white">
+        <div class="px-3 py-2 border-bottom mb-3 bg-white slide-in-top stagger-2">
             <div class="container-md">
                 <div class="d-flex flex-wrap justify-content-center">
                     <div class="d-flex mb-2 mb-lg-0 me-lg-auto">
@@ -112,19 +112,19 @@
 
         <div class="row g-3">
             <!-- latest ticks -->
-            <div class="col-12 col-md-6 col-lg-3 order-last order-md-first">
+            <div class="col-12 col-md-6 col-lg-3 order-last order-md-first slide-in-left stagger-3">
                 <h3 class="text-center">Latest Ticks</h3>
                 <div id="latest-ticks" class="list-group px-3"></div>
                 <div class="text-center my-2">
-                    <a href="sls_ticks.html" class="btn btn-outline-primary">Check All Ticks</a>
+                    <a href="sls_ticks.html" class="btn btn-outline-primary rounded-modern shadow-depth-1">Check All Ticks</a>
                 </div>
             </div>
             <!-- filters -->
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="col-12 col-md-6 col-lg-3 slide-in-left stagger-4">
                 <h3 class="text-center" id="filterHeader">Filters</h3>
                 <div class="d-flex justify-content-between mb-3 px-3">
                     <div class="py-2">
-                        <div class="btn-group" role="group" aria-label="Gender group">
+                        <div class="btn-group rounded-modern shadow-depth-1" role="group" aria-label="Gender group">
                             <input type="radio" class="btn-check" name="radioGender" id="btnradioBoth"
                                 autocomplete="off" checked onchange="changeGender()">
                             <label class="btn btn-outline-primary" for="btnradioBoth"><i
@@ -140,7 +140,7 @@
                         </div>
                     </div>
                     <div class="py-2">
-                        <span id="refreshButton" class="btn btn-outline-primary" data-bs-toggle="tooltip"
+                        <span id="refreshButton" class="btn btn-outline-primary rounded-modern shadow-depth-1" data-bs-toggle="tooltip"
                             data-bs-placement="left" data-bs-title="Reload data" onclick="refreshData()"><i
                                 class="bi bi-arrow-clockwise"></i>
                             Reload</span>
@@ -180,10 +180,10 @@
                 </div>
             </div>
             <!-- leaderboard -->
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6 slide-in-right stagger-5">
                 <h2 class="text-center" id="activeFilter">Leaderboard</h2>
-                <div class="table-responsive mb-3" style="width: 100%;">
-                    <table id="tableMale" class="table table-striped align-middle bg-white align-bottom"
+                <div class="table-responsive mb-3 rounded-modern shadow-depth-2" style="width: 100%;">
+                    <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded-modern"
                         style="width: 100%;">
                     </table>
                 </div>
@@ -198,11 +198,11 @@
         </div>
 
         <!-- rules -->
-        <div class="row my-3 mx-1">
+        <div class="row my-3 mx-1 fade-in stagger-7">
             <h3 class="text-center mb-3">Type of ticks and scoring</h3>
             <div class="row d-flex justify-content-center">
-                <div class="col" style="max-width: 250px;">
-                    <ul class="list-group bg-light-subtle">
+                <div class="col card-hover-light stagger-1" style="max-width: 250px;">
+                    <ul class="list-group bg-light-subtle rounded-modern shadow-depth-1">
                         <li class="list-group-item list-group-item-action list-group-item-light"><svg
                                 xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                                 class="bi bi-file" viewBox="0 0 16 16">
@@ -247,8 +247,8 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col" style="max-width: 250px;">
-                    <ul class="list-group">
+                <div class="col card-hover-light stagger-2" style="max-width: 250px;">
+                    <ul class="list-group rounded-modern shadow-depth-1">
                         <li class="list-group-item list-group-item-action list-group-item-primary active">Ticks with a
                             bonus</li>
                         <li
@@ -301,7 +301,7 @@
             </div>
         </div>
         <div class="d-flex justify-content-center my-3">
-            <a class="btn btn-outline-primary" href="https://www.urbanjungleirc.com/sls2026">Full competition
+            <a class="btn btn-outline-primary rounded-modern shadow-depth-1" href="https://www.urbanjungleirc.com/sls2026">Full competition
                 details</a>
         </div>
 
@@ -332,7 +332,7 @@
     <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal">
-            <div class="modal-content p-3" style="background-color: transparent !important; border: none !important;">
+            <div class="modal-content p-3 glass-medium rounded-modern" style="border: none !important;">
                 <img src="./assets/img/sls_logo.png" alt="SLS" class="rotate">
             </div>
         </div>
