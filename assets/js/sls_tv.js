@@ -326,7 +326,8 @@ function pageFlipper() {
     let maleDT = tblMale.DataTable();
     let femaleDT = tblFemale.DataTable();
 
-    if (categories[currentCategoryIndex] === "advanced") {
+    // Special handling for category which has only one gender
+    if (categories[currentCategoryIndex] === "none") {
         let totalPages = maleDT.page.info().pages; // Both tables share the same data
         let currentMalePage = maleDT.page.info().page;
 
@@ -398,8 +399,8 @@ function changeCategory() {
         categories[currentCategoryIndex].toLocaleUpperCase();
 
     // Apply gender filters for both tables
-    if (categories[currentCategoryIndex] === "advanced") {
-        // For 'advanced', both tables use male data
+    if (categories[currentCategoryIndex] === "none") {
+        // special handling for categories which have only one gender, both tables use the gender data
         tblMale.DataTable().columns(0).search(`\\bmale\\b`, true);
         tblFemale.DataTable().columns(0).search(`\\bmale\\b`, true);
         document.querySelector("#femaleHeading").style.visibility = "hidden";
@@ -419,8 +420,8 @@ function changeCategory() {
         .columns(1)
         .search(`^\\b${categories[currentCategoryIndex]}\\b$`, true);
 
-    // For advanced, explicitly set the initial page offset:
-    if (categories[currentCategoryIndex] === "advanced") {
+    // If cagetory has only one gender (none), explicitly set the initial page offset:
+    if (categories[currentCategoryIndex] === "none") {
         let maleDT = tblMale.DataTable();
         let femaleDT = tblFemale.DataTable();
         let totalPages = maleDT.page.info().pages; // should be identical for both tables
