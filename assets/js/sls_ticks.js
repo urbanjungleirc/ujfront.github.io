@@ -79,6 +79,11 @@ $(document).ready(function () {
             updatedAtEl.innerText = now.toFormat("d MMM yy, HH:mm");
             mySpinner.hide();
 
+            // NEW: Populate Latest Ticks section with the same data
+            if (json && json.data) {
+                displayLatestTicks(json.data);
+            }
+
             // Animate table rows after load
             setTimeout(() => {
                 $('#tableMale tbody tr').each(function(index) {
@@ -210,11 +215,18 @@ $(document).ready(function () {
             buttons: [
                 {
                     text: '<i class="bi bi-arrow-clockwise"></i> Reload',
-                    action: function (e, dt, node, config) {
+                    action: function () {
                         refreshData();
                     },
-                    className: "btn-primary",
+                    className: "btn-outline-primary btn-small",
                 },
+                {
+                    text: '<i class="bi bi-x"></i> Clear Search',
+                    action: function (e, dt, node, config) {
+                        dt.search("").draw();
+                    },
+                    className: "btn-outline-primary btn-small",
+                }
             ],
 
             // Paging setup.
@@ -447,4 +459,97 @@ function tickIcon(tick = 0, bonus = 0) {
           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
         </svg>`;
     }
+}
+
+/**
+ * -------------------------------------
+ * Latest Ticks Display Function
+ * -------------------------------------
+ */
+
+/**
+ * Displays the latest ticks for all climbers by grouping and sorting the provided data.
+ * Shows unlimited climbers (no 5-climber limit) in descending order by date.
+ * Adapted from sls.js displayLatestTicks() function.
+ *
+ * @param {Array<Object>} data - The array of tick data objects from DataTable AJAX response
+ */
+function displayLatestTicks(data) {
+    const groupedData = {};
+
+    // Sort data by exact timestamp (newest first) - use spread to avoid mutating original
+    const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Group by date + name (no limit on number of climbers)
+    sortedData.forEach(({ date, name, route, tick, bonus, category, gender }) => {
+        const normalizedDate = luxon.DateTime.fromISO(date).toISODate(); // Date only (YYYY-MM-DD)
+        const key = `${normalizedDate}-${name}`;
+
+        if (!groupedData[key]) {
+            groupedData[key] = {
+                date,
+                name,
+                category,
+                gender,
+                ticks: [],
+            };
+        }
+
+        const score = tick + bonus;
+        groupedData[key].ticks.push({
+            route: route.toUpperCase(),
+            score,
+            tick,
+            bonus,
+        });
+    });
+
+    // Get all climbers' grouped ticks (no slice limit - show everyone)
+    const latestTicks = Object.values(groupedData);
+
+    const container = document.getElementById("latest-ticks");
+    container.innerHTML = "";
+
+    // Render each grouped tick entry
+    latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
+        const item = document.createElement("div");
+        // Limit stagger animation to first 20 items for performance
+        const staggerClass = index < 20 ? `fade-in stagger-${Math.min(index + 1, 5)}` : '';
+        item.className = `list-group-item list-group-item-action align-items-center ${staggerClass}`;
+
+        // Format category (uppercase)
+        const categoryShort = category ? category.toUpperCase() : "";
+
+        // Gender icon
+        const genderIcon =
+            gender === "Male"
+                ? '<i class="bi bi-gender-male"></i>'
+                : gender === "Female"
+                ? '<i class="bi bi-gender-female"></i>'
+                : '<i class="bi bi-gender-ambiguous"></i>';
+
+        // Render tick icons with round-based colors
+        const tickIcons = ticks
+            .map(({ route, tick, bonus }) => {
+                const roundNumber = parseInt(route.charAt(0)); // Extract round (e.g., '1' from '1_D')
+                const routeLetter = route.charAt(2); // Extract letter (e.g., 'D' from '1_D')
+
+                return `
+                <span class="text-round${roundNumber}">
+                    ${routeLetter} ${tickIcon(tick, bonus)}
+                </span>
+                `;
+            })
+            .join(" - ");
+
+        // Build HTML structure
+        item.innerHTML = `
+            <strong>${name}</strong>
+            <small>${categoryShort} - ${genderIcon}</small><br>
+            <small class="text-muted">${luxon.DateTime.fromISO(date).toFormat("ccc, dd MMM yy, HH:mm")}</small><br>
+            <strong>${tickIcons}</strong>
+        `;
+
+        container.appendChild(item);
+    });
 }

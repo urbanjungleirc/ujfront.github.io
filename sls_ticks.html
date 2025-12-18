@@ -67,8 +67,9 @@
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3 text-end">
-                        <div class="text-light">
+                        <div class="text-light d-flex flex-column justify-content-center align-items-end">
                             <h2>Ticks & Sends</h2>
+                            <a href="sls.html" class="btn btn-primary">Back to Leaderboard <i class="bi bi-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -96,14 +97,30 @@
     </header>
 
     <main class="container-md p-1">
-        <!-- the table -->
-        <div class="justify-content-center slide-in-top stagger-3">
-            <div class="table-responsive " style="width: 100%;">
-                <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded-modern"
-                    style="width: 100%;">
-                    <tbody class="table-group-divider"></tbody>
-                </table>
+        <!-- Two-column responsive layout -->
+        <div class="row g-3">
+
+            <!-- Latest Ticks Section (40% on desktop, full width on mobile) -->
+            <div class="col-12 col-md-5 order-first slide-in-left stagger-3">
+                <h3 class="text-center">Latest Ticks</h3>
+                <!-- Scrollable container for Latest Ticks -->
+                <div id="latest-ticks-container" class="list-group px-3"
+                     style="max-height: 600px; overflow-y: auto;">
+                    <div id="latest-ticks"></div>
+                </div>
             </div>
+
+            <!-- Table Section (60% on desktop, full width on mobile) -->
+            <div class="col-12 col-md-7 order-last slide-in-top stagger-4">
+                <h3 class="text-center">Individual Sends</h3>
+                <div class="table-responsive" style="width: 100%;">
+                    <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded-modern"
+                        style="width: 100%;">
+                        <tbody class="table-group-divider"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </main>
 
