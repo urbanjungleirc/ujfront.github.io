@@ -217,10 +217,24 @@ $pagination-active-border-color: $secondary;
     border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
+// Transparent glass - fully transparent with blur only
+.glass-transparent {
+    background: transparent;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: none;
+}
+
+// Custom modal backdrop for spinner - lighter to show blur effect
+#modalSpinner .modal-backdrop {
+    background-color: rgba(5, 42, 54, 0.3) !important;
+}
+
 // Fallback for browsers without backdrop-filter
 @supports not (backdrop-filter: blur(10px)) {
     .glass-light { background: rgba(255, 255, 255, 0.95); }
     .glass-medium { background: rgba(255, 255, 255, 0.92); }
+    .glass-transparent { background: rgba(255, 255, 255, 0.15); }
 }
 
 // --------------------------------------------
@@ -305,7 +319,7 @@ $pagination-active-border-color: $secondary;
     &:hover {
         transform: translateX(8px);
         box-shadow: 0 8px 20px rgba(5, 42, 54, 0.1);
-        background-color: rgba(249, 245, 214, 0.5) !important;
+        //background-color: rgba(249, 245, 214, 0.5) !important;
     }
 }
 

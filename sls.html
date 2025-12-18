@@ -57,6 +57,7 @@
         h1,
         h2,
         h3,
+        h4,
         .sls-font {
             font-family: 'FatFrank', sans-serif;
         }
@@ -75,7 +76,9 @@
                             <img src="./assets/img/sls_logo.png" alt="SLS" width="100" height="100">
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h1>Summer Lead Series</br><span class="text-white-50">by Urban Jungle IRC</span></h1>
+                            <h1>Summer Lead Series <span id="sls_year"></span></br>
+                                <span class="text-white-50">by Urban Jungle IRC</span>
+                            </h1>
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3 text-end">
@@ -122,6 +125,7 @@
             <!-- filters -->
             <div class="col-12 col-md-6 col-lg-3 slide-in-left stagger-4">
                 <h3 class="text-center" id="filterHeader">Filters</h3>
+                <h4 class="text-center" id="filterHeader">Gender</h4>
                 <div class="d-flex justify-content-between mb-3 px-3">
                     <div class="py-2">
                         <div class="btn-group rounded-modern shadow-depth-1" role="group" aria-label="Gender group">
@@ -147,6 +151,7 @@
                     </div>
                 </div>
                 <div class="row m-0 mb-3 p-0">
+                    <h4 class="text-center" id="filterHeader">Categories</h4>
                     <div class="btn-group justify-content-center">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off"
                             value="0" onchange="filterCategory(this)">
@@ -158,13 +163,13 @@
                             value="2" onchange="filterCategory(this)">
                         <label class="btn btn-outline-primary" for="btnradioYou">Intermediate</label>
                     </div>
-                    <div class="btn-group justify-content-center mb-3" style="margin-top: -1px !important;">
+                    <div class="btn-group justify-content-center mb-3 mt-1">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioLead" autocomplete="off"
                             value="lead" onchange="filterCategory(this)">
-                        <label class="btn btn-outline-secondary" for="btnradioLead">Lead categories</label>
+                        <label class="btn btn-outline-primary " for="btnradioLead">All Lead Categories</label>
                     </div>
 
-                    <div class="btn-group justify-content-center">
+                    <div class="btn-group justify-content-center mt-3">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioRec" autocomplete="off"
                             value="3" onchange="filterCategory(this)">
                         <label class="btn btn-outline-primary" for="btnradioRec">Recreational</label>
@@ -172,22 +177,22 @@
                             value="4" onchange="filterCategory(this)">
                         <label class="btn btn-outline-primary" for="btnradioYouTR">Youth</label>
                     </div>
-                    <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
+                    <div class="btn-group justify-content-center mt-1">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off"
                             value="tr" onchange="filterCategory(this)">
-                        <label class="btn btn-outline-secondary" for="btnradioTR">Top Rope categories</label>
+                        <label class="btn btn-outline-primary" for="btnradioTR">All Top Rope Categories</label>
                     </div>
+                    
                 </div>
             </div>
             <!-- leaderboard -->
             <div class="col-12 col-lg-6 slide-in-right stagger-5">
                 <h2 class="text-center" id="activeFilter">Leaderboard</h2>
-                <div class="table-responsive mb-3 rounded-modern shadow-depth-2" style="width: 100%;">
+                <div class="table-responsive mb-3 overflow-hidden p-0" style="width: 100%;">
                     <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded-modern"
                         style="width: 100%;">
                     </table>
                 </div>
-
             </div>
         </div>
 
@@ -201,7 +206,7 @@
         <div class="row my-3 mx-1 fade-in stagger-7">
             <h3 class="text-center mb-3">Type of ticks and scoring</h3>
             <div class="row d-flex justify-content-center">
-                <div class="col card-hover-light stagger-1" style="max-width: 250px;">
+                <div class="col stagger-1" style="max-width: 250px;">
                     <ul class="list-group bg-light-subtle rounded-modern shadow-depth-1">
                         <li class="list-group-item list-group-item-action list-group-item-light"><svg
                                 xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
@@ -238,7 +243,7 @@
                                 </svg> Top </span> <span class="badge rounded-pill text-bg-accent-light">50</span>
                         </li>
                         <li
-                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
+                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center mb-0">
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                                     class="bi bi-lightning-fill" viewBox="0 0 16 16">
                                     <path
@@ -247,8 +252,8 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col card-hover-light stagger-2" style="max-width: 250px;">
-                    <ul class="list-group rounded-modern shadow-depth-1">
+                <div class="col stagger-2" style="max-width: 250px;">
+                    <ul class="list-group bg-light-subtle rounded-modern shadow-depth-1">
                         <li class="list-group-item list-group-item-action list-group-item-primary active">Ticks with a
                             bonus</li>
                         <li
@@ -286,7 +291,7 @@
                                 </svg> Top</span> <span class="badge rounded-pill text-bg-accent-dark">60</span>
                         </li>
                         <li
-                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
+                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center mb-0">
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                                     class="bi bi-lightning-fill" viewBox="0 0 16 16">
                                     <path
@@ -310,7 +315,7 @@
     <footer class="bg-primary">
         <div class="container-md d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
             <div class="col-md-4 d-flex align-items-center text-white">
-                <span class="mb-3 mb-md-0">© 2025 Urban Jungle IRC, Jandakot WA</span>
+                <span class="mb-3 mb-md-0">© <span id="year"></span> Urban Jungle IRC, Jandakot WA</span>
             </div>
             <a href="http://urbanjungleirc.com"
                 class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
@@ -332,7 +337,7 @@
     <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal">
-            <div class="modal-content p-3 glass-medium rounded-modern" style="border: none !important;">
+            <div class="modal-content p-3 glass-transparent" style="box-shadow: none !important;">
                 <img src="./assets/img/sls_logo.png" alt="SLS" class="rotate">
             </div>
         </div>
@@ -360,6 +365,11 @@
 
     <!-- custom -->
     <script src="assets/js/sls.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        document.getElementById('sls_year').textContent = new Date().getFullYear();
+    </script>
+
 
 </body>
 
