@@ -228,8 +228,8 @@ $pagination-active-border-color: $secondary;
 // Blurred backdrop for spinner modal
 #modalSpinner.modal {
     // Apply blur to entire modal area (full screen)
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     background-color: rgba(5, 42, 54, 0.25);
 }
 
@@ -241,13 +241,13 @@ $pagination-active-border-color: $secondary;
 
 // Alternative approach: make the backdrop transparent and blurred
 body.modal-open .modal-backdrop {
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     background-color: rgba(5, 42, 54, 0.25) !important;
 }
 
 // Fallback for browsers without backdrop-filter
-@supports not (backdrop-filter: blur(10px)) {
+@supports not (backdrop-filter: blur(5px)) {
     .glass-light { background: rgba(255, 255, 255, 0.95); }
     .glass-medium { background: rgba(255, 255, 255, 0.92); }
     .glass-transparent { background: rgba(255, 255, 255, 0.15); }
@@ -307,7 +307,37 @@ body.modal-open .modal-backdrop {
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+}
+
+// Fix shimmer for grouped outline buttons (they need background on hover)
+.btn-group .btn-outline-primary,
+.btn-group .btn-outline-secondary {
+    &:hover:not(.active) {
+        background-color: rgba($primary, 0.1);
+        border-color: $primary;
+    }
+}
+
+// Facebook share button shimmer
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         transition: left 0.5s ease;
     }
 
@@ -326,16 +356,40 @@ body.modal-open .modal-backdrop {
     }
 }
 
-// Latest ticks item hover
+// Latest ticks item hover with shimmer
 .list-group-item-action {
+    position: relative;
+    overflow: hidden;
     transition: all 0.3s ease;
     border-radius: 12px !important;
     margin-bottom: 8px;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s ease;
+        z-index: 1;
+    }
 
     &:hover {
         transform: translateX(8px);
         box-shadow: 0 8px 20px rgba(5, 42, 54, 0.1);
         //background-color: rgba(249, 245, 214, 0.5) !important;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+
+    // Ensure text stays above shimmer
+    > * {
+        position: relative;
+        z-index: 2;
     }
 }
 
