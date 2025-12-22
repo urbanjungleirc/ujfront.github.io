@@ -225,7 +225,7 @@ $pagination-active-border-color: $secondary;
     border: none;
 }
 
-// Blurred backdrop for spinner modal
+// Blurred backdrop for all modals
 #modalSpinner.modal {
     // Apply blur to entire modal area (full screen)
     backdrop-filter: blur(5px);
@@ -233,13 +233,7 @@ $pagination-active-border-color: $secondary;
     background-color: rgba(5, 42, 54, 0.25);
 }
 
-// Hide Bootstrap's default solid modal-backdrop for spinner
-.modal-backdrop.show ~ #modalSpinner,
-#modalSpinner ~ .modal-backdrop.show {
-    display: none;
-}
-
-// Alternative approach: make the backdrop transparent and blurred
+// Make the backdrop transparent and blurred
 body.modal-open .modal-backdrop {
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -320,8 +314,9 @@ body.modal-open .modal-backdrop {
 .btn-group .btn-outline-primary,
 .btn-group .btn-outline-secondary {
     &:hover:not(.active) {
-        background-color: rgba($primary, 0.1);
+        background-color: rgba($primary, 0.99);
         border-color: $primary;
+        color: $white;
     }
 }
 
@@ -346,14 +341,20 @@ body.modal-open .modal-backdrop {
     }
 }
 
-// Table row hover
+// Table row hover with lift effect
 .table > tbody > tr {
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
-        background-color: rgba(37, 108, 118, 0.05) !important;
-        transform: scale(1.01);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(5, 42, 54, 0.1);
     }
+}
+
+// Override Bootstrap's table-hover with more visible background
+.table-hover > tbody > tr:hover > * {
+    --bs-table-bg-state: rgba(37, 108, 118, 0.18) !important;
+    transition: background-color 0.3s ease;
 }
 
 // Latest ticks item hover with shimmer
@@ -371,7 +372,7 @@ body.modal-open .modal-backdrop {
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        background: linear-gradient(90deg, transparent, rgb(255, 255, 255), transparent);
         transition: left 0.5s ease;
         z-index: 1;
     }
