@@ -78,7 +78,7 @@
         }
 
         /* ================================
-           Animation #1: Geometric Shapes
+           Animation #1: Geometric Hexagons
            ================================ */
         .spinner-geometric {
             width: 100px;
@@ -90,7 +90,8 @@
             width: 40px;
             height: 40px;
             position: absolute;
-            border-radius: 4px;
+            /* Hexagon shape using clip-path */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
         }
 
         .spinner-geometric .shape-1 {
@@ -217,55 +218,55 @@
         }
 
         /* ================================
-           Animation #3: Wave Bars
+           Animation #3: Tick Rectangles
            ================================ */
         .spinner-wave {
-            width: 100px;
+            width: 120px;
             height: 80px;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: 4px;
         }
 
-        .spinner-wave .bar {
-            width: 12px;
-            height: 40px;
-            border-radius: 6px;
+        .spinner-wave .tick-icon {
+            width: 18px;
+            height: 30px;
             animation: bounce-wave 1.2s ease-in-out infinite;
         }
 
-        .spinner-wave .bar-1 {
-            background: var(--spinner-color-1);
+        .spinner-wave .tick-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .spinner-wave .tick-1 {
             animation-delay: 0s;
         }
 
-        .spinner-wave .bar-2 {
-            background: var(--spinner-color-2);
+        .spinner-wave .tick-2 {
             animation-delay: 0.1s;
         }
 
-        .spinner-wave .bar-3 {
-            background: var(--spinner-color-3);
+        .spinner-wave .tick-3 {
             animation-delay: 0.2s;
         }
 
-        .spinner-wave .bar-4 {
-            background: var(--spinner-color-1);
+        .spinner-wave .tick-4 {
             animation-delay: 0.3s;
         }
 
-        .spinner-wave .bar-5 {
-            background: var(--spinner-color-2);
+        .spinner-wave .tick-5 {
             animation-delay: 0.4s;
         }
 
         @keyframes bounce-wave {
             0%, 100% {
-                transform: scaleY(1);
+                transform: scale(1) translateY(0);
             }
             50% {
-                transform: scaleY(1.5) translateY(-20px);
+                transform: scale(1.1) translateY(-10px);
             }
         }
 
@@ -326,13 +327,13 @@
     <div class="container mb-5">
         <div class="row g-4">
 
-            <!-- Animation #1: Geometric Shapes -->
+            <!-- Animation #1: Geometric Hexagons -->
             <div class="col-md-4">
                 <div class="animation-card" data-bs-toggle="modal" data-bs-target="#modalAnimation1">
                     <h3 class="h5 mb-3">
                         <span class="badge-custom">Animation #1</span>
                     </h3>
-                    <h4 class="mb-3">Geometric Shapes</h4>
+                    <h4 class="mb-3">Geometric Hexagons</h4>
                     <div class="animation-preview">
                         <div class="spinner-geometric">
                             <div class="shape shape-1"></div>
@@ -343,7 +344,7 @@
                     </div>
                     <p class="text-muted mb-0">
                         <i class="bi bi-info-circle"></i>
-                        Google-style rotating squares with smooth transitions
+                        Rotating hexagons orbiting in a circular pattern
                     </p>
                 </div>
             </div>
@@ -369,25 +370,52 @@
                 </div>
             </div>
 
-            <!-- Animation #3: Wave Bars -->
+            <!-- Animation #3: Tick Rectangles -->
             <div class="col-md-4">
                 <div class="animation-card" data-bs-toggle="modal" data-bs-target="#modalAnimation3">
                     <h3 class="h5 mb-3">
                         <span class="badge-custom">Animation #3</span>
                     </h3>
-                    <h4 class="mb-3">Wave Bars</h4>
+                    <h4 class="mb-3">Tick Rectangles</h4>
                     <div class="animation-preview">
                         <div class="spinner-wave">
-                            <div class="bar bar-1"></div>
-                            <div class="bar bar-2"></div>
-                            <div class="bar bar-3"></div>
-                            <div class="bar bar-4"></div>
-                            <div class="bar bar-5"></div>
+                            <!-- Empty -->
+                            <div class="tick-icon tick-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                                    <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                </svg>
+                            </div>
+                            <!-- Zone 1 -->
+                            <div class="tick-icon tick-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                                    <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                    <rect style="stroke:none" width="10.508" height="4.264" x="2.876" y="10.75"/>
+                                </svg>
+                            </div>
+                            <!-- Zone 2 -->
+                            <div class="tick-icon tick-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                                    <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                    <rect style="stroke:none" width="10.508" height="9.106" x="2.876" y="5.908"/>
+                                </svg>
+                            </div>
+                            <!-- Top -->
+                            <div class="tick-icon tick-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+                                    <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                </svg>
+                            </div>
+                            <!-- Flash -->
+                            <div class="tick-icon tick-5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                                    <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                     <p class="text-muted mb-0">
                         <i class="bi bi-info-circle"></i>
-                        Bouncing bars creating a wave pattern
+                        Tick progression: Empty → Zone 1 → Zone 2 → Top → Flash
                     </p>
                 </div>
             </div>
@@ -489,11 +517,38 @@
             <div class="modal-content spinner-modal">
                 <div class="modal-body text-center p-5">
                     <div class="spinner-wave">
-                        <div class="bar bar-1"></div>
-                        <div class="bar bar-2"></div>
-                        <div class="bar bar-3"></div>
-                        <div class="bar bar-4"></div>
-                        <div class="bar bar-5"></div>
+                        <!-- Empty -->
+                        <div class="tick-icon tick-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                                <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                            </svg>
+                        </div>
+                        <!-- Zone 1 -->
+                        <div class="tick-icon tick-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                                <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                <rect style="stroke:none" width="10.508" height="4.264" x="2.876" y="10.75"/>
+                            </svg>
+                        </div>
+                        <!-- Zone 2 -->
+                        <div class="tick-icon tick-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+                                <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                <rect style="stroke:none" width="10.508" height="9.106" x="2.876" y="5.908"/>
+                            </svg>
+                        </div>
+                        <!-- Top -->
+                        <div class="tick-icon tick-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+                                <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                            </svg>
+                        </div>
+                        <!-- Flash -->
+                        <div class="tick-icon tick-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                                <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                            </svg>
+                        </div>
                     </div>
                     <p class="spinner-slogan" id="slogan3">Checking holds...</p>
                     <button class="btn btn-light mt-3" data-bs-dismiss="modal">Close Preview</button>
