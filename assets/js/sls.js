@@ -15,10 +15,8 @@ const rowsPerPage = 10;
 const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
 const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
-// Bootstrap modal for loading spinner (non-dismissible)
-let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
-    keyboard: false,
-});
+// Note: mySpinner is now provided by sls-spinner.js (loaded earlier in HTML)
+// No need to initialize it here - the spinner utility handles it
 
 // On DOM ready, load filters from the URL (if any)
 document.addEventListener("DOMContentLoaded", loadFiltersFromURL);
