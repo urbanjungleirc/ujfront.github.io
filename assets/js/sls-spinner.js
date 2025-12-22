@@ -222,14 +222,21 @@ const SLSSpinner = (function() {
         // Get spinner content (random or specified)
         const content = getSpinnerContent(animationType);
 
-        // Inject HTML into container
+        // ALWAYS inject new HTML into container (even if modal is already showing)
+        // This ensures we get a fresh random animation each time
         containerElement.innerHTML = content.html;
 
-        // Show modal
-        modalInstance.show();
+        // Check if modal is already visible
+        const modalElement = document.getElementById('modalSpinner');
+        const isAlreadyVisible = modalElement && modalElement.classList.contains('show');
+
+        // Show modal (Bootstrap won't re-show if already visible, but content is updated)
+        if (!isAlreadyVisible) {
+            modalInstance.show();
+        }
 
         // Log for debugging (optional, can be removed in production)
-        console.log(`SLSSpinner: Showing "${content.type}" with slogan "${content.slogan}"`);
+        console.log(`SLSSpinner: ${isAlreadyVisible ? 'Updating' : 'Showing'} "${content.type}" with slogan "${content.slogan}"`);
     }
 
     /**
@@ -271,10 +278,20 @@ const SLSSpinner = (function() {
 /**
  * Legacy support for old mySpinner.show() / mySpinner.hide() pattern
  * This allows existing code to work without changes
+ *
+ * IMPORTANT: Always override mySpinner to ensure compatibility
+ * even if other scripts try to define it
  */
-if (typeof mySpinner === 'undefined') {
-    window.mySpinner = {
-        show: () => SLSSpinner.show(),
-        hide: () => SLSSpinner.hide()
-    };
-}
+window.mySpinner = {
+    show: function() {
+        console.log('mySpinner.show() called (legacy compatibility)');
+        return SLSSpinner.show();
+    },
+    hide: function() {
+        console.log('mySpinner.hide() called (legacy compatibility)');
+        return SLSSpinner.hide();
+    },
+    isVisible: function() {
+        return SLSSpinner.isVisible();
+    }
+};
