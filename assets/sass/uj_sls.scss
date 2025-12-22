@@ -343,20 +343,18 @@ body.modal-open .modal-backdrop {
 
 // Table row hover - text emphasis only
 .table > tbody > tr {
-    transition: all 0.15s ease;
+    transition: all 0.05s ease;
 }
 
-.table > tbody > tr:hover td,
-.table > tbody > tr:hover th {
+.table > tbody > tr:hover td {
     font-weight: 500 !important;
-    // color: $primary !important;
-    transition: all 0.15s ease;
+    transition: all 0.05s ease;
 }
 
 // Optional: Subtle background for better visibility
 .table-hover > tbody > tr:hover > * {
     --bs-table-bg-state: rgba(37, 108, 118, 0.05) !important;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.05s ease;
 }
 
 // Latest ticks item hover with shimmer

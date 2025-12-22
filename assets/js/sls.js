@@ -116,7 +116,7 @@ $("#tableMale")
                             case 1:
                             case 2:
                             case 3:
-                                return `<span class="text-primary bg-transparent fw-semibold shadow-glow">${data}</span>`;
+                                return `<span class="text-primary bg-transparent fw-semibold">${data}</span>`;
                             case 4:
                             case 5:
                             case 6:
