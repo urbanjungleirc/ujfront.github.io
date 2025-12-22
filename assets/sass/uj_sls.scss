@@ -341,19 +341,21 @@ body.modal-open .modal-backdrop {
     }
 }
 
-// Table row hover with lift effect
+// Table row hover - text emphasis only
 .table > tbody > tr {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(5, 42, 54, 0.1);
-    }
+    transition: all 0.3s ease;
 }
 
-// Override Bootstrap's table-hover with more visible background
+.table > tbody > tr:hover td,
+.table > tbody > tr:hover th {
+    font-weight: 500 !important;
+    color: $primary !important;
+    transition: all 0.3s ease;
+}
+
+// Optional: Subtle background for better visibility
 .table-hover > tbody > tr:hover > * {
-    --bs-table-bg-state: rgba(37, 108, 118, 0.18) !important;
+    --bs-table-bg-state: rgba(37, 108, 118, 0.05) !important;
     transition: background-color 0.3s ease;
 }
 
