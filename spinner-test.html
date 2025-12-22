@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLS Animated Spinner Test Page</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            /* SLS Brand Colors */
+            --spinner-color-1: #052a36;    /* Dark blue-green */
+            --spinner-color-2: #ffd900;    /* Bright yellow */
+            --spinner-color-3: #ff6b35;    /* Orange-red */
+            --spinner-color-4: #0a4a5c;    /* Lighter blue-green */
+        }
+
+        body {
+            background: linear-gradient(135deg, #f7f7f7 0%, #e0e0e0 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .hero {
+            background: var(--spinner-color-1);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .animation-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .animation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .animation-preview {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Shared Spinner Modal Styling */
+        .spinner-modal {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .spinner-slogan {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--spinner-color-1);
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ================================
+           Animation #1: Geometric Shapes
+           ================================ */
+        .spinner-geometric {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+
+        .spinner-geometric .shape {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            border-radius: 4px;
+        }
+
+        .spinner-geometric .shape-1 {
+            background: var(--spinner-color-1);
+            animation: spin-shape-1 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .spinner-geometric .shape-2 {
+            background: var(--spinner-color-2);
+            animation: spin-shape-2 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .spinner-geometric .shape-3 {
+            background: var(--spinner-color-3);
+            animation: spin-shape-3 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .spinner-geometric .shape-4 {
+            background: var(--spinner-color-4);
+            animation: spin-shape-4 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        @keyframes spin-shape-1 {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(60px, 0) rotate(90deg);
+            }
+            50% {
+                transform: translate(60px, 60px) rotate(180deg);
+            }
+            75% {
+                transform: translate(0, 60px) rotate(270deg);
+            }
+        }
+
+        @keyframes spin-shape-2 {
+            0%, 100% {
+                transform: translate(60px, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(60px, 60px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 60px) rotate(180deg);
+            }
+            75% {
+                transform: translate(0, 0) rotate(270deg);
+            }
+        }
+
+        @keyframes spin-shape-3 {
+            0%, 100% {
+                transform: translate(60px, 60px) rotate(0deg);
+            }
+            25% {
+                transform: translate(0, 60px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 0) rotate(180deg);
+            }
+            75% {
+                transform: translate(60px, 0) rotate(270deg);
+            }
+        }
+
+        @keyframes spin-shape-4 {
+            0%, 100% {
+                transform: translate(0, 60px) rotate(0deg);
+            }
+            25% {
+                transform: translate(0, 0) rotate(90deg);
+            }
+            50% {
+                transform: translate(60px, 0) rotate(180deg);
+            }
+            75% {
+                transform: translate(60px, 60px) rotate(270deg);
+            }
+        }
+
+        /* ================================
+           Animation #2: Pulse Rings
+           ================================ */
+        .spinner-pulse {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+
+        .spinner-pulse .ring {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid var(--spinner-color-2);
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        .spinner-pulse .ring-1 {
+            animation: pulse-out 1.5s ease-out infinite;
+        }
+
+        .spinner-pulse .ring-2 {
+            animation: pulse-out 1.5s ease-out 0.5s infinite;
+        }
+
+        .spinner-pulse .ring-3 {
+            animation: pulse-out 1.5s ease-out 1s infinite;
+        }
+
+        @keyframes pulse-out {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* ================================
+           Animation #3: Wave Bars
+           ================================ */
+        .spinner-wave {
+            width: 100px;
+            height: 80px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .spinner-wave .bar {
+            width: 12px;
+            height: 40px;
+            border-radius: 6px;
+            animation: bounce-wave 1.2s ease-in-out infinite;
+        }
+
+        .spinner-wave .bar-1 {
+            background: var(--spinner-color-1);
+            animation-delay: 0s;
+        }
+
+        .spinner-wave .bar-2 {
+            background: var(--spinner-color-2);
+            animation-delay: 0.1s;
+        }
+
+        .spinner-wave .bar-3 {
+            background: var(--spinner-color-3);
+            animation-delay: 0.2s;
+        }
+
+        .spinner-wave .bar-4 {
+            background: var(--spinner-color-1);
+            animation-delay: 0.3s;
+        }
+
+        .spinner-wave .bar-5 {
+            background: var(--spinner-color-2);
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce-wave {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(1.5) translateY(-20px);
+            }
+        }
+
+        /* Accessibility: Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            .spinner-geometric .shape,
+            .spinner-pulse .ring,
+            .spinner-wave .bar {
+                animation: none !important;
+            }
+        }
+
+        /* Controls Panel */
+        .controls {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+        }
+
+        .slogan-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .slogan-item {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .badge-custom {
+            background: var(--spinner-color-1);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1 class="display-4 mb-3">
+                <i class="bi bi-arrow-repeat"></i>
+                SLS Animated Spinner Test Page
+            </h1>
+            <p class="lead">Choose your favorite loading animation for the Summer Lead Series system</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+        <div class="row g-4">
+
+            <!-- Animation #1: Geometric Shapes -->
+            <div class="col-md-4">
+                <div class="animation-card" data-bs-toggle="modal" data-bs-target="#modalAnimation1">
+                    <h3 class="h5 mb-3">
+                        <span class="badge-custom">Animation #1</span>
+                    </h3>
+                    <h4 class="mb-3">Geometric Shapes</h4>
+                    <div class="animation-preview">
+                        <div class="spinner-geometric">
+                            <div class="shape shape-1"></div>
+                            <div class="shape shape-2"></div>
+                            <div class="shape shape-3"></div>
+                            <div class="shape shape-4"></div>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Google-style rotating squares with smooth transitions
+                    </p>
+                </div>
+            </div>
+
+            <!-- Animation #2: Pulse Rings -->
+            <div class="col-md-4">
+                <div class="animation-card" data-bs-toggle="modal" data-bs-target="#modalAnimation2">
+                    <h3 class="h5 mb-3">
+                        <span class="badge-custom">Animation #2</span>
+                    </h3>
+                    <h4 class="mb-3">Pulse Rings</h4>
+                    <div class="animation-preview">
+                        <div class="spinner-pulse">
+                            <div class="ring ring-1"></div>
+                            <div class="ring ring-2"></div>
+                            <div class="ring ring-3"></div>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Concentric rings pulsing outward with ripple effect
+                    </p>
+                </div>
+            </div>
+
+            <!-- Animation #3: Wave Bars -->
+            <div class="col-md-4">
+                <div class="animation-card" data-bs-toggle="modal" data-bs-target="#modalAnimation3">
+                    <h3 class="h5 mb-3">
+                        <span class="badge-custom">Animation #3</span>
+                    </h3>
+                    <h4 class="mb-3">Wave Bars</h4>
+                    <div class="animation-preview">
+                        <div class="spinner-wave">
+                            <div class="bar bar-1"></div>
+                            <div class="bar bar-2"></div>
+                            <div class="bar bar-3"></div>
+                            <div class="bar bar-4"></div>
+                            <div class="bar bar-5"></div>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Bouncing bars creating a wave pattern
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Controls Panel -->
+        <div class="controls">
+            <h3 class="mb-4">
+                <i class="bi bi-sliders"></i>
+                Controls & Options
+            </h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Current Slogan:</h5>
+                    <div class="alert alert-info d-flex align-items-center justify-content-between">
+                        <span id="currentSlogan" class="fw-bold">Chalking up...</span>
+                        <button class="btn btn-sm btn-primary" onclick="refreshSlogan()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5>Quick Actions:</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="showAllAnimations()">
+                            <i class="bi bi-play-circle"></i>
+                            Preview All Animations
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h5>Available Slogans (15 total):</h5>
+            <div class="slogan-list">
+                <div class="slogan-item">1. Chalking up...</div>
+                <div class="slogan-item">2. Finding the beta...</div>
+                <div class="slogan-item">3. Checking holds...</div>
+                <div class="slogan-item">4. Tying in...</div>
+                <div class="slogan-item">5. Belaying...</div>
+                <div class="slogan-item">6. Setting the route...</div>
+                <div class="slogan-item">7. Brushing holds...</div>
+                <div class="slogan-item">8. Reading the wall...</div>
+                <div class="slogan-item">9. Crimping data...</div>
+                <div class="slogan-item">10. Flagging delays...</div>
+                <div class="slogan-item">11. Heel hooking...</div>
+                <div class="slogan-item">12. Toe jamming...</div>
+                <div class="slogan-item">13. Dynoing to the finish...</div>
+                <div class="slogan-item">14. Stemming the gap...</div>
+                <div class="slogan-item">15. Smearing the cache...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Animation #1 -->
+    <div class="modal fade" id="modalAnimation1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content spinner-modal">
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-geometric">
+                        <div class="shape shape-1"></div>
+                        <div class="shape shape-2"></div>
+                        <div class="shape shape-3"></div>
+                        <div class="shape shape-4"></div>
+                    </div>
+                    <p class="spinner-slogan" id="slogan1">Chalking up...</p>
+                    <button class="btn btn-light mt-3" data-bs-dismiss="modal">Close Preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Animation #2 -->
+    <div class="modal fade" id="modalAnimation2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content spinner-modal">
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-pulse">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                    </div>
+                    <p class="spinner-slogan" id="slogan2">Finding the beta...</p>
+                    <button class="btn btn-light mt-3" data-bs-dismiss="modal">Close Preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Animation #3 -->
+    <div class="modal fade" id="modalAnimation3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content spinner-modal">
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-wave">
+                        <div class="bar bar-1"></div>
+                        <div class="bar bar-2"></div>
+                        <div class="bar bar-3"></div>
+                        <div class="bar bar-4"></div>
+                        <div class="bar bar-5"></div>
+                    </div>
+                    <p class="spinner-slogan" id="slogan3">Checking holds...</p>
+                    <button class="btn btn-light mt-3" data-bs-dismiss="modal">Close Preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Slogan array
+        const spinnerSlogans = [
+            "Chalking up...",
+            "Finding the beta...",
+            "Checking holds...",
+            "Tying in...",
+            "Belaying...",
+            "Setting the route...",
+            "Brushing holds...",
+            "Reading the wall...",
+            "Crimping data...",
+            "Flagging delays...",
+            "Heel hooking...",
+            "Toe jamming...",
+            "Dynoing to the finish...",
+            "Stemming the gap...",
+            "Smearing the cache..."
+        ];
+
+        // Get random slogan
+        function getRandomSlogan() {
+            return spinnerSlogans[Math.floor(Math.random() * spinnerSlogans.length)];
+        }
+
+        // Refresh slogan
+        function refreshSlogan() {
+            const newSlogan = getRandomSlogan();
+            document.getElementById('currentSlogan').textContent = newSlogan;
+        }
+
+        // Update modal slogans when opened
+        document.getElementById('modalAnimation1').addEventListener('show.bs.modal', function() {
+            document.getElementById('slogan1').textContent = getRandomSlogan();
+        });
+
+        document.getElementById('modalAnimation2').addEventListener('show.bs.modal', function() {
+            document.getElementById('slogan2').textContent = getRandomSlogan();
+        });
+
+        document.getElementById('modalAnimation3').addEventListener('show.bs.modal', function() {
+            document.getElementById('slogan3').textContent = getRandomSlogan();
+        });
+
+        // Show all animations sequentially
+        function showAllAnimations() {
+            const modal1 = new bootstrap.Modal(document.getElementById('modalAnimation1'));
+            const modal2 = new bootstrap.Modal(document.getElementById('modalAnimation2'));
+            const modal3 = new bootstrap.Modal(document.getElementById('modalAnimation3'));
+
+            modal1.show();
+            setTimeout(() => {
+                modal1.hide();
+                setTimeout(() => {
+                    modal2.show();
+                    setTimeout(() => {
+                        modal2.hide();
+                        setTimeout(() => {
+                            modal3.show();
+                        }, 500);
+                    }, 3000);
+                }, 500);
+            }, 3000);
+        }
+
+        // Initialize with random slogan
+        refreshSlogan();
+    </script>
+
+</body>
+</html>
