@@ -1,17 +1,11 @@
 /**
  * SLS SPINNER UTILITY
- * Reusable loading spinner system for Summer Lead Series pages
+ * Simple loading spinner system for Summer Lead Series pages
  *
  * Usage:
- * 1. Include spinner-animations.css in your HTML
- * 2. Include this JS file after Bootstrap
- * 3. Call SLSSpinner.show() for random animation
- * 4. Call SLSSpinner.show('geometric') to force specific animation
- * 5. Call SLSSpinner.hide() to close
- *
- * Customize:
- * - Edit SPINNER_SLOGANS array to update slogans
- * - Edit animationTemplates object to update animations
+ * - SLSSpinner.show() - Show random animation
+ * - SLSSpinner.show('geometric') - Force specific animation
+ * - SLSSpinner.hide() - Hide spinner
  */
 
 const SLSSpinner = (function() {
@@ -128,77 +122,56 @@ const SLSSpinner = (function() {
     };
 
     // ================================
-    // PRIVATE FUNCTIONS
-    // ================================
-
-    /**
-     * Get random slogan from the array
-     */
-    function getRandomSlogan() {
-        return SPINNER_SLOGANS[Math.floor(Math.random() * SPINNER_SLOGANS.length)];
-    }
-
-    /**
-     * Get random animation type
-     */
-    function getRandomAnimation() {
-        const animations = ['geometric', 'pulse', 'wave'];
-        return animations[Math.floor(Math.random() * animations.length)];
-    }
-
-    /**
-     * Get animation HTML and slogan
-     * @param {string|null} animationType - Optional: 'geometric', 'pulse', or 'wave'. If null, picks random.
-     */
-    function getSpinnerContent(animationType = null) {
-        const animation = animationType || getRandomAnimation();
-        const slogan = getRandomSlogan();
-
-        if (!animationTemplates[animation]) {
-            console.warn(`SLSSpinner: Unknown animation type "${animation}". Using random.`);
-            return getSpinnerContent(); // Retry with random
-        }
-
-        return {
-            html: `
-                ${animationTemplates[animation]}
-                <p class="spinner-slogan">${slogan}</p>
-            `,
-            type: animation,
-            slogan: slogan
-        };
-    }
-
-    // ================================
-    // PUBLIC API
+    // PRIVATE VARIABLES
     // ================================
 
     let modalInstance = null;
     let containerElement = null;
 
-    /**
-     * Initialize the spinner (called automatically on first show)
-     */
+    // ================================
+    // PRIVATE FUNCTIONS
+    // ================================
+
+    function getRandomSlogan() {
+        return SPINNER_SLOGANS[Math.floor(Math.random() * SPINNER_SLOGANS.length)];
+    }
+
+    function getRandomAnimation() {
+        const animations = ['geometric', 'pulse', 'wave'];
+        return animations[Math.floor(Math.random() * animations.length)];
+    }
+
+    function getSpinnerContent(animationType = null) {
+        const animation = animationType || getRandomAnimation();
+        const slogan = getRandomSlogan();
+
+        if (!animationTemplates[animation]) {
+            console.warn(`SLSSpinner: Unknown animation "${animation}". Using random.`);
+            return getSpinnerContent();
+        }
+
+        return {
+            html: `${animationTemplates[animation]}<p class="spinner-slogan">${slogan}</p>`,
+            type: animation,
+            slogan: slogan
+        };
+    }
+
     function init() {
-        if (modalInstance) return; // Already initialized
+        if (modalInstance) return true;
 
-        // Find or create modal element
-        let modalElement = document.getElementById('modalSpinner');
-
+        const modalElement = document.getElementById('modalSpinner');
         if (!modalElement) {
-            console.error('SLSSpinner: Modal element #modalSpinner not found. Please add it to your HTML.');
+            console.error('SLSSpinner: #modalSpinner not found');
             return false;
         }
 
-        // Find container for dynamic content
         containerElement = modalElement.querySelector('.spinner-container');
-
         if (!containerElement) {
-            console.error('SLSSpinner: Container element .spinner-container not found inside #modalSpinner.');
+            console.error('SLSSpinner: .spinner-container not found');
             return false;
         }
 
-        // Create Bootstrap modal instance
         modalInstance = new bootstrap.Modal(modalElement, {
             backdrop: 'static',
             keyboard: false
@@ -207,91 +180,45 @@ const SLSSpinner = (function() {
         return true;
     }
 
-    /**
-     * Show spinner with optional forced animation type
-     * @param {string|null} animationType - Optional: 'geometric', 'pulse', or 'wave'
-     * @example
-     * SLSSpinner.show();              // Random animation
-     * SLSSpinner.show('geometric');   // Force geometric hexagons
-     * SLSSpinner.show('pulse');       // Force pulse rings
-     * SLSSpinner.show('wave');        // Force tick wave
-     */
+    // ================================
+    // PUBLIC API
+    // ================================
+
     function show(animationType = null) {
         if (!init()) return;
 
-        // Get spinner content (random or specified)
         const content = getSpinnerContent(animationType);
-
-        // ALWAYS inject new HTML into container (even if modal is already showing)
-        // This ensures we get a fresh random animation each time
         containerElement.innerHTML = content.html;
 
-        // Check if modal is already visible
         const modalElement = document.getElementById('modalSpinner');
-        const isAlreadyVisible = modalElement && modalElement.classList.contains('show');
+        const isVisible = modalElement && modalElement.classList.contains('show');
 
-        // Show modal (Bootstrap won't re-show if already visible, but content is updated)
-        if (!isAlreadyVisible) {
+        if (!isVisible) {
             modalInstance.show();
         }
-
-        // Log for debugging (optional, can be removed in production)
-        console.log(`SLSSpinner: ${isAlreadyVisible ? 'Updating' : 'Showing'} "${content.type}" with slogan "${content.slogan}"`);
     }
 
-    /**
-     * Hide spinner
-     */
     function hide() {
         if (modalInstance) {
             modalInstance.hide();
         }
     }
 
-    /**
-     * Check if spinner is currently visible
-     */
     function isVisible() {
         const modalElement = document.getElementById('modalSpinner');
         return modalElement && modalElement.classList.contains('show');
     }
 
-    // ================================
-    // EXPORT PUBLIC API
-    // ================================
-
     return {
         show: show,
         hide: hide,
-        isVisible: isVisible,
-        // Expose slogans for external customization if needed
-        getSlogans: () => [...SPINNER_SLOGANS],
-        getAnimationTypes: () => Object.keys(animationTemplates)
+        isVisible: isVisible
     };
 
 })();
 
-// ================================
-// LEGACY COMPATIBILITY
-// ================================
-
-/**
- * Legacy support for old mySpinner.show() / mySpinner.hide() pattern
- * This allows existing code to work without changes
- *
- * IMPORTANT: Always override mySpinner to ensure compatibility
- * even if other scripts try to define it
- */
+// Create global mySpinner object for compatibility with existing code
 window.mySpinner = {
-    show: function() {
-        console.log('mySpinner.show() called (legacy compatibility)');
-        return SLSSpinner.show();
-    },
-    hide: function() {
-        console.log('mySpinner.hide() called (legacy compatibility)');
-        return SLSSpinner.hide();
-    },
-    isVisible: function() {
-        return SLSSpinner.isVisible();
-    }
+    show: function() { SLSSpinner.show(); },
+    hide: function() { SLSSpinner.hide(); }
 };
