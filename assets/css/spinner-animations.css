@@ -31,7 +31,7 @@
 
 .spinner-container {
     background: white;
-    border: 2px solid var(--spinner-color-1);
+    border: 1px solid var(--spinner-color-1);
     border-radius: 1rem;
     padding: 3rem 2rem !important;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
