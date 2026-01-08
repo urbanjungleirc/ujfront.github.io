@@ -109,7 +109,7 @@ $(document).ready(function () {
                     orderable: true,
                     render: function (data) {
                         // Render the name as a clickable link.
-                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">${data}</a>`;
+                        return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch(this);">${data}</a>`;
                     },
                 },
                 {
@@ -119,7 +119,7 @@ $(document).ready(function () {
                     render: function (data) {
                         // Split the route data and render as a clickable link.
                         const nameParts = data.split("_");
-                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">r${nameParts[0]} ${nameParts[1]}</a>`;
+                        return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch(this);">r${nameParts[0]} ${nameParts[1]}</a>`;
                     },
                     className: "dt-body-center",
                 },
@@ -145,7 +145,7 @@ $(document).ready(function () {
                     orderable: true,
                     render: function (data) {
                         // Render bonus data as a clickable link.
-                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
+                        return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                     },
                     className: "dt-body-center",
                 },
@@ -160,7 +160,7 @@ $(document).ready(function () {
                                 data === "Male"
                                     ? '<i class="bi bi-gender-male"></i>'
                                     : '<i class="bi bi-gender-female"></i>';
-                            return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${icon}</a>`;
+                            return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${icon}</a>`;
                         }
                         return data;
                     },
@@ -174,12 +174,12 @@ $(document).ready(function () {
                         if (type === "display") {
                             // Replace "top rope" with "TR" if applicable.
                             if (data.includes("top rope")) {
-                                return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data.replace(
+                                return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${data.replace(
                                     /top rope/g,
                                     "TR"
                                 )}</a>`;
                             } else {
-                                return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
+                                return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                             }
                         }
                         return data;

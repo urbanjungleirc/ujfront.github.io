@@ -11,13 +11,13 @@
  */
 
 /* ================================
-   CSS Variables & Colors
+   CSS Variables & Colors - SLS26 NEON
    ================================ */
 :root {
-    --spinner-color-1: #052a36;    /* Dark blue-green */
-    --spinner-color-2: #ffd900;    /* Bright yellow */
-    --spinner-color-3: #ff6b35;    /* Orange-red */
-    --spinner-color-4: #0a4a5c;    /* Lighter blue-green */
+    --spinner-color-1: #FF3DFB;    /* Dark navy */
+    --spinner-color-2: #00FFFF;    /* Neon yellow */
+    --spinner-color-3: #FFFA6B;    /* Neon magenta */
+    --spinner-color-4: #B85CFF;    /* Neon cyan */
 }
 
 /* ================================
@@ -30,18 +30,18 @@
 }
 
 .spinner-container {
-    background: white;
-    border: 1px solid var(--spinner-color-1);
+    background: rgba(11, 19, 32, 0.95);
+    border: 2px solid var(--spinner-color-4);
     border-radius: 1rem;
     padding: 3rem 2rem !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .spinner-slogan {
     font-family: 'FatFrank', 'Segoe UI', sans-serif;
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--spinner-color-1);
+    color: #FEFDFB;
     margin-top: 2rem;
     animation: fadeIn 0.5s ease;
     text-align: center;
@@ -164,7 +164,7 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    border: 4px solid var(--spinner-color-2);
+    border: 4px solid var(--spinner-color-3);
     position: absolute;
     top: 0;
     left: 0;
