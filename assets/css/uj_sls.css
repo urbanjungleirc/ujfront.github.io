@@ -1876,7 +1876,7 @@ progress {
   --bs-table-border-color: var(--bs-border-color);
   --bs-table-accent-bg: transparent;
   --bs-table-striped-color: var(--bs-emphasis-color);
-  --bs-table-striped-bg: rgba(21, 31, 46, 0.8);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
   --bs-table-active-color: var(--bs-emphasis-color);
   --bs-table-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
   --bs-table-hover-color: var(--bs-emphasis-color);
@@ -12817,7 +12817,7 @@ body.modal-open .modal-backdrop {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #FFFA6B, transparent);
+  background: linear-gradient(90deg, transparent, #0B1320, transparent);
   transition: left 0.5s ease;
   z-index: 1;
 }
@@ -12911,24 +12911,8 @@ body.modal-open .modal-backdrop {
   }
 }
 body {
-  background-color: #0B1320;
-  background-image: url("../img/sls_background_pattern.png");
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  background-blend-mode: soft-light;
   color: #FEFDFB;
-}
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(11, 19, 32, 0.7);
-  pointer-events: none;
-  z-index: -1;
+  background-color: #0B1320 !important;
 }
 
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
@@ -12946,8 +12930,18 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
 header {
   background: linear-gradient(135deg, rgba(11, 19, 32, 0.95) 0%, rgba(21, 31, 46, 0.95) 100%);
   backdrop-filter: blur(10px);
-  border-bottom: 2px solid #FF3DFB !important;
-  margin-bottom: 1.5rem;
+  border-bottom: none !important;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, #FF3DFB 0%, #FF3DFB 35%, transparent 35%, transparent 70%, #00FFFF 70%, #00FFFF 80%, transparent 80%, transparent 90%, #00FFFF 90%, #00FFFF 100%);
 }
 header .text-bg-primary {
   background-color: transparent !important;
@@ -12975,6 +12969,12 @@ header .bg-white {
   background-color: transparent !important;
 }
 
+.dt-layout-table {
+  border: 1px solid #1E2D3F !important;
+  border-left: 3px solid #B85CFF !important;
+  border-radius: 12px !important;
+}
+
 .table {
   color: #FEFDFB !important;
   background-color: transparent !important;
@@ -12992,18 +12992,24 @@ header .bg-white {
   border-bottom: 1px solid rgba(30, 45, 63, 0.5);
 }
 .table tbody tr:nth-of-type(odd) {
-  background-color: rgba(21, 31, 46, 0.8) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
 }
-.table tbody tr:hover {
-  background-color: rgba(0, 255, 255, 0.15) !important;
+.table tbody tr:nth-of-type(odd) > * {
+  box-shadow: none !important;
 }
-.table tbody tr td {
+.table tbody tr:nth-of-type(even) {
+  background-color: transparent !important;
+}
+.table tbody tr td, .table tbody tr th {
   color: #FEFDFB !important;
   border-color: rgba(30, 45, 63, 0.3) !important;
+  box-shadow: none !important;
 }
 .table tbody tr td .text-dark:not([class*=text-bg-round]):not(.badge):not(.text-primary),
 .table tbody tr td .text-black:not([class*=text-bg-round]):not(.badge):not(.text-primary),
-.table tbody tr td .text-body:not([class*=text-bg-round]):not(.badge):not(.text-primary) {
+.table tbody tr td .text-body:not([class*=text-bg-round]):not(.badge):not(.text-primary), .table tbody tr th .text-dark:not([class*=text-bg-round]):not(.badge):not(.text-primary),
+.table tbody tr th .text-black:not([class*=text-bg-round]):not(.badge):not(.text-primary),
+.table tbody tr th .text-body:not([class*=text-bg-round]):not(.badge):not(.text-primary) {
   color: #FEFDFB !important;
 }
 .table .text-dark:not([class*=text-bg-round]):not(.badge),
@@ -13048,6 +13054,62 @@ header .bg-white {
   border: 2px solid #B85CFF !important;
 }
 
+table.dataTable,
+.dataTables_wrapper table.dataTable {
+  background-color: transparent !important;
+}
+table.dataTable tbody tr,
+.dataTables_wrapper table.dataTable tbody tr {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+table.dataTable tbody tr:nth-of-type(odd),
+.dataTables_wrapper table.dataTable tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+table.dataTable tbody tr:nth-of-type(odd) td, table.dataTable tbody tr:nth-of-type(odd) th,
+.dataTables_wrapper table.dataTable tbody tr:nth-of-type(odd) td,
+.dataTables_wrapper table.dataTable tbody tr:nth-of-type(odd) th {
+  background-color: inherit !important;
+  box-shadow: none !important;
+}
+table.dataTable tbody tr:nth-of-type(even),
+.dataTables_wrapper table.dataTable tbody tr:nth-of-type(even) {
+  background-color: transparent !important;
+}
+table.dataTable tbody tr:nth-of-type(even) td, table.dataTable tbody tr:nth-of-type(even) th,
+.dataTables_wrapper table.dataTable tbody tr:nth-of-type(even) td,
+.dataTables_wrapper table.dataTable tbody tr:nth-of-type(even) th {
+  background-color: inherit !important;
+  box-shadow: none !important;
+}
+table.dataTable tbody tr td, table.dataTable tbody tr th,
+.dataTables_wrapper table.dataTable tbody tr td,
+.dataTables_wrapper table.dataTable tbody tr th {
+  color: #FEFDFB !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: transparent !important;
+}
+
+table.bg-white,
+.table.bg-white,
+table.dataTable.bg-white {
+  background-color: transparent !important;
+}
+
 .btn-outline-primary {
   border: 1px solid #00FFFF;
   color: #00FFFF;
@@ -13070,6 +13132,7 @@ header .bg-white {
 .btn-group .btn-check:checked + .btn {
   background: #00FFFF !important;
   color: #0B1320 !important;
+  border-color: #00FFFF !important;
 }
 
 .list-group-item {

@@ -33,8 +33,8 @@ $card-border: #1E2D3F;       // Subtle borders
 $text-muted: #8B9BAC;        // Muted text
 $border-color: #1E2D3F;      // Dark borders
 $table-bg: #0B1320;          // Table background
-$table-striped-bg: rgba(21, 31, 46, 0.8);  // Striped rows (increased opacity)
-$table-hover-bg: rgba(0, 255, 255, 0.15);  // Hover state (increased opacity)
+$table-striped-bg: rgba(255, 255, 255, 0.04);  // Striped rows - visible blue tint
+$table-hover-bg: rgba(0, 255, 255, 0.15);  // Hover state - cyan highlight
 $theme-colors: (
     "primary": $primary,
     "secondary": $secondary,
@@ -383,7 +383,7 @@ body.modal-open .modal-backdrop {
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, $warning, transparent);
+        background: linear-gradient(90deg, transparent, $primary, transparent);
         transition: left 0.5s ease;
         z-index: 1;
     }
@@ -391,7 +391,6 @@ body.modal-open .modal-backdrop {
     &:hover {
         transform: translateX(8px);
         box-shadow: 0 8px 20px rgba(11, 19, 32, 0.1);
-        //background-color: rgba(249, 245, 214, 0.5) !important;
     }
 
     &:hover::before {
@@ -490,25 +489,12 @@ body.modal-open .modal-backdrop {
 // --------------------------------------------
 
 body {
-    background-color: $body-bg;
-    background-image: url('../img/sls_background_pattern.png');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-blend-mode: soft-light;
     color: $body-color;
-
-    &::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(11, 19, 32, 0.7); // Overlay to dim pattern
-        pointer-events: none;
-        z-index: -1;
-    }
+    // Dark navy background with scattered triangle pattern
+    background-color: $body-bg !important;
+    // background-image: url("../img/triangle-pattern.svg");
+    // background-repeat: repeat;
+    // background-size: 1000px 800px;
 }
 
 // --------------------------------------------
@@ -528,14 +514,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 // --------------------------------------------
-// 3. Headers - Dark Flat with Neon Border
+// 3. Headers - Dark Flat with double Neon Border
 // --------------------------------------------
 
 header {
     background: linear-gradient(135deg, rgba(11, 19, 32, 0.95) 0%, rgba(21, 31, 46, 0.95) 100%);
     backdrop-filter: blur(10px);
-    border-bottom: 2px solid $danger !important; // Magenta border
-    margin-bottom: 1.5rem;
+    border-bottom: none !important;
+    margin-bottom: 2.5rem;
+    position: relative;
+
+    // Neon strip border effect (inspired by bg-strips.png)
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background:
+            linear-gradient(to bottom,
+                $danger 0%,
+                $danger 35%,
+                transparent 35%,
+                transparent 70%,
+                $secondary 70%,
+                $secondary 80%,
+                transparent 80%,
+                transparent 90%,
+                $secondary 90%,
+                $secondary 100%
+            );
+    }
 
     .text-bg-primary {
         background-color: transparent !important;
@@ -575,6 +585,12 @@ header {
 // 5. Tables - Dark with Neon Highlights
 // --------------------------------------------
 
+.dt-layout-table {
+    border: 1px solid $card-border !important;
+    border-left: 3px solid $info !important; 
+    border-radius: 12px !important;
+}
+
 .table {
     color: $body-color !important;
     background-color: transparent !important;
@@ -596,15 +612,21 @@ header {
 
             &:nth-of-type(odd) {
                 background-color: $table-striped-bg !important;
+                // Reset Bootstrap's inset box-shadow on cells
+                > * {
+                    box-shadow: none !important;
+                }
             }
 
-            &:hover {
-                background-color: $table-hover-bg !important;
+            &:nth-of-type(even) {
+                background-color: transparent !important;
             }
 
-            td {
+            td, th {
                 color: $body-color !important;
                 border-color: rgba(30, 45, 63, 0.3) !important;
+                // Reset Bootstrap's inset box-shadow
+                box-shadow: none !important;
 
                 // Only override problematic dark text classes
                 .text-dark:not([class*="text-bg-round"]):not(.badge):not(.text-primary),
@@ -668,21 +690,69 @@ header {
 }
 
 // --------------------------------------------
-// 6. Buttons - Neon Outlined Style
+// 5b. DataTables Overrides - Higher Specificity
 // --------------------------------------------
 
-// .btn-primary {
-//     background: transparent;
-//     border: 1px solid $secondary;
-//     color: $secondary;
-//     font-weight: 700;
+// DataTables uses table.dataTable which can override .table
+// These rules ensure our dark mode styling takes precedence
+table.dataTable,
+.dataTables_wrapper table.dataTable {
+    background-color: transparent !important;
 
-//     &:hover, &:active, &:focus {
-//         background: $secondary !important;
-//         color: $primary !important;
-//         border-color: $secondary !important;
-//     }
-// }
+    tbody tr {
+        background-color: transparent !important;
+        box-shadow: none !important;
+
+        &:nth-of-type(odd) {
+            background-color: $table-striped-bg !important;
+
+            td, th {
+                background-color: inherit !important;
+                box-shadow: none !important;
+            }
+        }
+
+        &:nth-of-type(even) {
+            background-color: transparent !important;
+
+            td, th {
+                background-color: inherit !important;
+                box-shadow: none !important;
+            }
+        }
+
+        td, th {
+            color: $body-color !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+    }
+}
+
+// DataTables striped table override
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: $table-striped-bg !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: transparent !important;
+}
+
+// Override bg-white on tables
+table.bg-white,
+.table.bg-white,
+table.dataTable.bg-white {
+    background-color: transparent !important;
+}
+
+// --------------------------------------------
+// 6. Buttons - Neon Outlined Style
+// --------------------------------------------
 
 .btn-outline-primary {
     border: 1px solid $secondary;
@@ -710,6 +780,7 @@ header {
     .btn-check:checked + .btn {
         background: $secondary !important;
         color: $primary !important;
+        border-color: $secondary !important;
     }
 }
 

@@ -3,7 +3,11 @@
     "allow": [
       "Bash(grep:*)",
       "Bash(npx sass:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_close",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
