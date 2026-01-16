@@ -13324,4 +13324,24 @@ footer .btn-primary:hover {
 
 .spinner-slogan {
   color: #FEFDFB !important;
+}
+
+html {
+  scrollbar-color: #8B9BAC #151F2E;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #151F2E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8B9BAC;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B85CFF;
 }/*# sourceMappingURL=uj_sls.css.map */

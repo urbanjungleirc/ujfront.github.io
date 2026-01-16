@@ -1031,3 +1031,25 @@ footer {
 .spinner-slogan {
     color: $body-color !important;
 }
+
+// Scrollbar styling for all elements
+html {
+    scrollbar-color: $text-muted $card-bg;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: $card-bg;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $text-muted;
+    border-radius: 6px;
+
+    &:hover {
+        background: $accent-light;
+    }
+}

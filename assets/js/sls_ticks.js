@@ -212,13 +212,6 @@ $(document).ready(function () {
             // Define table buttons.
             buttons: [
                 {
-                    text: '<i class="bi bi-arrow-clockwise"></i> Reload',
-                    action: function () {
-                        refreshData();
-                    },
-                    className: "btn-outline-primary btn-small",
-                },
-                {
                     text: '<i class="bi bi-x"></i> Clear Search',
                     action: function (e, dt, node, config) {
                         dt.search("").draw();
