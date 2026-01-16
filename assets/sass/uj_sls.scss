@@ -762,6 +762,7 @@ table.dataTable.bg-white {
     &:hover, &:active, &:focus {
         background: $secondary !important;
         color: $primary !important;
+        border-color: $secondary !important;
     }
 }
 
@@ -772,6 +773,7 @@ table.dataTable.bg-white {
     &:hover {
         background: $danger !important;
         color: $primary !important;
+        border-color: $danger !important;
     }
 }
 
@@ -890,6 +892,11 @@ table.dataTable.bg-white {
     }
 
     &::placeholder {
+        color: $text-muted;
+    }
+
+    &:disabled {
+        background: rgba(21, 31, 46, 0.6);
         color: $text-muted;
     }
 }

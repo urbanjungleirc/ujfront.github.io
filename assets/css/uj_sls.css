@@ -13118,6 +13118,7 @@ table.dataTable.bg-white {
 .btn-outline-primary:hover, .btn-outline-primary:active, .btn-outline-primary:focus {
   background: #00FFFF !important;
   color: #0B1320 !important;
+  border-color: #00FFFF !important;
 }
 
 .btn-outline-secondary {
@@ -13127,6 +13128,7 @@ table.dataTable.bg-white {
 .btn-outline-secondary:hover {
   background: #FF3DFB !important;
   color: #0B1320 !important;
+  border-color: #FF3DFB !important;
 }
 
 .btn-group .btn-check:checked + .btn {
@@ -13222,6 +13224,10 @@ table.dataTable.bg-white {
   color: #FEFDFB;
 }
 .form-control::placeholder, .form-select::placeholder {
+  color: #8B9BAC;
+}
+.form-control:disabled, .form-select:disabled {
+  background: rgba(21, 31, 46, 0.6);
   color: #8B9BAC;
 }
 
