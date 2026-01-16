@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLS Latest Ticks</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/uj_sls.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://use.typekit.net/tco5lzp.css">
+    <style>
+        body {
+            margin: 0;
+            background: transparent !important;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .sls-font {
+            font-family: 'FatFrank', sans-serif;
+        }
+
+        .embed-shell {
+            padding: 0.5rem;
+        }
+
+        .embed-hidden {
+            display: none !important;
+        }
+
+        .embed-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <main class="embed-shell">
+        <section id="latest-section" class="results-panel">
+            <div class="px-3 py-3">
+                <h3 class="text-center mb-3">Latest Ticks</h3>
+                <div id="latest-ticks" class="list-group"></div>
+                <div class="embed-footer">
+                    <a class="btn btn-outline-primary rounded-modern shadow-depth-1" href="sls.html" target="_blank" rel="noopener">
+                        Full results
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
+    <script>
+        const ticksUrl =
+            "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
+
+        function tickIcon(tick = 0, bonus = 0) {
+            const score = tick + bonus;
+            switch (score) {
+                case 20:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-file" viewBox="0 0 16 16">
+                          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                          <rect style="stroke:none" width="10.508" height="4.2642632"
+                                x="2.8761711" y="10.7501478" />
+                        </svg>`;
+                case 25:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-file" viewBox="0 0 16 16">
+                          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                          <rect style="stroke:none" width="10.508" height="4.2642632"
+                                x="2.8761711" y="10.7501478" />
+                          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
+                        </svg>`;
+                case 30:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-file" viewBox="0 0 16 16">
+                          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                          <rect style="stroke: none;" width="10.508" height="9.106"
+                                x="2.876" y="5.908"/>
+                        </svg>`;
+                case 35:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-file" viewBox="0 0 16 16">
+                          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                          <rect style="stroke: none;" width="10.508" height="9.106"
+                                x="2.876" y="5.908"/>
+                          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
+                        </svg>`;
+                case 50:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-file-fill" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                        </svg>`;
+                case 60:
+                    if (tick === 50) {
+                        return `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                                 class="bi bi-file-fill" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                              <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
+                            </svg>`;
+                    }
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                          <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                        </svg>`;
+                case 70:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                          <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                        </svg>`;
+                default:
+                    return `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                             class="bi bi-file" viewBox="0 0 16 16">
+                          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                        </svg>`;
+            }
+        }
+
+        function displayLatestTicks(data) {
+            const groupedData = {};
+            const latestPeople = new Set();
+
+            const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedData.forEach(({ date, name, route, tick, bonus, category, gender }) => {
+                if (latestPeople.size < 5 || latestPeople.has(name)) {
+                    const normalizedDate = luxon.DateTime.fromISO(date).toISODate();
+                    const key = `${normalizedDate}-${name}`;
+
+                    if (!groupedData[key]) {
+                        groupedData[key] = {
+                            date,
+                            name,
+                            category,
+                            gender,
+                            ticks: [],
+                        };
+                        latestPeople.add(name);
+                    }
+
+                    groupedData[key].ticks.push({
+                        route: route.toUpperCase(),
+                        tick,
+                        bonus,
+                    });
+                }
+            });
+
+            const latestTicks = Object.values(groupedData).slice(0, 5);
+            const container = document.getElementById("latest-ticks");
+            const section = document.getElementById("latest-section");
+
+            container.innerHTML = "";
+
+            if (latestTicks.length === 0) {
+                section.classList.add("embed-hidden");
+                return;
+            }
+
+            latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
+                const item = document.createElement("div");
+                const staggerClass = `fade-in stagger-${Math.min(index + 1, 5)}`;
+                item.className = `list-group-item list-group-item-action align-items-center ${staggerClass}`;
+
+                const categoryShort = category ? category.toUpperCase() : "";
+                const genderIcon =
+                    gender === "Male"
+                        ? '<i class="bi bi-gender-male"></i>'
+                        : gender === "Female"
+                        ? '<i class="bi bi-gender-female"></i>'
+                        : '<i class="bi bi-gender-ambiguous"></i>';
+
+                const tickIcons = ticks
+                    .map(({ route, tick, bonus }) => {
+                        const roundNumber = parseInt(route.charAt(0), 10);
+                        const routeLetter = route.charAt(2);
+                        return `
+                            <span class="text-round${roundNumber}">
+                                ${routeLetter} ${tickIcon(tick, bonus)}
+                            </span>
+                        `;
+                    })
+                    .join(" - ");
+
+                item.innerHTML = `
+                    <strong>${name}</strong>
+                    <small>${categoryShort} - ${genderIcon}</small><br>
+                    <small class="text-muted">${luxon.DateTime.fromISO(date).toFormat("ccc, dd MMM yy, HH:mm")}</small><br>
+                    <strong>${tickIcons}</strong>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        function isLocalPreview() {
+            return location.hostname === "localhost" || location.hostname === "127.0.0.1";
+        }
+
+        function showPreviewNotice() {
+            const section = document.getElementById("latest-section");
+            const container = document.getElementById("latest-ticks");
+            section.classList.remove("embed-hidden");
+            container.innerHTML = `
+                <div class="list-group-item list-group-item-action align-items-center">
+                    <strong>Latest ticks unavailable in local preview.</strong><br>
+                    <small class="text-muted">CORS blocks the Google Apps Script feed on localhost.</small>
+                </div>
+            `;
+        }
+
+        function fetchLatestTicks() {
+            $.ajax({
+                url: ticksUrl,
+                method: "GET",
+                dataType: "json",
+                success: function (response) {
+                    if (response && Array.isArray(response.data)) {
+                        displayLatestTicks(response.data);
+                    } else {
+                        if (isLocalPreview()) {
+                            showPreviewNotice();
+                        } else {
+                            document.getElementById("latest-section").classList.add("embed-hidden");
+                        }
+                    }
+                },
+                error: function () {
+                    if (isLocalPreview()) {
+                        showPreviewNotice();
+                    } else {
+                        document.getElementById("latest-section").classList.add("embed-hidden");
+                    }
+                },
+            });
+        }
+
+        fetchLatestTicks();
+    </script>
+</body>
+</html>

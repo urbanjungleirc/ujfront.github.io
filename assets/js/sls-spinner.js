@@ -21,20 +21,22 @@ const SLSSpinner = (function() {
      */
     const SPINNER_SLOGANS = [
         "Chalking up...",
-        "Finding the beta...",
         "Checking holds...",
         "Tying in...",
-        "Belaying...",
-        "Setting the route...",
         "Brushing holds...",
-        "Reading the wall...",
         "Crimping data...",
         "Flagging delays...",
-        "Heel hooking...",
-        "Toe jamming...",
-        "Dynoing to the finish...",
+        "Dynoing the finish...",
         "Stemming the gap...",
-        "Smearing the cache..."
+        "Smearing the cache...",
+        "Loading the crux...",
+        "Caching the route...",
+        "Parsing the wall...",
+        "Indexing holds...",
+        "Buffering the send...",
+        "Syncing the ascent...",
+        "Optimising the belay...",
+        "Compiling beta..."
     ];
 
     /**
