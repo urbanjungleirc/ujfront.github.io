@@ -59,6 +59,22 @@ const SLSSpinner = (function() {
                 <div class="ring ring-3"></div>
             </div>
         `,
+        hexagon: `
+            <div class="spinner-hexagon">
+                <div class="triangle tri-1"></div>
+                <div class="triangle tri-2"></div>
+                <div class="triangle tri-3"></div>
+                <div class="triangle tri-4"></div>
+                <div class="triangle tri-5"></div>
+                <div class="triangle tri-6"></div>
+                <div class="hexagon-glow"></div>
+            </div>
+        `,
+        logo: `
+            <div class="spinner-logo">
+                <img src="https://tools.urbanjungleirc.com/assets/img/sls_logo.png" alt="SLS" class="logo-spin">
+            </div>
+        `,
         wave: `
             <div class="spinner-wave">
                 <!-- Empty -->
@@ -139,7 +155,7 @@ const SLSSpinner = (function() {
     }
 
     function getRandomAnimation() {
-        const animations = ['geometric', 'pulse', 'wave'];
+        const animations = ['geometric', 'pulse', 'wave', 'hexagon', 'logo'];
         return animations[Math.floor(Math.random() * animations.length)];
     }
 

@@ -14,10 +14,12 @@
    CSS Variables & Colors - SLS26 NEON
    ================================ */
 :root {
-    --spinner-color-1: #FF3DFB;    /* Dark navy */
-    --spinner-color-2: #00FFFF;    /* Neon yellow */
-    --spinner-color-3: #FFFA6B;    /* Neon magenta */
-    --spinner-color-4: #B85CFF;    /* Neon cyan */
+    --spinner-color-1: #FF3DFB;    /* Neon magenta */
+    --spinner-color-2: #00FFFF;    /* Neon cyan */
+    --spinner-color-3: #FFFA6B;    /* Neon yellow */
+    --spinner-color-4: #B85CFF;    /* Neon purple */
+    --spinner-color-5: #FF6B6B;    /* Neon coral */
+    --spinner-color-6: #4DFFB8;    /* Neon mint */
 }
 
 /* ================================
@@ -239,12 +241,249 @@
 }
 
 /* ================================
+   Animation #4: Hexagon Formation
+   6 triangles converge into a glowing white hexagon
+   ================================ */
+.spinner-hexagon {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.spinner-hexagon .triangle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    /* Equilateral triangle using borders */
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 35px solid currentColor;
+    /* Position at center, will be transformed */
+    left: 50%;
+    top: 50%;
+    transform-origin: center center;
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 0 8px currentColor);
+    opacity: 0.9;
+}
+
+/* Individual triangle colors and base rotations */
+.spinner-hexagon .tri-1 {
+    color: var(--spinner-color-1);
+    animation: hex-triangle-1 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.spinner-hexagon .tri-2 {
+    color: var(--spinner-color-2);
+    animation: hex-triangle-2 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.spinner-hexagon .tri-3 {
+    color: var(--spinner-color-3);
+    animation: hex-triangle-3 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.spinner-hexagon .tri-4 {
+    color: var(--spinner-color-4);
+    animation: hex-triangle-4 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.spinner-hexagon .tri-5 {
+    color: var(--spinner-color-5);
+    animation: hex-triangle-5 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.spinner-hexagon .tri-6 {
+    color: var(--spinner-color-6);
+    animation: hex-triangle-6 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* White hexagon glow overlay - hidden, kept for structure */
+.spinner-hexagon .hexagon-glow {
+    display: none;
+}
+
+/* Triangle 1 - Top (0°) */
+@keyframes hex-triangle-1 {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(0deg) translateY(-55px) rotate(180deg) scale(0.7);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 8px currentColor) brightness(1) saturate(1);
+    }
+    15% {
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+    40%, 60% {
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-18px) rotate(180deg) scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px white) brightness(3) saturate(0);
+    }
+    85% {
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+}
+
+/* Triangle 2 - Top Right (60°) */
+@keyframes hex-triangle-2 {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-55px) rotate(180deg) scale(0.7);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 8px currentColor) brightness(1) saturate(1);
+    }
+    15% {
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+    40%, 60% {
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-18px) rotate(180deg) scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px white) brightness(3) saturate(0);
+    }
+    85% {
+        transform: translate(-50%, -50%) rotate(360deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+}
+
+/* Triangle 3 - Bottom Right (120°) */
+@keyframes hex-triangle-3 {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-55px) rotate(180deg) scale(0.7);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 8px currentColor) brightness(1) saturate(1);
+    }
+    15% {
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+    40%, 60% {
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-18px) rotate(180deg) scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px white) brightness(3) saturate(0);
+    }
+    85% {
+        transform: translate(-50%, -50%) rotate(420deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+}
+
+/* Triangle 4 - Bottom (180°) */
+@keyframes hex-triangle-4 {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-55px) rotate(180deg) scale(0.7);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 8px currentColor) brightness(1) saturate(1);
+    }
+    15% {
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+    40%, 60% {
+        transform: translate(-50%, -50%) rotate(360deg) translateY(-18px) rotate(180deg) scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px white) brightness(3) saturate(0);
+    }
+    85% {
+        transform: translate(-50%, -50%) rotate(480deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+}
+
+/* Triangle 5 - Bottom Left (240°) */
+@keyframes hex-triangle-5 {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-55px) rotate(180deg) scale(0.7);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 8px currentColor) brightness(1) saturate(1);
+    }
+    15% {
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+    40%, 60% {
+        transform: translate(-50%, -50%) rotate(420deg) translateY(-18px) rotate(180deg) scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px white) brightness(3) saturate(0);
+    }
+    85% {
+        transform: translate(-50%, -50%) rotate(540deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+}
+
+/* Triangle 6 - Top Left (300°) */
+@keyframes hex-triangle-6 {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-55px) rotate(180deg) scale(0.7);
+        opacity: 0.7;
+        filter: drop-shadow(0 0 8px currentColor) brightness(1) saturate(1);
+    }
+    15% {
+        transform: translate(-50%, -50%) rotate(360deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+    40%, 60% {
+        transform: translate(-50%, -50%) rotate(480deg) translateY(-18px) rotate(180deg) scale(1);
+        opacity: 1;
+        filter: drop-shadow(0 0 15px white) brightness(3) saturate(0);
+    }
+    85% {
+        transform: translate(-50%, -50%) rotate(600deg) translateY(-45px) rotate(180deg) scale(0.85);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 10px currentColor) brightness(1.2) saturate(0.8);
+    }
+}
+
+/* ================================
+   Animation #5: Logo Spin
+   Simple spinning logo
+   ================================ */
+.spinner-logo {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.spinner-logo .logo-spin {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: logo-rotate 1.5s linear infinite;
+}
+
+@keyframes logo-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ================================
    Accessibility: Reduced Motion
    ================================ */
 @media (prefers-reduced-motion: reduce) {
     .spinner-geometric .shape,
     .spinner-pulse .ring,
-    .spinner-wave .tick-icon {
+    .spinner-wave .tick-icon,
+    .spinner-hexagon .triangle,
+    .spinner-logo .logo-spin {
         animation: none !important;
     }
 
@@ -252,6 +491,14 @@
     .spinner-geometric .shape {
         opacity: 0.7;
     }
+
+    /* Static hexagon formation for reduced motion - shows white combined state */
+    .spinner-hexagon .tri-1 { transform: translate(-50%, -50%) rotate(0deg) translateY(-18px) rotate(180deg); filter: brightness(3) saturate(0); }
+    .spinner-hexagon .tri-2 { transform: translate(-50%, -50%) rotate(60deg) translateY(-18px) rotate(180deg); filter: brightness(3) saturate(0); }
+    .spinner-hexagon .tri-3 { transform: translate(-50%, -50%) rotate(120deg) translateY(-18px) rotate(180deg); filter: brightness(3) saturate(0); }
+    .spinner-hexagon .tri-4 { transform: translate(-50%, -50%) rotate(180deg) translateY(-18px) rotate(180deg); filter: brightness(3) saturate(0); }
+    .spinner-hexagon .tri-5 { transform: translate(-50%, -50%) rotate(240deg) translateY(-18px) rotate(180deg); filter: brightness(3) saturate(0); }
+    .spinner-hexagon .tri-6 { transform: translate(-50%, -50%) rotate(300deg) translateY(-18px) rotate(180deg); filter: brightness(3) saturate(0); }
 }
 
 /* ================================
@@ -274,6 +521,27 @@
 
     .spinner-wave {
         width: 160px;
+        height: 80px;
+    }
+
+    .spinner-hexagon {
+        width: 100px;
+        height: 100px;
+    }
+
+    .spinner-hexagon .triangle {
+        border-left: 16px solid transparent;
+        border-right: 16px solid transparent;
+        border-bottom: 28px solid currentColor;
+    }
+
+    .spinner-hexagon .hexagon-glow {
+        width: 56px;
+        height: 64px;
+    }
+
+    .spinner-logo {
+        width: 80px;
         height: 80px;
     }
 }

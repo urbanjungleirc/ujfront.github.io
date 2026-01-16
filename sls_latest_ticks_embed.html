@@ -167,7 +167,13 @@
             container.innerHTML = "";
 
             if (latestTicks.length === 0) {
-                section.classList.add("embed-hidden");
+                section.classList.remove("embed-hidden");
+                container.innerHTML = `
+                    <div class="list-group-item list-group-item-action align-items-center">
+                        <strong>No ticks yet.</strong><br>
+                        <small class="text-muted">Check back soon.</small>
+                    </div>
+                `;
                 return;
             }
 
@@ -223,6 +229,18 @@
             `;
         }
 
+        function showLoadError() {
+            const section = document.getElementById("latest-section");
+            const container = document.getElementById("latest-ticks");
+            section.classList.remove("embed-hidden");
+            container.innerHTML = `
+                <div class="list-group-item list-group-item-action align-items-center">
+                    <strong>Unable to load ticks right now.</strong><br>
+                    <small class="text-muted">Please try again later.</small>
+                </div>
+            `;
+        }
+
         function fetchLatestTicks() {
             $.ajax({
                 url: ticksUrl,
@@ -235,7 +253,7 @@
                         if (isLocalPreview()) {
                             showPreviewNotice();
                         } else {
-                            document.getElementById("latest-section").classList.add("embed-hidden");
+                            showLoadError();
                         }
                     }
                 },
@@ -243,7 +261,7 @@
                     if (isLocalPreview()) {
                         showPreviewNotice();
                     } else {
-                        document.getElementById("latest-section").classList.add("embed-hidden");
+                        showLoadError();
                     }
                 },
             });
