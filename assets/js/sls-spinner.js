@@ -33,9 +33,9 @@ const SLSSpinner = (function() {
         "Caching the route...",
         "Parsing the wall...",
         "Indexing holds...",
-        "Buffering the send...",
-        "Syncing the ascent...",
-        "Optimising the belay...",
+        "Dreaming of SLS...",
+        "Visualising the moves...",
+        "Tuning beta...",
         "Compiling beta..."
     ];
 
