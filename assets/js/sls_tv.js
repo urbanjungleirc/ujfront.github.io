@@ -3,7 +3,7 @@
     -------------------------------------
 */
 const scoreUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec"; // public copy data in JSON format
+    "https://script.google.com/macros/s/AKfycbxT-iCL9thSaPhjBbR2guYymQ6Q9fxuebsgbVT9tavoG1-DWmm6yU8_HR7aovXW5sS-Wg/exec"; // public copy data in JSON format
 const minPageDisplay = 10000; // minimum time for a page to be displayed
 const maxPageDisplay = 15000; // maximum time for a page to be displayed
 let dataRefreshInterval = 2 * 60000; // frequency for full data refresh

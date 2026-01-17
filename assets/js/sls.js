@@ -6,10 +6,10 @@
 
 // URL for retrieving scores (public data)
 const scoreUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+    "https://script.google.com/macros/s/AKfycbxT-iCL9thSaPhjBbR2guYymQ6Q9fxuebsgbVT9tavoG1-DWmm6yU8_HR7aovXW5sS-Wg/exec";
+    // previously used URL (https://script.google.com/a/macros/urbanjungleirc.com/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec)
 // URL for retrieving ticks (public data)
-const ticksUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
+const ticksUrl = scoreUrl + "?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
 const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
@@ -232,6 +232,7 @@ function changeGender(gender) {
     } else {
         tblMale.DataTable().columns(0).search("").draw();
     }
+    setGenderControls(gender);
     urlWithCurrentFilter();
 }
 
@@ -242,6 +243,10 @@ function changeGender(gender) {
 function filterCategory(e) {
     const table = tblMale.DataTable();
     switch (e.value) {
+        case "all":
+        case "":
+            table.columns(1).search("").draw();
+            break;
         case "tr":
             table.columns(1).search(`\\b(recreational|youth)\\b`, true).draw();
             break;
@@ -257,6 +262,7 @@ function filterCategory(e) {
                 .search(`\\b${categories[e.value]}\\b`, true)
                 .draw();
     }
+    setCategoryControls(e.value);
     urlWithCurrentFilter();
 }
 
@@ -301,7 +307,7 @@ function updateActiveFilterDisplay() {
     }
 
     if (!displayText) { 
-        displayText = "Leaderboard";
+        displayText = "All Categories";
     }
 
     document.getElementById("activeFilter").textContent = displayText;
@@ -505,7 +511,100 @@ function loadFiltersFromURL() {
         table.column(1).search(category, true, false).draw();
     }
 
+    syncFilterControls(gender, category);
     updateActiveFilterDisplay();
+}
+
+function handleGenderSelect(selectEl) {
+    const value = selectEl.value || null;
+    changeGender(value);
+}
+
+function handleCategorySelect(selectEl) {
+    filterCategory(selectEl);
+}
+
+function syncFilterControls(genderSearch, categorySearch) {
+    const normalizedGender = normalizeGenderValue(genderSearch);
+    const normalizedCategory = normalizeCategoryValue(categorySearch);
+    setGenderControls(normalizedGender);
+    setCategoryControls(normalizedCategory);
+}
+
+function normalizeGenderValue(searchValue) {
+    if (!searchValue) {
+        return "";
+    }
+    const normalized = searchValue.replace(/\\b/g, "").replace(/[()]/g, "");
+    return normalized === "male" || normalized === "female" ? normalized : "";
+}
+
+function normalizeCategoryValue(searchValue) {
+    if (!searchValue) {
+        return "";
+    }
+    const normalized = searchValue.replace(/\\b/g, "").replace(/[()]/g, "");
+    const parts = normalized.split("|");
+    const leadCategories = ["advanced", "intermediate", "open"];
+    const topRopeCategories = ["recreational", "youth"];
+
+    if (parts.length > 1) {
+        if (leadCategories.every((cat) => parts.includes(cat))) {
+            return "lead";
+        }
+        if (topRopeCategories.every((cat) => parts.includes(cat))) {
+            return "tr";
+        }
+        return "";
+    }
+
+    const index = categories.indexOf(normalized);
+    return index >= 0 ? String(index) : "";
+}
+
+function setGenderControls(value) {
+    const genderSelect = document.getElementById("genderSelect");
+    if (genderSelect) {
+        genderSelect.value = value || "";
+    }
+    const bothRadio = document.getElementById("btnradioBoth");
+    const maleRadio = document.getElementById("btnradioMale");
+    const femaleRadio = document.getElementById("btnradioFemale");
+    if (bothRadio && maleRadio && femaleRadio) {
+        bothRadio.checked = !value;
+        maleRadio.checked = value === "male";
+        femaleRadio.checked = value === "female";
+    }
+}
+
+function setCategoryControls(value) {
+    const categorySelect = document.getElementById("categorySelect");
+    if (categorySelect) {
+        categorySelect.value = value || "all";
+    }
+    const radios = document.querySelectorAll('input[name="radioCategory"]');
+    radios.forEach((radio) => {
+        radio.checked = false;
+    });
+
+    const radioIdsByValue = {
+        all: "btnradioAll",
+        "0": "btnradioAdv",
+        "1": "btnradioInt",
+        "2": "btnradioYou",
+        "3": "btnradioRec",
+        "4": "btnradioYouTR",
+        lead: "btnradioLead",
+        tr: "btnradioTR",
+    };
+
+    const radioId = radioIdsByValue[value || "all"];
+    if (radioId) {
+        const radio = document.getElementById(radioId);
+        if (radio) {
+            radio.checked = true;
+        }
+    }
 }
 
 /**
@@ -611,6 +710,16 @@ function displayLatestTicks(data) {
 
     const container = document.getElementById("latest-ticks");
     container.innerHTML = "";
+
+    if (latestTicks.length === 0) {
+        container.innerHTML = `
+            <div class="list-group-item list-group-item-action align-items-center list-group-item-hover fade-in">
+                <strong>No ticks yet.</strong><br>
+                <small class="text-muted">Check back soon.</small>
+            </div>
+        `;
+        return;
+    }
 
     latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
         const item = document.createElement("div");

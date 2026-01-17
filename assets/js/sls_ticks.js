@@ -4,12 +4,10 @@
  * -------------------------------------
  */
 
-// URL for retrieving scores (public data)
 const scoreUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+    "https://script.google.com/macros/s/AKfycbxT-iCL9thSaPhjBbR2guYymQ6Q9fxuebsgbVT9tavoG1-DWmm6yU8_HR7aovXW5sS-Wg/exec";
 // URL for retrieving ticks (public data)
-const ticksUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
+const ticksUrl = scoreUrl + "?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
 const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
@@ -500,6 +498,16 @@ function displayLatestTicks(data) {
 
     const container = document.getElementById("latest-ticks");
     container.innerHTML = "";
+
+    if (latestTicks.length === 0) {
+        container.innerHTML = `
+            <div class="list-group-item list-group-item-action align-items-center fade-in">
+                <strong>No ticks yet.</strong><br>
+                <small class="text-muted">Check back soon.</small>
+            </div>
+        `;
+        return;
+    }
 
     // Render each grouped tick entry
     latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
