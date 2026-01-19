@@ -117,7 +117,7 @@ $("#tableMale")
             },
             {
                 data: null,
-                class: "dt-right py-1",
+                class: "dt-right py-0",
                 render: function (row, type) {
                     if (type === "display") {
                         return sends(row);
@@ -129,6 +129,11 @@ $("#tableMale")
                 defaultContent: "",
             },
         ],
+        createdRow: function (row) {
+            $(row)
+                .children("th, td")
+                .css({ paddingTop: "0.125rem", paddingBottom: "0.125rem", lineHeight: "1" });
+        },
 
         //* paging setup
         lengthChange: false,
@@ -149,7 +154,7 @@ $("#tableMale")
         ],
 
         language: {
-            info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
+            info: '<div class="d-flex justify-content-between mt-0 mb-1 me-1 fs-5 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
             infoFiltered: "",
             infoEmpty: "",
             emptyTable:
@@ -241,7 +246,7 @@ $("#tableFemale")
             },
             {
                 data: null,
-                class: "dt-right py-1",
+                class: "dt-right py-0",
                 render: function (row, type) {
                     if (type === "display") {
                         return sends(row);
@@ -253,6 +258,11 @@ $("#tableFemale")
                 defaultContent: "",
             },
         ],
+        createdRow: function (row) {
+            $(row)
+                .children("th, td")
+                .css({ paddingTop: "0.125rem", paddingBottom: "0.125rem", lineHeight: "1" });
+        },
         // columnDefs: [{ width: 200, targets: 3 }],
 
         searchCols: [
@@ -274,7 +284,7 @@ $("#tableFemale")
         renderer: "bootstrap",
 
         language: {
-            info: '<div class="d-flex justify-content-between mt-0 mb-2 me-1 fs-4 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
+            info: '<div class="d-flex justify-content-between mt-0 mb-1 me-1 fs-5 bg-white text-primary pt-0 px-1"><div>Competitors: <strong>_TOTAL_</strong></div><div>page <strong>_PAGE_</strong> of _PAGES_</div></div>',
             infoFiltered: "",
             infoEmpty: "",
             lengthMenu: "Display _MENU_ competitors",
@@ -559,8 +569,7 @@ function tickIcon(tick = 0, bonus = 0) {
     switch (tick + bonus) {
         case 20:
         case 25:
-            //return `<i class="bi bi-file-break"></i>`;
-            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
                         <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
                         <rect style="stroke:none"
                             id="rect1119"
@@ -571,7 +580,7 @@ function tickIcon(tick = 0, bonus = 0) {
                     </svg>`;
         case 30:
         case 35:
-            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
                         <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
                         <rect style="stroke: none;" id="rect1119" 
                             width="10.508" 
@@ -580,32 +589,27 @@ function tickIcon(tick = 0, bonus = 0) {
                             y="5.908"/>
                     </svg>`;
         case 50:
-            //return `<i class="bi bi-file-fill"></i>`;
-            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
                     </svg>`;
         case 60:
             if (tick == 50) {
                 // tick with bonus
-                // return `<i class="bi bi-file-fill"></i>`;
-                return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file-fill" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
                         </svg>`;
             } else {
                 // flash without bonus
-                // return `<i class="bi bi-lightning-fill"></i>`;
-                return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
                             <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
                         </svg>`;
             }
         case 70:
-            // return `<i class="bi bi-lightning-fill"></i>`;
-            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
                         <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
                     </svg>`;
         default:
-            //return `<i class="bi bi-file"></i>`;
-            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor" class="bi bi-file" viewBox="0 0 16 16">
                         <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
                     </svg>`;
     }

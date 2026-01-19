@@ -26,17 +26,22 @@ const SLSSpinner = (function() {
         "Brushing holds...",
         "Crimping data...",
         "Flagging delays...",
-        "Dynoing the finish...",
         "Stemming the gap...",
         "Smearing the cache...",
         "Loading the crux...",
         "Caching the route...",
-        "Parsing the wall...",
         "Indexing holds...",
         "Dreaming of SLS...",
         "Visualising the moves...",
-        "Tuning beta...",
-        "Compiling beta..."
+        "Trusting the smear...",
+        "Mapping the overhang...",
+        "Finding the balance...",
+        "Hugging the wall...",
+        "Beta loading...",
+        "Compiling beta...", 
+        "Hanging on...", 
+        "Sending soon...", 
+        "Unlocking the knee bar..."
     ];
 
     /**
