@@ -381,37 +381,49 @@ function sends(row) {
  * @returns {string} - The SVG icon as an HTML string.
  */
 function tickIcon(tick = 0, bonus = 0) {
+    // Determine the combined score
     const score = tick + bonus;
     switch (score) {
         case 20:
-        case 25:
-            // Icon for score 20 or 25.
+            // First zone
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file" viewBox="0 0 16 16">
           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-          <rect style="stroke:none"
-                id="rect1119"
-                width="10.508"
-                height="4.2642632"
-                x="2.8761711"
-                y="10.7501478" />
+          <rect style="stroke:none" id="rect1119" width="10.508" height="4.2642632"
+                x="2.8761711" y="10.7501478" />
+        </svg>`;
+        case 25:
+            // First zone with a bonus
+            return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+             class="bi bi-file" viewBox="0 0 16 16">
+          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+          <rect style="stroke:none" id="rect1119" width="10.508" height="4.2642632"
+                x="2.8761711" y="10.7501478" />
+          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
         </svg>`;
         case 30:
-        case 35:
-            // Icon for score 30 or 35.
+            // Second zone
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file" viewBox="0 0 16 16">
           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-          <rect style="stroke: none;" id="rect1119"
-                width="10.508"
-                height="9.106"
-                x="2.876"
-                y="5.908"/>
+          <rect style="stroke: none;" id="rect1119" width="10.508" height="9.106"
+                x="2.876" y="5.908"/>
+        </svg>`;
+        case 35:
+            // Second zone with a bonus
+            return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+             class="bi bi-file" viewBox="0 0 16 16">
+          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+          <rect style="stroke: none;" id="rect1119" width="10.508" height="9.106"
+                x="2.876" y="5.908"/>
+          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
         </svg>`;
         case 50:
-            // Icon for top score (50).
+            // Top score icon
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file-fill" viewBox="0 0 16 16">
@@ -419,14 +431,15 @@ function tickIcon(tick = 0, bonus = 0) {
         </svg>`;
         case 60:
             if (tick === 50) {
-                // Icon for a top score (50) with bonus.
+                // Top score with bonus
                 return `
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                class="bi bi-file-fill" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+            <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
           </svg>`;
             } else {
-                // Icon for a flash (score 60 without tick 50).
+                // Flash icon
                 return `
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                class="bi bi-lightning-fill" viewBox="0 0 16 16">
@@ -434,14 +447,15 @@ function tickIcon(tick = 0, bonus = 0) {
           </svg>`;
             }
         case 70:
-            // Icon for flash with bonus.
+            // Flash icon with bonus
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-lightning-fill" viewBox="0 0 16 16">
           <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
         </svg>`;
         default:
-            // Default icon when no conditions match.
+            // Default icon when no score matches
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file" viewBox="0 0 16 16">
