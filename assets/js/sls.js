@@ -169,7 +169,10 @@ $("#tableMale")
         // Layout configuration
         layout: {
             topStart: null,
-            topEnd: null,
+            topEnd: function() {
+                return $('<button id="toggleAllDetails" class="btn btn-sm btn-outline-primary rounded-modern shadow-depth-1" title="Show/hide all ticks"><i class="bi bi-chevron-expand me-1"></i><span>Show ticks</span></button>')
+                    .on('click', toggleAllDetails);
+            },
             bottomStart: "info",
             bottomEnd: "paging",
             bottom1: "pageLength",
@@ -190,6 +193,11 @@ $("#tableMale")
  * Event Listeners for DataTable Interactions
  * -------------------------------------
  */
+
+// Reset toggle all state when table is redrawn (e.g., after filtering)
+$("#tableMale").on("draw.dt", function() {
+    resetToggleAllState();
+});
 
 // Toggle display of child rows when a cell with the "details-control" class is clicked
 $("#tableMale").on("click", "td.details-control", function () {
@@ -220,6 +228,70 @@ $("#tableMale").on("click", "td.details-control", function () {
 function refreshData() {
     tblMale.DataTable().ajax.reload();
     fetchLatestTicks();
+    resetToggleAllState();
+}
+
+/**
+ * State tracking for expand/collapse all details
+ */
+let allDetailsExpanded = false;
+
+/**
+ * Resets the toggle all details button state.
+ */
+function resetToggleAllState() {
+    allDetailsExpanded = false;
+    const button = document.getElementById("toggleAllDetails");
+    if (button) {
+        const icon = button.querySelector("i");
+        const label = button.querySelector("span");
+        if (icon) {
+            icon.className = "bi bi-chevron-expand me-1";
+        }
+        if (label) {
+            label.textContent = "Show ticks";
+        }
+        button.setAttribute("title", "Show all ticks");
+    }
+}
+
+/**
+ * Toggles all detail rows in the DataTable.
+ * Expands all if collapsed, collapses all if expanded.
+ */
+function toggleAllDetails() {
+    const table = tblMale.DataTable();
+    const button = document.getElementById("toggleAllDetails");
+    const icon = button.querySelector("i");
+    const label = button.querySelector("span");
+
+    if (allDetailsExpanded) {
+        // Collapse all rows
+        table.rows().every(function() {
+            if (this.child.isShown()) {
+                this.child.hide();
+                $(this.node()).removeClass("shown");
+            }
+        });
+        icon.className = "bi bi-chevron-expand me-1";
+        label.textContent = "Show ticks";
+        button.setAttribute("title", "Show all ticks");
+        allDetailsExpanded = false;
+    } else {
+        // Expand all visible rows
+        table.rows({ search: 'applied' }).every(function() {
+            if (!this.child.isShown()) {
+                const tr = $(this.node());
+                const bgClass = tr.hasClass("odd") ? "odd" : "even";
+                this.child(sends(this.data()), bgClass).show();
+                tr.addClass("shown");
+            }
+        });
+        icon.className = "bi bi-chevron-contract me-1";
+        label.textContent = "Hide ticks";
+        button.setAttribute("title", "Hide all ticks");
+        allDetailsExpanded = true;
+    }
 }
 
 /**

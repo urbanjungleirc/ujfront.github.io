@@ -13034,7 +13034,7 @@ header .bg-white {
   border-radius: 20px !important;
   background: linear-gradient(135deg, rgba(21, 31, 46, 0.88), rgba(11, 19, 32, 0.9)) padding-box, linear-gradient(135deg, rgba(0, 255, 255, 0.55), rgba(255, 61, 251, 0.55)) border-box !important;
   border: 1px solid transparent;
-  overflow: hidden;
+  overflow-x: auto; /* Allow horizontal scroll on mobile */
   padding: 0.25rem 0.25rem 0.9rem !important;
 }
 
