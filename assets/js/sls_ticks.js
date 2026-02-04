@@ -228,6 +228,9 @@ $(document).ready(function () {
             layout: {
                 topStart: "buttons",
                 topEnd: "search",
+                bottom: function() {
+                    return $('<p class="text-muted small mb-2 mt-1"><i class="bi bi-info-circle"></i> Click on any <strong>name</strong>, <strong>route</strong>, <strong>gender</strong>, or <strong>category</strong> to filter the table.</p>');
+                },
                 bottomStart: "info",
                 bottomEnd: "paging",
                 bottom1: "pageLength",
