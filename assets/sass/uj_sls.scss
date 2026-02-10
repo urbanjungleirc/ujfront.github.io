@@ -985,14 +985,24 @@ table.dataTable.bg-white {
 // --------------------------------------------
 
 .form-control, .form-select {
-    background: rgba(21, 31, 46, 0.8);
-    border: 1px solid $card-border;
+    background: rgba(21, 31, 46, 0.9);  // Slightly more opaque
+    border: 2px solid rgba(0, 255, 255, 0.4);  // Cyan border with transparency
     color: $body-color;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);  // Subtle cyan glow
+    transition: all 0.3s ease;  // Smooth transitions
+
+    &:hover:not(:disabled) {
+        background: rgba(30, 45, 63, 0.95);
+        border-color: rgba(0, 255, 255, 0.6);  // Brighter cyan
+        box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);  // Stronger glow
+    }
 
     &:focus {
-        background: rgba(30, 45, 63, 0.9);
-        border-color: $secondary;
+        background: rgba(30, 45, 63, 1);
+        border-color: $secondary;  // Full cyan
         color: $body-color;
+        box-shadow: 0 0 16px rgba(0, 255, 255, 0.4);  // Prominent glow
+        outline: none;  // Remove default browser outline
     }
 
     &::placeholder {
@@ -1000,8 +1010,140 @@ table.dataTable.bg-white {
     }
 
     &:disabled {
-        background: rgba(21, 31, 46, 0.6);
+        background: rgba(21, 31, 46, 0.5);
+        border-color: rgba(139, 155, 172, 0.2);  // Muted border
         color: $text-muted;
+        box-shadow: none;  // No glow for disabled
+        cursor: not-allowed;
+    }
+}
+
+// Ensure small variants maintain visibility
+.form-control-sm, .form-select-sm {
+    border-width: 2px;  // Keep thick border even when small
+}
+
+// Radio buttons and checkboxes
+.form-check-input {
+    background-color: rgba(21, 31, 46, 0.9);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    box-shadow: 0 0 6px rgba(0, 255, 255, 0.15);
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        border-color: rgba(0, 255, 255, 0.6);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.25);
+    }
+
+    &:focus {
+        border-color: $secondary;
+        box-shadow: 0 0 14px rgba(0, 255, 255, 0.4);
+        outline: none;
+    }
+
+    &:checked {
+        background-color: $secondary;
+        border-color: $secondary;
+        box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+    }
+}
+
+// Textarea specific (maintain readability for larger content areas)
+textarea.form-control {
+    min-height: 80px;  // Ensure adequate height
+    resize: vertical;  // Allow vertical resizing only
+}
+
+// Select dropdown arrow - cyan SVG for dark theme (muted by default, bright on hover)
+.form-select {
+    // Ensure native and Bootstrap arrows are completely removed
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+
+    // Custom cyan dropdown arrow using SVG data URI (consistent on all states)
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300FFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 16px 12px !important;
+    opacity: 0.6;  // Muted by default
+    transition: opacity 0.2s ease;
+
+    // Brighter on hover and focus
+    &:hover,
+    &:focus,
+    &:active,
+    &:focus-visible {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300FFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        opacity: 1;  // Bright on interaction
+    }
+}
+
+// Search input clear button styling (native browser X button) - muted by default, bright on hover
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 14px;  // Slightly larger for better consistency with arrow
+    width: 14px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2300FFFF'%3e%3cpath d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    cursor: pointer;
+    opacity: 0.6;  // Muted by default (matches select arrow)
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 1;  // Bright on hover (matches select arrow)
+        filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.6));
+    }
+}
+
+// DataTables search wrapper and inputs
+.dt-search {
+    input[type="search"],
+    input.form-control {
+        // Ensure search inputs inherit form control styling
+        background: rgba(21, 31, 46, 0.9);
+        border: 2px solid rgba(0, 255, 255, 0.4);
+        color: $body-color;
+        box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
+        transition: all 0.3s ease;
+
+        &:hover {
+            border-color: rgba(0, 255, 255, 0.6);
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+        }
+
+        &:focus {
+            border-color: $secondary;
+            box-shadow: 0 0 16px rgba(0, 255, 255, 0.4);
+            outline: none;
+        }
+
+        &::placeholder {
+            color: $text-muted;
+        }
+    }
+}
+
+// DataTables custom clear button (if present)
+.dt-search-button,
+button.dt-button {
+    &[aria-label*="Clear"],
+    &[title*="Clear"],
+    &[title*="clear"] {
+        color: $secondary !important;
+        border-color: rgba(0, 255, 255, 0.4) !important;
+
+        &:hover {
+            color: $primary !important;
+            background-color: $secondary !important;
+            border-color: $secondary !important;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+        }
     }
 }
 
