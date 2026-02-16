@@ -933,6 +933,19 @@ table.dataTable.bg-white {
     font-weight: 700;
 }
 
+// Fix Bootstrap text-bg-* badge utilities for dark theme
+.badge.text-bg-info {
+    background: $primary !important;
+    color: $info !important;
+    border: 2px solid $info;
+}
+
+.badge.text-bg-primary {
+    background: $primary !important;
+    color: $secondary !important;
+    border: 2px solid $secondary;
+}
+
 .rounded-pill {
     &.text-bg-accent-light {
         background: $primary !important;
