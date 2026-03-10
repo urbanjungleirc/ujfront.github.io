@@ -22,6 +22,31 @@ const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 document.addEventListener("DOMContentLoaded", loadFiltersFromURL);
 
 /**
+ * Computes ranks from scores, grouped by gender+category.
+ * Ties share the same rank; the next rank skips accordingly (1,1,3...).
+ * This is calculated client-side to avoid stale pre-computed ranks from the sheet.
+ */
+function computeRanks(data) {
+    const groups = {};
+    data.forEach(row => {
+        const key = `${row.gender}|${row.category}`;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(row);
+    });
+    Object.values(groups).forEach(group => {
+        group.sort((a, b) => b.score - a.score);
+        let rank = 1;
+        group.forEach((row, i) => {
+            if (i > 0 && row.score < group[i - 1].score) {
+                rank = i + 1;
+            }
+            row.rank = rank;
+        });
+    });
+    return data;
+}
+
+/**
  * -------------------------------------
  * Countdown Timer Functionality
  * -------------------------------------
@@ -95,7 +120,9 @@ $("#tableMale")
             data: function (d) {
                 d.format = "json";
             },
-            dataSrc: "data",
+            dataSrc: function (json) {
+                return computeRanks(json.data);
+            },
         },
 
         // Define table columns
@@ -745,14 +772,14 @@ function fetchLatestTicks() {
  */
 function displayLatestTicks(data) {
     const groupedData = {};
-    const latestPeople = new Set(); // Track latest 5 unique climbers
+    const latestPeople = new Set(); // Track latest 10 unique climbers
 
     // Sort data by exact timestamp (newest first)
     const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Iterate over sorted data and group by unique climbers
     sortedData.forEach(({ date, name, route, tick, bonus, category, gender }) => {
-        if (latestPeople.size < 5 || latestPeople.has(name)) {
+        if (latestPeople.size < 10 || latestPeople.has(name)) {
             const normalizedDate = luxon.DateTime.fromISO(date).toISODate(); // Keep only date part
             const key = `${normalizedDate}-${name}`;
 
@@ -777,8 +804,8 @@ function displayLatestTicks(data) {
         }
     });
 
-    // Get the latest 5 climbers' logs (already sorted)
-    const latestTicks = Object.values(groupedData).slice(0, 5);
+    // Get the latest 10 climbers' logs (already sorted)
+    const latestTicks = Object.values(groupedData).slice(0, 10);
 
     const container = document.getElementById("latest-ticks");
     container.innerHTML = "";

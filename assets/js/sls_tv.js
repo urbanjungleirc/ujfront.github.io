@@ -18,6 +18,31 @@ const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 // Note: mySpinner is now provided by sls-spinner.js (loaded earlier in HTML)
 // No need to initialize it here - the spinner utility handles it
 
+/**
+ * Computes ranks from scores, grouped by gender+category.
+ * Ties share the same rank; the next rank skips accordingly (1,1,3...).
+ * This is calculated client-side to avoid stale pre-computed ranks from the sheet.
+ */
+function computeRanks(data) {
+    const groups = {};
+    data.forEach(row => {
+        const key = `${row.gender}|${row.category}`;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(row);
+    });
+    Object.values(groups).forEach(group => {
+        group.sort((a, b) => b.score - a.score);
+        let rank = 1;
+        group.forEach((row, i) => {
+            if (i > 0 && row.score < group[i - 1].score) {
+                rank = i + 1;
+            }
+            row.rank = rank;
+        });
+    });
+    return data;
+}
+
 function updateCountdown() {
     const now = new Date();
 
@@ -63,9 +88,11 @@ $("#tableMale")
         ajax: {
             url: scoreUrl,
             cache: true,
-            dataSrc: "data",
             data: function (d) {
                 d.format = "json";
+            },
+            dataSrc: function (json) {
+                return computeRanks(json.data);
             },
         },
 
@@ -195,7 +222,9 @@ $("#tableFemale")
             data: function (d) {
                 d.format = "json";
             },
-            dataSrc: "data",
+            dataSrc: function (json) {
+                return computeRanks(json.data);
+            },
         },
 
         columns: [
