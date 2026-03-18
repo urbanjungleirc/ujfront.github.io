@@ -137,6 +137,7 @@
             top: 0;
             height: 34px;
             border-bottom: none;
+            font-weight: bold !important;
         }
 
         /* Second header row (A / B / C / D route labels) */
@@ -146,10 +147,10 @@
         }
 
         /* Round-coloured background tints — applied on top of the dark base */
-        #tickTable thead th.text-round1 { background-color: rgba(var(--bs-round1-rgb), 0.2); }
-        #tickTable thead th.text-round2 { background-color: rgba(var(--bs-round2-rgb), 0.2); }
-        #tickTable thead th.text-round3 { background-color: rgba(var(--bs-round3-rgb), 0.2); }
-        #tickTable thead th.text-round4 { background-color: rgba(var(--bs-round4-rgb), 0.2); }
+        #tickTable thead th.text-round1 { color: rgba(var(--bs-round1-rgb), 0.9) !important; }
+        #tickTable thead th.text-round2 { color: rgba(var(--bs-round2-rgb), 0.9) !important; }
+        #tickTable thead th.text-round3 { color: rgba(var(--bs-round3-rgb), 0.9) !important; }
+        #tickTable thead th.text-round4 { color: rgba(var(--bs-round4-rgb), 0.9) !important; }
 
         /* Dark striped rows */
         #tickTable {
@@ -191,8 +192,8 @@
             color: #FEFDFB;
         }
 
-        .filter-bar .text-muted {
-            color: rgba(254, 253, 251, 0.5) !important;
+        .filter-bar .text-muted, .chart-panel .text-muted {
+            color: rgba(254, 253, 251, 0.9) !important;
         }
 
         @media (max-width: 575px) {
