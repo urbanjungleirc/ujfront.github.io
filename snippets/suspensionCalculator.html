@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Membership Suspension Calculator</title>
+    <!-- Bootstrap + UJ Colors -->
+    <link rel="stylesheet" href="../assets/css/uj_colors.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+
+<style>
+    body {
+        background-color: #FAFAFA;
+        padding: 1.5rem 1rem;
+    }
+
+    .calc-card {
+        max-width: 520px;
+        margin: 0 auto;
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+    }
+
+    .calc-card .card-header {
+        background-color: #ae222a;
+        color: #fff;
+        border-radius: 0.75rem 0.75rem 0 0;
+        padding: 1rem 1.25rem;
+    }
+
+    .calc-card .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .calc-card .card-body {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .btn-calculate {
+        background-color: #ae222a;
+        border-color: #ae222a;
+        color: #fff;
+        font-weight: 600;
+        width: 100%;
+        padding: 0.55rem;
+    }
+
+    .btn-calculate:hover {
+        background-color: #8f1b22;
+        border-color: #8f1b22;
+        color: #fff;
+    }
+
+    .result-box {
+        border-radius: 0.5rem;
+        padding: 1rem 1.1rem;
+        margin-top: 1.25rem;
+        font-size: 0.97rem;
+    }
+
+    .result-main {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .detail-table td {
+        padding: 0.15rem 0.5rem 0.15rem 0;
+        font-size: 0.88rem;
+        color: #495057;
+    }
+
+    .detail-table td:first-child {
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .section-divider {
+        border-top: 1px solid #dee2e6;
+        margin: 1rem 0 0.75rem;
+    }
+
+    #results {
+        display: none;
+    }
+
+    /* --- Flatpickr UJ theme --- */
+    .flatpickr-calendar {
+        font-family: inherit;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+        border: 1px solid #dee2e6;
+    }
+    .flatpickr-months {
+        background: #ae222a;
+        border-radius: 0.5rem 0.5rem 0 0;
+        padding: 0.25rem 0;
+    }
+    .flatpickr-month,
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+        color: #fff !important;
+        fill: #fff !important;
+    }
+    .flatpickr-prev-month:hover svg,
+    .flatpickr-next-month:hover svg {
+        fill: #f8c8ca !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+        color: #fff;
+        font-weight: 600;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+    .flatpickr-current-month input.cur-year:hover {
+        background: rgba(255,255,255,0.15);
+    }
+    .flatpickr-weekday {
+        color: #ae222a;
+        font-weight: 600;
+        font-size: 0.78rem;
+    }
+    .flatpickr-day {
+        border-radius: 0.3rem;
+        color: #212529;
+    }
+    .flatpickr-day:hover,
+    .flatpickr-day:focus {
+        background: #f5e0e1;
+        border-color: #f5e0e1;
+    }
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover {
+        background: #ae222a;
+        border-color: #ae222a;
+        color: #fff;
+    }
+    .flatpickr-day.today {
+        border-color: #ae222a;
+        color: #ae222a;
+        font-weight: 700;
+    }
+    .flatpickr-day.today:hover {
+        background: #ae222a;
+        color: #fff;
+    }
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+        color: #ced4da;
+    }
+
+    /* Input with calendar icon button */
+    .date-input-group .form-control {
+        cursor: pointer;
+        background-color: #fff;
+    }
+    .date-input-group .btn-calendar {
+        background-color: #ae222a;
+        border-color: #ae222a;
+        color: #fff;
+    }
+    .date-input-group .btn-calendar:hover {
+        background-color: #8f1b22;
+        border-color: #8f1b22;
+    }
+</style>
+
+<body>
+    <div class="calc-card card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0"><i class="bi bi-calendar-minus me-2"></i>Suspension Calculator</h5>
+            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#logicExplainer" title="How does this work?">
+                <i class="bi bi-info-circle"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <form id="calcForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Last payment date</label>
+                    <div class="input-group date-input-group" id="wrap-lastPaymentDate">
+                        <input type="text" class="form-control" id="lastPaymentDate" placeholder="Select date" data-input readonly>
+                        <button class="btn btn-calendar" type="button" data-toggle><i class="bi bi-calendar3"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="paymentPeriod" class="form-label fw-semibold">Payment period</label>
+                    <select class="form-select" id="paymentPeriod">
+                        <option value="weekly">Weekly</option>
+                        <option value="fortnightly">Fortnightly</option>
+                        <option value="monthly" selected>Monthly</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="amount" class="form-label fw-semibold">Payment amount (AUD)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="amount" min="0" step="0.01" placeholder="0.00" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Suspension period</label>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="input-group date-input-group" id="wrap-suspFrom">
+                                <span class="input-group-text text-muted" style="font-size:0.8rem;">From</span>
+                                <input type="text" class="form-control" id="suspFrom" placeholder="Select date" data-input readonly>
+                                <button class="btn btn-calendar" type="button" data-toggle><i class="bi bi-calendar3"></i></button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group date-input-group" id="wrap-suspTill">
+                                <span class="input-group-text text-muted" style="font-size:0.8rem;">Till</span>
+                                <input type="text" class="form-control" id="suspTill" placeholder="Select date" data-input readonly>
+                                <button class="btn btn-calendar" type="button" data-toggle><i class="bi bi-calendar3"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="formError" class="alert alert-danger py-2 d-none" role="alert"></div>
+
+                <button type="submit" class="btn btn-calculate mt-1">
+                    <i class="bi bi-calculator me-1"></i> Calculate
+                </button>
+            </form>
+
+            <!-- Results -->
+            <div id="results">
+                <div class="section-divider"></div>
+                <table class="detail-table">
+                    <tbody>
+                        <tr>
+                            <td>Suspension duration:</td>
+                            <td id="rSuspDays">—</td>
+                        </tr>
+                        <tr>
+                            <td>Payments to delete:</td>
+                            <td id="rPaymentsToDelete">—</td>
+                        </tr>
+                        <tr>
+                            <td>Overpaid days:</td>
+                            <td id="rOverpaid">—</td>
+                        </tr>
+                        <tr>
+                            <td>Gap days:</td>
+                            <td id="rGap">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="resultBox" class="result-box">
+                    <div class="result-main" id="resultText"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (needed for offcanvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Logic Explainer Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="logicExplainer" style="max-width:420px;">
+        <div class="offcanvas-header" style="background:#ae222a; color:#fff;">
+            <h6 class="offcanvas-title fw-semibold"><i class="bi bi-lightbulb me-2"></i>How the calculation works</h6>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body" style="font-size:0.9rem; line-height:1.6;">
+
+            <p class="text-muted mb-3">The calculator figures out what payment adjustments are needed when a suspension is added to a membership. It compares what the member has already paid against what they owe for the period around the suspension.</p>
+
+            <h6 class="fw-semibold">Key concepts</h6>
+            <dl class="mb-3">
+                <dt>Overpaid days</dt>
+                <dd class="text-muted">Days the member already paid for that fall <em>after</em> the suspension starts. These days are now covered by the suspension, so the member is ahead.</dd>
+
+                <dt>Gap days</dt>
+                <dd class="text-muted">Days between the suspension end and the next scheduled payment date. The member hasn't paid for these yet and will owe them when they return.</dd>
+            </dl>
+
+            <h6 class="fw-semibold">The four outcomes</h6>
+            <ol class="mb-3 ps-3">
+                <li class="mb-2">
+                    <strong>Suspension fits within one billing period</strong> (no payments to delete)<br>
+                    <span class="text-muted">Simply reduce the next payment by the prorated suspension value.</span>
+                </li>
+                <li class="mb-2">
+                    <strong>Overpaid = Gap</strong><br>
+                    <span class="text-muted">The credit and the debt cancel out exactly. Just delete the payments that fall within the suspension — no money adjustment needed.</span>
+                </li>
+                <li class="mb-2">
+                    <strong>Overpaid &gt; Gap</strong> (member has a net credit)<br>
+                    <span class="text-muted">Delete suspended payments and reduce the next scheduled payment by the difference.</span>
+                </li>
+                <li class="mb-2">
+                    <strong>Overpaid &lt; Gap</strong> (member owes extra)<br>
+                    <span class="text-muted">Delete suspended payments and add a one-off catch-up payment for the shortfall before regular billing resumes.</span>
+                </li>
+            </ol>
+
+            <h6 class="fw-semibold">Prorating</h6>
+            <p class="text-muted mb-0">All amounts are prorated by day. The period length is 7 days (weekly), 14 days (fortnightly), or the number of days in the billing month (monthly).</p>
+        </div>
+    </div>
+
+    <script>
+        // --- Flatpickr init ---
+
+        const fpOpts = {
+            wrap: true,
+            dateFormat: 'd M Y',   // display: 25 Jan 2022
+            altInput: false,
+            disableMobile: true,
+        };
+        const fpLastPayment = flatpickr('#wrap-lastPaymentDate', fpOpts);
+        const fpSuspFrom    = flatpickr('#wrap-suspFrom',        fpOpts);
+        const fpSuspTill    = flatpickr('#wrap-suspTill',        fpOpts);
+
+        // --- Date helpers ---
+
+        function getFpDate(fp) {
+            return fp.selectedDates[0] || null;
+        }
+
+        function datedifDays(start, end) {
+            return Math.round((end - start) / 86400000);
+        }
+
+        // Complete calendar months elapsed (Excel DATEDIF "m" behaviour)
+        function datedifMonths(start, end) {
+            let months = (end.getFullYear() - start.getFullYear()) * 12
+                + (end.getMonth() - start.getMonth());
+            if (end.getDate() < start.getDate()) months--;
+            return months;
+        }
+
+        // Days from lastPayment to same calendar day one month later (period length for monthly)
+        function monthlyPeriodDays(lastPayment) {
+            const next = new Date(lastPayment.getFullYear(), lastPayment.getMonth() + 1, lastPayment.getDate());
+            return datedifDays(lastPayment, next);
+        }
+
+        function getPeriodDays(lastPayment, period) {
+            if (period === 'weekly') return 7;
+            if (period === 'fortnightly') return 14;
+            return monthlyPeriodDays(lastPayment);
+        }
+
+        // Date of the n-th payment after lastPayment
+        function nextPaymentDate(lastPayment, period, n) {
+            if (period === 'weekly') {
+                return new Date(lastPayment.getTime() + n * 7 * 86400000);
+            }
+            if (period === 'fortnightly') {
+                return new Date(lastPayment.getTime() + n * 14 * 86400000);
+            }
+            // monthly: advance n months
+            return new Date(lastPayment.getFullYear(), lastPayment.getMonth() + n, lastPayment.getDate());
+        }
+
+        // Complete payment periods between lastPayment and a target date
+        function periodsBeforeDate(lastPayment, targetDate, period) {
+            if (period === 'weekly') {
+                return Math.floor(datedifDays(lastPayment, targetDate) / 7);
+            }
+            if (period === 'fortnightly') {
+                return Math.floor(datedifDays(lastPayment, targetDate) / 14);
+            }
+            return datedifMonths(lastPayment, targetDate);
+        }
+
+        function formatCurrency(n) {
+            return '$' + Math.abs(n).toFixed(2);
+        }
+
+        // --- Main calculation ---
+
+        function calculate(lastPayment, period, amount, suspFrom, suspTill) {
+            const pDays = getPeriodDays(lastPayment, period);
+
+            const K6 = periodsBeforeDate(lastPayment, suspFrom, period);
+            const K6_end = periodsBeforeDate(lastPayment, suspTill, period);
+            const K7 = K6_end - K6; // payments during suspension
+
+            const M7 = datedifDays(suspFrom, suspTill); // suspension duration in days
+
+            // Overpaid days: days from suspension start to end of the period that contains the suspension start
+            const M8 = datedifDays(suspFrom, nextPaymentDate(lastPayment, period, K6 + 1));
+
+            // Gap days: days from suspension end to next scheduled payment after suspension
+            const M9 = datedifDays(suspTill, nextPaymentDate(lastPayment, period, K6 + K7 + 1));
+
+            // Prorated suspension value
+            const suspensionValue = amount * M7 / pDays;
+
+            let resultText, alertClass;
+
+            if (K7 === 0) {
+                // Suspension fits within one payment period — adjust next payment
+                const adjusted = amount - suspensionValue;
+                resultText = `Adjust the next scheduled payment to ${formatCurrency(adjusted)}`;
+                alertClass = 'alert-warning';
+            } else if (M8 === M9) {
+                resultText = 'No changes required — only DELETE payments scheduled during the suspension period.';
+                alertClass = 'alert-success';
+            } else if (M8 > M9) {
+                // Member has a credit
+                const credit = amount * (M8 - M9) / pDays;
+                const adjusted = amount - credit;
+                resultText = `DELETE payments scheduled during the suspension period and\nCHANGE the next scheduled payment to ${formatCurrency(adjusted)}`;
+                alertClass = 'alert-warning';
+            } else {
+                // Gap larger than overpaid — member owes a catch-up payment
+                const adj = amount * (M9 - M8) / pDays;
+                resultText = `DELETE payments scheduled during the suspension period and\nADD a catch-up payment of ${formatCurrency(adj)}`;
+                alertClass = 'alert-danger';
+            }
+
+            return { K7, M7, M8, M9, resultText, alertClass };
+        }
+
+        // --- Form handling ---
+
+        document.getElementById('calcForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const errorEl = document.getElementById('formError');
+            errorEl.classList.add('d-none');
+            errorEl.className = 'alert alert-danger py-2 d-none';
+            errorEl.textContent = '';
+
+            const lastPayment = getFpDate(fpLastPayment);
+            const period = document.getElementById('paymentPeriod').value;
+            const amountVal = parseFloat(document.getElementById('amount').value);
+            const suspFrom = getFpDate(fpSuspFrom);
+            const suspTill = getFpDate(fpSuspTill);
+
+            // Validation
+            if (!lastPayment || !suspFrom || !suspTill || isNaN(amountVal)) {
+                errorEl.textContent = 'Please fill in all fields.';
+                errorEl.classList.remove('d-none');
+                return;
+            }
+
+            if (suspFrom <= lastPayment) {
+                errorEl.textContent = 'Suspension start must be after the last payment date.';
+                errorEl.classList.remove('d-none');
+                return;
+            }
+            if (suspTill <= suspFrom) {
+                errorEl.textContent = 'Suspension end must be after the suspension start.';
+                errorEl.classList.remove('d-none');
+                return;
+            }
+            if (datedifDays(suspFrom, suspTill) < 7) {
+                errorEl.className = 'alert alert-warning py-2';
+                errorEl.textContent = 'Warning: suspension is shorter than 1 week. Please confirm this is correct before proceeding.';
+                // don't return — still show the result
+            }
+            if (amountVal <= 0) {
+                errorEl.textContent = 'Payment amount must be greater than zero.';
+                errorEl.classList.remove('d-none');
+                return;
+            }
+
+            const { K7, M7, M8, M9, resultText, alertClass } = calculate(
+                lastPayment, period, amountVal, suspFrom, suspTill
+            );
+
+            // Update detail table
+            document.getElementById('rSuspDays').textContent = M7 + ' days';
+            document.getElementById('rPaymentsToDelete').textContent = K7;
+            document.getElementById('rOverpaid').textContent = M8 + ' days';
+            document.getElementById('rGap').textContent = M9 + ' days';
+
+            // Update result box
+            const resultBox = document.getElementById('resultBox');
+            resultBox.className = 'result-box alert ' + alertClass;
+            const resultTextEl = document.getElementById('resultText');
+            resultTextEl.innerHTML = resultText.replace(/\n/g, '<br>');
+
+            document.getElementById('results').style.display = 'block';
+        });
+    </script>
+</body>
+
+</html>
