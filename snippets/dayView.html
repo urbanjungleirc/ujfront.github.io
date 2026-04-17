@@ -16,16 +16,28 @@
         }
 
         .event-card {
-            border-left: 4px solid #ff4709;
             border-radius: 6px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        .event-card.free-class {
-            border-left-color: #198754;
+        .event-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
         }
 
         .progress {
             border-radius: 4px;
+        }
+
+        .desc-truncated {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .desc-truncated:hover {
+            text-decoration: underline dotted;
         }
 
         #loadingSpinner {
@@ -122,10 +134,20 @@
             return `${d} ${months[m - 1]} ${y}`;
         }
 
-        function progressColor(pct) {
-            if (pct >= 90) return 'bg-danger';
-            if (pct >= 70) return 'bg-warning';
-            return 'bg-success';
+        function spotsBadgeStyle(spotsLeft, totalCapacity) {
+            if (spotsLeft === 0) return 'background:#dc3545; color:#fff;';
+            const pct = (spotsLeft / totalCapacity) * 100;
+            if (pct <= 20) return 'background:#c47a00; color:#fff;';
+            return 'background:#198754; color:#fff;';
+        }
+
+        function formatNextSession(isoStr) {
+            if (!isoStr) return null;
+            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const [y, m, d] = isoStr.substring(0, 10).split('-').map(Number);
+            const dow = new Date(y, m - 1, d).getDay();
+            return `${days[dow]} ${d} ${months[m - 1]}`;
         }
 
         function buildCard(event) {
@@ -133,45 +155,49 @@
             const pct = event.total_capacity > 0
                 ? Math.round((event.booking_count / event.total_capacity) * 100)
                 : 0;
-            const colorClass = progressColor(pct);
             const spotsLeft = event.spaces_available;
-            const spotsLabel = spotsLeft === 1 ? '1 spot left' : `${spotsLeft} spots left`;
+            const spotsLabel = spotsLeft === 0 ? 'Full' : spotsLeft === 1 ? '1 spot left' : `${spotsLeft} spots left`;
+            const spotsBadge = spotsBadgeStyle(spotsLeft, event.total_capacity);
 
+            // Series pill (top-right)
+            let seriesPillHtml = '';
+            if (event.series && event.series.is_series) {
+                const s = event.series;
+                const nextStr = s.next_session ? `Next: ${formatNextSession(s.next_session)}` : 'Last session this term';
+                const tooltipText = `Session ${s.session_number} of ${s.total_in_term} this term · ${nextStr}`;
+                seriesPillHtml = `<span class="badge rounded-pill border text-secondary fw-normal"
+                    style="background:#f8f9fa; font-size:0.75rem; cursor:default; color:#212529;"
+                    data-bs-toggle="tooltip" data-bs-title="${tooltipText}">
+                    <i class="bi bi-arrow-repeat me-1"></i>${s.session_number} of ${s.total_in_term}
+                </span>`;
+            }
+
+            // Description: truncated to one line, click to expand
             const descHtml = event.event_description
-                ? `<p class="card-text small text-muted mb-3">${event.event_description}</p>`
-                : '';
-
-            const seriesHtml = event.series && event.series.is_series
-                ? `<div class="text-muted small mt-2">
-                     <i class="bi bi-arrow-repeat me-1"></i>
-                     ${event.series.sessions_remaining} of ${event.series.total_in_term} sessions remaining this term
-                   </div>`
-                : '';
-
-            const freeLabel = event.free_class
-                ? `<span class="badge bg-success ms-2">Free</span>`
+                ? `<p class="card-text small text-muted mb-3 desc-truncated"
+                      onclick="this.classList.toggle('desc-truncated')"
+                      title="Click to expand">${event.event_description}</p>`
                 : '';
 
             return `
-                <div class="card mb-3 shadow-sm event-card${event.free_class ? ' free-class' : ''}">
+                <div class="card mb-3 shadow-sm event-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-1">
                             <span class="text-muted small">${timeStr}</span>
-                            <span class="badge bg-secondary">${event.location_name}</span>
+                            ${seriesPillHtml}
                         </div>
-                        <h6 class="card-title mb-1 fw-bold">${event.event_name}${freeLabel}</h6>
+                        <h6 class="card-title mb-1 fw-bold">${event.event_name}</h6>
                         <p class="text-muted small mb-2">
-                            <i class="bi bi-person me-1"></i>${event.instructor_name || 'UJ Team'}
+                            <i class="bi bi-person me-1"></i>${event.instructor_name || 'UJ Team'} · ${event.location_name}
                         </p>
                         ${descHtml}
-                        <div class="d-flex justify-content-between small text-muted mb-1">
-                            <span><strong>${event.booking_count}</strong> / ${event.total_capacity} booked</span>
-                            <span>${spotsLabel}</span>
+                        <div class="d-flex justify-content-between align-items-center small mb-1">
+                            <span class="text-muted"><strong>${event.booking_count}</strong> / ${event.total_capacity} booked</span>
+                            <span class="badge rounded-pill" style="${spotsBadge}">${spotsLabel}</span>
                         </div>
-                        <div class="progress mb-1" style="height: 7px;">
-                            <div class="progress-bar ${colorClass}" style="width: ${pct}%;" role="progressbar"></div>
+                        <div class="progress" style="height: 7px;">
+                            <div class="progress-bar bg-secondary" style="width: ${pct}%;" role="progressbar"></div>
                         </div>
-                        ${seriesHtml}
                     </div>
                 </div>`;
         }
@@ -199,6 +225,8 @@
             }
 
             document.getElementById('eventContainer').innerHTML = events.map(buildCard).join('');
+            // Initialise Bootstrap tooltips on series pills
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         }
 
         function loadData(date) {
