@@ -4,21 +4,17 @@
  * -------------------------------------
  */
 
-// URL for retrieving scores (public data)
 const scoreUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+    "https://script.google.com/macros/s/AKfycbxT-iCL9thSaPhjBbR2guYymQ6Q9fxuebsgbVT9tavoG1-DWmm6yU8_HR7aovXW5sS-Wg/exec";
 // URL for retrieving ticks (public data)
-const ticksUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
+const ticksUrl = scoreUrl + "?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
-const categories = ["open", "advanced", "intermediate", "novice", "youth"];
-const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
+const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
+const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
-// Bootstrap modal for loading spinner (non-dismissible)
-let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
-    keyboard: false,
-});
+// Note: mySpinner is now provided by sls-spinner.js (loaded earlier in HTML)
+// No need to initialize it here - the spinner utility handles it
 
 /**
  * -------------------------------------
@@ -78,6 +74,20 @@ $(document).ready(function () {
             let now = luxon.DateTime.local().setLocale("en-AU");
             updatedAtEl.innerText = now.toFormat("d MMM yy, HH:mm");
             mySpinner.hide();
+
+            // NEW: Populate Latest Ticks section with the same data
+            if (json && json.data) {
+                displayLatestTicks(json.data);
+            }
+
+            // Animate table rows after load
+            setTimeout(() => {
+                $('#tableMale tbody tr').each(function(index) {
+                    if (index < 20) {
+                        $(this).addClass('fade-in').css('animation-delay', `${0.05 * index}s`);
+                    }
+                });
+            }, 100);
         })
         .dataTable({
             ajax: {
@@ -97,7 +107,7 @@ $(document).ready(function () {
                     orderable: true,
                     render: function (data) {
                         // Render the name as a clickable link.
-                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">${data}</a>`;
+                        return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch(this);">${data}</a>`;
                     },
                 },
                 {
@@ -107,7 +117,7 @@ $(document).ready(function () {
                     render: function (data) {
                         // Split the route data and render as a clickable link.
                         const nameParts = data.split("_");
-                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch(this);">r${nameParts[0]} ${nameParts[1]}</a>`;
+                        return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch(this);">r${nameParts[0]} ${nameParts[1]}</a>`;
                     },
                     className: "dt-body-center",
                 },
@@ -133,7 +143,7 @@ $(document).ready(function () {
                     orderable: true,
                     render: function (data) {
                         // Render bonus data as a clickable link.
-                        return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
+                        return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                     },
                     className: "dt-body-center",
                 },
@@ -148,7 +158,7 @@ $(document).ready(function () {
                                 data === "Male"
                                     ? '<i class="bi bi-gender-male"></i>'
                                     : '<i class="bi bi-gender-female"></i>';
-                            return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${icon}</a>`;
+                            return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${icon}</a>`;
                         }
                         return data;
                     },
@@ -162,12 +172,12 @@ $(document).ready(function () {
                         if (type === "display") {
                             // Replace "top rope" with "TR" if applicable.
                             if (data.includes("top rope")) {
-                                return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data.replace(
+                                return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${data.replace(
                                     /top rope/g,
                                     "TR"
                                 )}</a>`;
                             } else {
-                                return `<a href="#" class="link-dark text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
+                                return `<a href="#" class="link-light text-decoration-none" onclick="clickSearch('${data}');">${data}</a>`;
                             }
                         }
                         return data;
@@ -200,12 +210,12 @@ $(document).ready(function () {
             // Define table buttons.
             buttons: [
                 {
-                    text: '<i class="bi bi-arrow-clockwise"></i> Reload',
+                    text: '<i class="bi bi-x"></i> Clear Search',
                     action: function (e, dt, node, config) {
-                        refreshData();
+                        dt.search("").draw();
                     },
-                    className: "btn-primary",
-                },
+                    className: "btn-outline-primary btn-small",
+                }
             ],
 
             // Paging setup.
@@ -218,6 +228,9 @@ $(document).ready(function () {
             layout: {
                 topStart: "buttons",
                 topEnd: "search",
+                bottom: function() {
+                    return $('<p class="text-muted small mb-2 mt-1"><i class="bi bi-info-circle"></i> Click on any <strong>name</strong>, <strong>route</strong>, <strong>gender</strong>, or <strong>category</strong> to filter the table.</p>');
+                },
                 bottomStart: "info",
                 bottomEnd: "paging",
                 bottom1: "pageLength",
@@ -371,37 +384,49 @@ function sends(row) {
  * @returns {string} - The SVG icon as an HTML string.
  */
 function tickIcon(tick = 0, bonus = 0) {
+    // Determine the combined score
     const score = tick + bonus;
     switch (score) {
         case 20:
-        case 25:
-            // Icon for score 20 or 25.
+            // First zone
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file" viewBox="0 0 16 16">
           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-          <rect style="stroke:none"
-                id="rect1119"
-                width="10.508"
-                height="4.2642632"
-                x="2.8761711"
-                y="10.7501478" />
+          <rect style="stroke:none" id="rect1119" width="10.508" height="4.2642632"
+                x="2.8761711" y="10.7501478" />
+        </svg>`;
+        case 25:
+            // First zone with a bonus
+            return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+             class="bi bi-file" viewBox="0 0 16 16">
+          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+          <rect style="stroke:none" id="rect1119" width="10.508" height="4.2642632"
+                x="2.8761711" y="10.7501478" />
+          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
         </svg>`;
         case 30:
-        case 35:
-            // Icon for score 30 or 35.
+            // Second zone
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file" viewBox="0 0 16 16">
           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-          <rect style="stroke: none;" id="rect1119"
-                width="10.508"
-                height="9.106"
-                x="2.876"
-                y="5.908"/>
+          <rect style="stroke: none;" id="rect1119" width="10.508" height="9.106"
+                x="2.876" y="5.908"/>
+        </svg>`;
+        case 35:
+            // Second zone with a bonus
+            return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+             class="bi bi-file" viewBox="0 0 16 16">
+          <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+          <rect style="stroke: none;" id="rect1119" width="10.508" height="9.106"
+                x="2.876" y="5.908"/>
+          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
         </svg>`;
         case 50:
-            // Icon for top score (50).
+            // Top score icon
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file-fill" viewBox="0 0 16 16">
@@ -409,14 +434,15 @@ function tickIcon(tick = 0, bonus = 0) {
         </svg>`;
         case 60:
             if (tick === 50) {
-                // Icon for a top score (50) with bonus.
+                // Top score with bonus
                 return `
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                class="bi bi-file-fill" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+            <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
           </svg>`;
             } else {
-                // Icon for a flash (score 60 without tick 50).
+                // Flash icon
                 return `
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                class="bi bi-lightning-fill" viewBox="0 0 16 16">
@@ -424,18 +450,122 @@ function tickIcon(tick = 0, bonus = 0) {
           </svg>`;
             }
         case 70:
-            // Icon for flash with bonus.
+            // Flash icon with bonus
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-lightning-fill" viewBox="0 0 16 16">
           <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+          <path d="m6,17.38l1.29,0l0,-1.28l1.33,0l0,1.28l1.29,0l0,1.31l-1.29,0l0,1.28l-1.33,0l0,-1.28l-1.29,0z" />
         </svg>`;
         default:
-            // Default icon when no conditions match.
+            // Default icon when no score matches
             return `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
              class="bi bi-file" viewBox="0 0 16 16">
           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
         </svg>`;
     }
+}
+
+/**
+ * -------------------------------------
+ * Latest Ticks Display Function
+ * -------------------------------------
+ */
+
+/**
+ * Displays the latest ticks for all climbers by grouping and sorting the provided data.
+ * Shows unlimited climbers (no 5-climber limit) in descending order by date.
+ * Adapted from sls.js displayLatestTicks() function.
+ *
+ * @param {Array<Object>} data - The array of tick data objects from DataTable AJAX response
+ */
+function displayLatestTicks(data) {
+    const groupedData = {};
+
+    // Sort data by exact timestamp (newest first) - use spread to avoid mutating original
+    const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Group by date + name (no limit on number of climbers)
+    sortedData.forEach(({ date, name, route, tick, bonus, category, gender }) => {
+        const normalizedDate = luxon.DateTime.fromISO(date).toISODate(); // Date only (YYYY-MM-DD)
+        const key = `${normalizedDate}-${name}`;
+
+        if (!groupedData[key]) {
+            groupedData[key] = {
+                date,
+                name,
+                category,
+                gender,
+                ticks: [],
+            };
+        }
+
+        const score = tick + bonus;
+        groupedData[key].ticks.push({
+            route: route.toUpperCase(),
+            score,
+            tick,
+            bonus,
+        });
+    });
+
+    // Get all climbers' grouped ticks (no slice limit - show everyone)
+    const latestTicks = Object.values(groupedData);
+
+    const container = document.getElementById("latest-ticks");
+    container.innerHTML = "";
+
+    if (latestTicks.length === 0) {
+        container.innerHTML = `
+            <div class="list-group-item list-group-item-action align-items-center fade-in">
+                <strong>No ticks yet.</strong><br>
+                <small class="text-muted">Check back soon.</small>
+            </div>
+        `;
+        return;
+    }
+
+    // Render each grouped tick entry
+    latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
+        const item = document.createElement("div");
+        // Limit stagger animation to first 20 items for performance
+        const staggerClass = index < 20 ? `fade-in stagger-${Math.min(index + 1, 5)}` : '';
+        item.className = `list-group-item list-group-item-action align-items-center ${staggerClass}`;
+
+        // Format category (uppercase)
+        const categoryShort = category ? category.toUpperCase() : "";
+
+        // Gender icon
+        const genderIcon =
+            gender === "Male"
+                ? '<i class="bi bi-gender-male"></i>'
+                : gender === "Female"
+                ? '<i class="bi bi-gender-female"></i>'
+                : '<i class="bi bi-gender-ambiguous"></i>';
+
+        // Render tick icons with round-based colors
+        const tickIcons = ticks
+            .map(({ route, tick, bonus }) => {
+                const roundNumber = parseInt(route.charAt(0)); // Extract round (e.g., '1' from '1_D')
+                const routeLetter = route.charAt(2); // Extract letter (e.g., 'D' from '1_D')
+
+                return `
+                <span class="text-round${roundNumber}">
+                    ${routeLetter} ${tickIcon(tick, bonus)}
+                </span>
+                `;
+            })
+            .join(" - ");
+
+        // Build HTML structure
+        item.innerHTML = `
+            <strong>${name}</strong>
+            <small>${categoryShort} - ${genderIcon}</small><br>
+            <small class="text-muted">${luxon.DateTime.fromISO(date).toFormat("ccc, dd MMM yy, HH:mm")}</small><br>
+            <strong>${tickIcons}</strong>
+        `;
+
+        container.appendChild(item);
+    });
 }

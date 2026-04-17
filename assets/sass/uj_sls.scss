@@ -1,4 +1,4 @@
-// 2025 theme
+// 2026 theme - Urban Jungle Electric Neon
 
 // 1. Import Bootstrap's default variables
 @import "../../node_modules/bootstrap/scss/functions";
@@ -8,22 +8,33 @@
 $mark-bg-dark: #f8d7da; // Background for marked text
 $mark-color-dark: #721c24; // Text color for marked text
 
-// 3. Override only the colors you care about
-$white: #ffffff;
-$primary: #052a36;
-$secondary: #256c76;
-$info: #ffd587;
+// 3. Override only the colors you care about - SLS26 Electric Neon Palette (Dark Mode)
+$white: #FEFDFB;
+$primary: #0B1320;
+$secondary: #00FFFF;
+$info: #B85CFF;
 $success: #3cd670;
-$warning: #ffc107;
-$danger: #dc3545;
-$light: #f9f5d6;
-$dark: #000c36;
-$accent-light: #f2d8b3;
-$accent-dark: #f08f27;
-$round1: #ff8470;
-$round2: #7dccff;
-$round3: #ffd587;
-$round4: #3cd670;
+$warning: #FFFA6B;
+$danger: #FF3DFB;
+$light: #FEFDFB;
+$dark: #0B1320;
+$accent-light: #B85CFF;
+$accent-dark: #FF3DFB;
+$round1: #FF3DFB;
+$round2: #00FFFF;
+$round3: #FFFA6B;
+$round4: #B85CFF;
+
+// Dark Mode Specific Colors
+$body-bg: #0B1320;           // Dark navy background
+$body-color: #FEFDFB;        // Off-white text
+$card-bg: #151F2E;           // Slightly lighter for cards
+$card-border: #1E2D3F;       // Subtle borders
+$text-muted: #8B9BAC;        // Muted text
+$border-color: #1E2D3F;      // Dark borders
+$table-bg: #0B1320;          // Table background
+$table-striped-bg: rgba(255, 255, 255, 0.04);  // Striped rows - visible blue tint
+$table-hover-bg: rgba(0, 255, 255, 0.15);  // Hover state - cyan highlight
 $theme-colors: (
     "primary": $primary,
     "secondary": $secondary,
@@ -103,4 +114,1201 @@ $pagination-active-border-color: $secondary;
 .white-hold {
     color: $black;
     background-color: $white;
+}
+
+// ===============================================
+// MODERN VISUAL EFFECTS - 2026 ENHANCEMENT
+// ===============================================
+
+// --------------------------------------------
+// 1. Animation Keyframes
+// --------------------------------------------
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(0, 255, 255, 0);
+    }
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+// --------------------------------------------
+// 2. Animation Utility Classes
+// --------------------------------------------
+
+.slide-in-left {
+    animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.slide-in-top {
+    animation: slideInTop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+// Stagger delay classes
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+.stagger-7 { animation-delay: 0.7s; }
+.stagger-8 { animation-delay: 0.8s; }
+
+// --------------------------------------------
+// 3. Glassmorphic Effects
+// --------------------------------------------
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-medium {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+// Transparent glass - fully transparent with blur only
+.glass-transparent {
+    background: transparent;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: none;
+}
+
+// Blurred backdrop for all modals
+#modalSpinner.modal {
+    // Apply blur to entire modal area (full screen)
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    background-color: rgba(11, 19, 32, 0.25);
+}
+
+// Make the backdrop transparent and blurred
+body.modal-open .modal-backdrop {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    background-color: rgba(11, 19, 32, 0.25) !important;
+}
+
+// Fallback for browsers without backdrop-filter
+@supports not (backdrop-filter: blur(5px)) {
+    .glass-light { background: rgba(255, 255, 255, 0.95); }
+    .glass-medium { background: rgba(255, 255, 255, 0.92); }
+    .glass-transparent { background: rgba(255, 255, 255, 0.15); }
+}
+
+// --------------------------------------------
+// 4. Hover States and Interactive Effects
+// --------------------------------------------
+
+// Card hover lift effect (vouchers-inspired: 12px lift)
+.card-hover,
+.list-group-item-hover {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+
+    &:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px rgba(11, 19, 32, 0.15);
+        z-index: 10;
+    }
+}
+
+// Lighter card hover (6px lift)
+.card-hover-light {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(11, 19, 32, 0.1);
+    }
+}
+
+// Button hover enhancements
+.btn {
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(11, 19, 32, 0.15);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 4px 8px rgba(11, 19, 32, 0.1);
+    }
+}
+
+// Outline button shimmer effect
+.btn-outline-primary,
+.btn-outline-secondary {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+}
+
+// Fix shimmer for grouped outline buttons (they need background on hover)
+.btn-group .btn-outline-primary,
+.btn-group .btn-outline-secondary {
+    &:hover:not(.active) {
+        background-color: rgba($primary, 0.99);
+        border-color: $primary;
+        color: $white;
+    }
+}
+
+// Facebook share button shimmer
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+}
+
+// Table row hover - text emphasis only
+.table > tbody > tr {
+    transition: all 0.05s ease;
+}
+
+.table > tbody > tr:hover td {
+    color: $secondary !important;
+    transition: all 0.05s ease;
+}
+
+// Optional: Subtle background for better visibility
+.table-hover > tbody > tr:hover > * {
+    --bs-table-bg-state: rgba(0, 255, 255, 0.08) !important;
+    transition: background-color 0.05s ease;
+}
+
+// Latest ticks item hover with shimmer
+.list-group-item-action {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border-radius: 12px !important;
+    margin-bottom: 8px;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, $primary, transparent);
+        transition: left 0.5s ease;
+        z-index: 1;
+    }
+
+    &:hover {
+        transform: translateX(8px);
+        box-shadow: 0 8px 20px rgba(11, 19, 32, 0.1);
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+
+    // Ensure text stays above shimmer
+    > * {
+        position: relative;
+        z-index: 2;
+    }
+}
+
+// --------------------------------------------
+// 5. Modern Border Radius and Shadows
+// --------------------------------------------
+
+.rounded-modern { border-radius: 20px !important; }
+.rounded-modern-lg { border-radius: 25px !important; }
+.rounded-modern-sm { border-radius: 15px !important; }
+.rounded-top-modern {
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+}
+
+// Shadow hierarchy
+.shadow-depth-1 { box-shadow: 0 4px 15px rgba(11, 19, 32, 0.08); }
+.shadow-depth-2 { box-shadow: 0 8px 25px rgba(11, 19, 32, 0.12); }
+.shadow-depth-3 { box-shadow: 0 15px 50px rgba(11, 19, 32, 0.18); }
+
+// Glowing shadow
+.shadow-glow { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+.shadow-glow-orange { box-shadow: 0 0 20px rgba(255, 61, 251, 0.3); }
+
+// --------------------------------------------
+// 6. Accessibility - Respect prefers-reduced-motion
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .slide-in-left,
+    .slide-in-right,
+    .slide-in-top,
+    .fade-in {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .card-hover:hover,
+    .list-group-item-action:hover {
+        transform: none !important;
+    }
+}
+
+// --------------------------------------------
+// 7. Responsive Adjustments for Mobile
+// --------------------------------------------
+
+@media (max-width: 768px) {
+    .card-hover:hover,
+    .card-hover-light:hover {
+        transform: translateY(-6px) !important;
+        box-shadow: 0 12px 25px rgba(11, 19, 32, 0.1) !important;
+    }
+
+    .list-group-item-action:hover {
+        transform: translateX(4px) !important;
+    }
+
+    .table > tbody > tr:hover {
+        transform: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .glass-light,
+    .glass-medium {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+}
+
+// ===============================================
+// DARK MODE - SLS26 NEON AESTHETIC
+// ===============================================
+
+// --------------------------------------------
+// 1. Body Background with Neon Pattern
+// --------------------------------------------
+
+body {
+    color: $body-color;
+    // Dark navy background with scattered triangle pattern
+    background-color: $body-bg !important;
+    // background-image: url("../img/triangle-pattern.svg");
+    // background-repeat: repeat;
+    // background-size: 1000px 800px;
+}
+
+// --------------------------------------------
+// 2. Typography - Flat (No Glow)
+// --------------------------------------------
+
+h1, h2, h3, h4, h5, h6 {
+    color: $body-color;
+}
+
+.text-primary {
+    color: $secondary !important; // Use cyan for better visibility
+}
+
+.text-muted {
+    color: $text-muted !important;
+}
+
+// --------------------------------------------
+// 3. Headers - Dark Flat with double Neon Border
+// --------------------------------------------
+
+header {
+    background: linear-gradient(135deg, rgba(11, 19, 32, 0.95) 0%, rgba(21, 31, 46, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    border-bottom: none !important;
+    margin-bottom: 2.5rem;
+    position: relative;
+
+    // Neon strip border effect (inspired by bg-strips.png)
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background:
+            linear-gradient(to bottom,
+                $danger 0%,
+                $danger 35%,
+                transparent 35%,
+                transparent 70%,
+                $secondary 70%,
+                $secondary 80%,
+                transparent 80%,
+                transparent 90%,
+                $secondary 90%,
+                $secondary 100%
+            );
+    }
+
+    .text-bg-primary {
+        background-color: transparent !important;
+        color: $body-color !important;
+    }
+
+    .border-bottom {
+        border-bottom-color: rgba(30, 45, 63, 0.5) !important;
+    }
+
+    .bg-white {
+        background-color: rgba(21, 31, 46, 0.8) !important;
+        backdrop-filter: blur(10px);
+    }
+}
+
+// --------------------------------------------
+// 3b. Sponsor Strip
+// --------------------------------------------
+
+.sponsor-strip {
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.08) 0%, rgba(255, 61, 251, 0.08) 50%, rgba(0, 255, 255, 0.08) 100%);
+    border-top: 1px solid rgba(0, 255, 255, 0.25);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.25);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        animation: shimmer 12s linear infinite;
+    }
+}
+
+.sponsor-strip__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 1rem 0;
+}
+
+.sponsor-strip__label {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.75rem;
+    color: rgba(254, 253, 251, 0.6);
+}
+
+.sponsor-strip__logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.sponsor-logo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    transition: transform 0.3s ease, filter 0.3s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.35));
+    }
+}
+
+.sponsor-logo {
+    height: 44px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.15));
+}
+
+@media (max-width: 576px) {
+    .sponsor-strip__inner {
+        gap: 1rem;
+    }
+
+    .sponsor-logo {
+        height: 36px;
+    }
+}
+
+// --------------------------------------------
+// 4. Cards & Containers - Transparent Flat
+// --------------------------------------------
+
+.card, .list-group, .table-responsive:not(.results-panel) {
+    background: transparent !important;
+    color: $body-color !important;
+}
+
+.results-panel {
+    position: relative;
+    border-radius: 20px !important;
+    background:
+        linear-gradient(135deg, rgba(21, 31, 46, 0.88), rgba(11, 19, 32, 0.9)) padding-box,
+        linear-gradient(135deg, rgba(0, 255, 255, 0.55), rgba(255, 61, 251, 0.55)) border-box !important;
+    border: 1px solid transparent;
+    overflow-x: auto;
+    padding: 0.25rem 0.25rem 0.9rem !important;
+}
+
+.results-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 16px 16px;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.results-panel > * {
+    position: relative;
+    z-index: 1;
+}
+
+.results-panel .table,
+.results-panel .dt-layout-table {
+    border-radius: 16px !important;
+    overflow: visible;
+}
+
+.bg-white {
+    background-color: transparent !important;
+    color: $body-color !important;
+}
+
+.bg-light {
+    background-color: transparent !important;
+}
+
+// --------------------------------------------
+// 5. Tables - Dark with Neon Highlights
+// --------------------------------------------
+
+.table {
+    color: $body-color !important;
+    background-color: transparent !important;
+
+    thead {
+        border-bottom: 2px solid $secondary;
+
+        th {
+            color: $secondary !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    tbody {
+        tr {
+            border-bottom: 1px solid rgba(30, 45, 63, 0.5);
+
+            &:nth-of-type(odd) {
+                background-color: $table-striped-bg !important;
+                // Reset Bootstrap's inset box-shadow on cells
+                > * {
+                    box-shadow: none !important;
+                }
+            }
+
+            &:nth-of-type(even) {
+                background-color: transparent !important;
+            }
+
+            td, th {
+                color: $body-color !important;
+                border-color: rgba(30, 45, 63, 0.3) !important;
+                // Reset Bootstrap's inset box-shadow
+                box-shadow: none !important;
+
+                // Only override problematic dark text classes
+                .text-dark:not([class*="text-bg-round"]):not(.badge):not(.text-primary),
+                .text-black:not([class*="text-bg-round"]):not(.badge):not(.text-primary),
+                .text-body:not([class*="text-bg-round"]):not(.badge):not(.text-primary) {
+                    color: $body-color !important;
+                }
+            }
+        }
+    }
+
+    // Override only problematic dark text utility classes
+    .text-dark:not([class*="text-bg-round"]):not(.badge),
+    .text-black:not([class*="text-bg-round"]):not(.badge),
+    .text-body:not([class*="text-bg-round"]):not(.badge),
+    .text-secondary:not([class*="text-bg-round"]):not(.badge) {
+        color: $body-color !important;
+    }
+
+    // Preserve primary color for podium ranks (1-3)
+    .text-primary {
+        color: $secondary !important; // Cyan color for podium
+    }
+
+    // Preserve round colors explicitly - HIGHEST PRIORITY
+    .text-bg-round1,
+    .badge.text-bg-round1,
+    .rounded-pill.text-bg-round1,
+    span.text-bg-round1 {
+        background: $primary !important;
+        color: $round1 !important;
+        border: 2px solid $round1 !important;
+    }
+
+    .text-bg-round2,
+    .badge.text-bg-round2,
+    .rounded-pill.text-bg-round2,
+    span.text-bg-round2 {
+        background: $primary !important;
+        color: $round2 !important;
+        border: 2px solid $round2 !important;
+    }
+
+    .text-bg-round3,
+    .badge.text-bg-round3,
+    .rounded-pill.text-bg-round3,
+    span.text-bg-round3 {
+        background: $primary !important;
+        color: $round3 !important;
+        border: 2px solid $round3 !important;
+    }
+
+    .text-bg-round4,
+    .badge.text-bg-round4,
+    .rounded-pill.text-bg-round4,
+    span.text-bg-round4 {
+        background: $primary !important;
+        color: $round4 !important;
+        border: 2px solid $round4 !important;
+    }
+}
+
+// --------------------------------------------
+// 5b. DataTables Overrides - Higher Specificity
+// --------------------------------------------
+
+// DataTables uses table.dataTable which can override .table
+// These rules ensure our dark mode styling takes precedence
+table.dataTable,
+.dataTables_wrapper table.dataTable {
+    background-color: transparent !important;
+
+    tbody tr {
+        background-color: transparent !important;
+        box-shadow: none !important;
+
+        &:nth-of-type(odd) {
+            background-color: $table-striped-bg !important;
+
+            td, th {
+                background-color: inherit !important;
+                box-shadow: none !important;
+            }
+        }
+
+        &:nth-of-type(even) {
+            background-color: transparent !important;
+
+            td, th {
+                background-color: inherit !important;
+                box-shadow: none !important;
+            }
+        }
+
+        td, th {
+            color: $body-color !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+    }
+}
+
+// DataTables striped table override
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: $table-striped-bg !important;
+}
+
+table.dataTable.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: transparent !important;
+}
+
+// Override bg-white on tables
+table.bg-white,
+.table.bg-white,
+table.dataTable.bg-white {
+    background-color: transparent !important;
+}
+
+// --------------------------------------------
+// 6. Buttons - Neon Outlined Style
+// --------------------------------------------
+
+.btn-outline-primary {
+    border: 1px solid $secondary;
+    color: $secondary;
+    background: transparent;
+
+    &:hover, &:active, &:focus {
+        background: $secondary !important;
+        color: $primary !important;
+        border-color: $secondary !important;
+    }
+}
+
+.btn-outline-secondary {
+    border: 1px solid $danger;
+    color: $danger;
+
+    &:hover {
+        background: $danger !important;
+        color: $primary !important;
+        border-color: $danger !important;
+    }
+}
+
+// Button groups - Dark background
+.btn-group {
+    .btn-check:checked + .btn {
+        background: $secondary !important;
+        color: $primary !important;
+        border-color: $secondary !important;
+    }
+}
+
+// --------------------------------------------
+// 7. List Items - Dark Cards with Neon Accents
+// --------------------------------------------
+
+.list-group-item {
+    background: rgba(30, 45, 63, 0.7) !important;
+    border: 1px solid $card-border !important;
+    border-left: 3px solid $danger !important; // Magenta accent
+    color: $body-color !important;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+        background: rgba(30, 45, 63, 0.9) !important;
+        border-left-color: $secondary !important; // Cyan on hover
+    }
+}
+
+.list-group-item-light {
+    background: rgba(30, 45, 63, 0.5) !important;
+    color: $body-color !important;
+    border-color: $card-border !important;
+}
+
+.list-group-item-action {
+    color: $body-color !important;
+
+    &:hover, &:focus {
+        background: rgba(30, 45, 63, 0.9) !important;
+        color: $body-color !important;
+    }
+}
+
+// --------------------------------------------
+// 8. Badges - Neon with Dark Background
+// --------------------------------------------
+
+.badge {
+    background: $primary !important;
+    border: 2px solid currentColor;
+    padding: 0.5em 0.8em;
+    font-weight: 700;
+}
+
+// Fix Bootstrap text-bg-* badge utilities for dark theme
+.badge.text-bg-info {
+    background: $primary !important;
+    color: $info !important;
+    border: 2px solid $info;
+}
+
+.badge.text-bg-primary {
+    background: $primary !important;
+    color: $secondary !important;
+    border: 2px solid $secondary;
+}
+
+.rounded-pill {
+    &.text-bg-accent-light {
+        background: $primary !important;
+        color: $accent-light !important;
+        border: 2px solid $accent-light;
+    }
+
+    &.text-bg-accent-dark {
+        background: $primary !important;
+        color: $accent-dark !important;
+        border: 2px solid $accent-dark;
+    }
+}
+
+// Round color badges - GLOBAL (outside tables)
+.text-bg-round1,
+.badge.text-bg-round1,
+.rounded-pill.text-bg-round1 {
+    background: $primary !important;
+    color: $round1 !important;
+    border: 2px solid $round1 !important;
+}
+
+.text-bg-round2,
+.badge.text-bg-round2,
+.rounded-pill.text-bg-round2 {
+    background: $primary !important;
+    color: $round2 !important;
+    border: 2px solid $round2 !important;
+}
+
+.text-bg-round3,
+.badge.text-bg-round3,
+.rounded-pill.text-bg-round3 {
+    background: $primary !important;
+    color: $round3 !important;
+    border: 2px solid $round3 !important;
+}
+
+.text-bg-round4,
+.badge.text-bg-round4,
+.rounded-pill.text-bg-round4 {
+    background: $primary !important;
+    color: $round4 !important;
+    border: 2px solid $round4 !important;
+}
+
+// --------------------------------------------
+// 9. Forms & Inputs - Dark with Neon Focus
+// --------------------------------------------
+
+.form-control, .form-select {
+    background: rgba(21, 31, 46, 0.9);  // Slightly more opaque
+    border: 2px solid rgba(0, 255, 255, 0.4);  // Cyan border with transparency
+    color: $body-color;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);  // Subtle cyan glow
+    transition: all 0.3s ease;  // Smooth transitions
+
+    &:hover:not(:disabled) {
+        background: rgba(30, 45, 63, 0.95);
+        border-color: rgba(0, 255, 255, 0.6);  // Brighter cyan
+        box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);  // Stronger glow
+    }
+
+    &:focus {
+        background: rgba(30, 45, 63, 1);
+        border-color: $secondary;  // Full cyan
+        color: $body-color;
+        box-shadow: 0 0 16px rgba(0, 255, 255, 0.4);  // Prominent glow
+        outline: none;  // Remove default browser outline
+    }
+
+    &::placeholder {
+        color: $text-muted;
+    }
+
+    &:disabled {
+        background: rgba(21, 31, 46, 0.5);
+        border-color: rgba(139, 155, 172, 0.2);  // Muted border
+        color: $text-muted;
+        box-shadow: none;  // No glow for disabled
+        cursor: not-allowed;
+    }
+}
+
+// Ensure small variants maintain visibility
+.form-control-sm, .form-select-sm {
+    border-width: 2px;  // Keep thick border even when small
+}
+
+// Radio buttons and checkboxes
+.form-check-input {
+    background-color: rgba(21, 31, 46, 0.9);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    box-shadow: 0 0 6px rgba(0, 255, 255, 0.15);
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        border-color: rgba(0, 255, 255, 0.6);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.25);
+    }
+
+    &:focus {
+        border-color: $secondary;
+        box-shadow: 0 0 14px rgba(0, 255, 255, 0.4);
+        outline: none;
+    }
+
+    &:checked {
+        background-color: $secondary;
+        border-color: $secondary;
+        box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+    }
+}
+
+// Textarea specific (maintain readability for larger content areas)
+textarea.form-control {
+    min-height: 80px;  // Ensure adequate height
+    resize: vertical;  // Allow vertical resizing only
+}
+
+// Select dropdown arrow - cyan SVG for dark theme (muted by default, bright on hover)
+.form-select {
+    // Ensure native and Bootstrap arrows are completely removed
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+
+    // Custom cyan dropdown arrow using SVG data URI (consistent on all states)
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300FFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 16px 12px !important;
+    opacity: 0.6;  // Muted by default
+    transition: opacity 0.2s ease;
+
+    // Brighter on hover and focus
+    &:hover,
+    &:focus,
+    &:active,
+    &:focus-visible {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300FFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        opacity: 1;  // Bright on interaction
+    }
+}
+
+// Search input clear button styling (native browser X button) - muted by default, bright on hover
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 14px;  // Slightly larger for better consistency with arrow
+    width: 14px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2300FFFF'%3e%3cpath d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    cursor: pointer;
+    opacity: 0.6;  // Muted by default (matches select arrow)
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 1;  // Bright on hover (matches select arrow)
+        filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.6));
+    }
+}
+
+// DataTables search wrapper and inputs
+.dt-search {
+    input[type="search"],
+    input.form-control {
+        // Ensure search inputs inherit form control styling
+        background: rgba(21, 31, 46, 0.9);
+        border: 2px solid rgba(0, 255, 255, 0.4);
+        color: $body-color;
+        box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
+        transition: all 0.3s ease;
+
+        &:hover {
+            border-color: rgba(0, 255, 255, 0.6);
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+        }
+
+        &:focus {
+            border-color: $secondary;
+            box-shadow: 0 0 16px rgba(0, 255, 255, 0.4);
+            outline: none;
+        }
+
+        &::placeholder {
+            color: $text-muted;
+        }
+    }
+}
+
+// DataTables custom clear button (if present)
+.dt-search-button,
+button.dt-button {
+    &[aria-label*="Clear"],
+    &[title*="Clear"],
+    &[title*="clear"] {
+        color: $secondary !important;
+        border-color: rgba(0, 255, 255, 0.4) !important;
+
+        &:hover {
+            color: $primary !important;
+            background-color: $secondary !important;
+            border-color: $secondary !important;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+        }
+    }
+}
+
+// --------------------------------------------
+// 10. Footer - Dark with Pattern
+// --------------------------------------------
+
+footer {
+    background: linear-gradient(135deg, rgba(11, 19, 32, 0.98) 0%, rgba(21, 31, 46, 0.98) 100%);
+    border-top: 2px solid $secondary;
+    color: $body-color;
+
+    .btn-primary {
+        border-color: $body-color;
+        color: $body-color;
+
+        &:hover {
+            background: $body-color !important;
+            color: $primary !important;
+        }
+    }
+}
+
+// --------------------------------------------
+// 11. Modal - Dark Glass with Neon Borders
+// --------------------------------------------
+
+.modal-content {
+    background: rgba(21, 31, 46, 0.95);
+    border: 2px solid $secondary;
+    color: $body-color;
+    backdrop-filter: blur(15px);
+}
+
+.modal-header, .modal-footer {
+    border-color: rgba(30, 45, 63, 0.5);
+}
+
+// Spinner modal specific - override spinner CSS
+.spinner-modal-content {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+// --------------------------------------------
+// 12. Pagination - Dark with Neon
+// --------------------------------------------
+
+.pagination {
+    .page-link {
+        background: rgba(21, 31, 46, 0.8);
+        border: 1px solid $card-border;
+        color: $secondary;
+
+        &:hover {
+            background: rgba(30, 45, 63, 0.9);
+            border-color: $secondary;
+            color: $secondary;
+        }
+    }
+
+    .page-item.active .page-link {
+        background: $secondary;
+        border-color: $secondary;
+        color: $primary;
+    }
+}
+
+// --------------------------------------------
+// 13. Flat Design - Minimal Shadows
+// --------------------------------------------
+
+.shadow-depth-1 {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-depth-2 {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shadow-depth-3 {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+// --------------------------------------------
+// 14. Text Colors for Dark Mode
+// --------------------------------------------
+
+.text-white-50 {
+    color: rgba(254, 253, 251, 0.6) !important;
+}
+
+.text-light {
+    color: $body-color !important;
+}
+
+.text-dark {
+    color: $body-color !important;
+}
+
+// --------------------------------------------
+// 15. Utility Overrides
+// --------------------------------------------
+
+.border {
+    border-color: $card-border !important;
+}
+
+.border-bottom {
+    border-bottom-color: $card-border !important;
+}
+
+// Flat design - minimal shadows
+.rounded-modern.shadow-depth-1 {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+// --------------------------------------------
+// 16. Spinner Container Dark Mode
+// --------------------------------------------
+
+.spinner-container {
+    background: rgba(11, 19, 32, 0.95) !important;
+    border: 2px solid $secondary !important;
+    border-radius: 1rem;
+    padding: 3rem 2rem !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.spinner-slogan {
+    color: $body-color !important;
+}
+
+// Scrollbar styling for all elements
+html {
+    scrollbar-color: $text-muted $card-bg;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: $card-bg;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $text-muted;
+    border-radius: 6px;
+
+    &:hover {
+        background: $accent-light;
+    }
 }

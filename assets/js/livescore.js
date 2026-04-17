@@ -81,21 +81,21 @@ function initializeTimers() {
 
 function handleTimerUpdate(event) {
     // 5-minute warning
-    if (event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
+    if (event.days == 0 && event.hours == 0 && event.minutes == 5 && event.seconds == 0) {
         myModal.show();
-    } 
+    }
     // Time up - category ended
-    else if (event.hours == 0 && event.minutes == 0 && event.seconds <= 1) {
+    else if (event.days == 0 && event.hours == 0 && event.minutes == 0 && event.seconds <= 1) {
         console.log("Category time ended - refreshing schedule");
         setTimeout(() => {
             myModal.hide();
             refreshSettings(true); // Force refresh to get new active category
         }, 2000);
-    } 
+    }
     // Show modal for last 5 minutes
-    else if (event.hours == 0 && event.minutes < 5 && !modalIsOn) {
+    else if (event.days == 0 && event.hours == 0 && event.minutes < 5 && !modalIsOn) {
         myModal.show();
-    } 
+    }
     // Force modal during breaks
     else if (forceModal && !modalIsOn) {
         myModal.show();
@@ -286,21 +286,27 @@ function boulder(tries = 0, zone = 0, top = 0) {
     const triesNum = tries === '' ? 0 : parseInt(tries) || 0;
     const zoneNum = zone === '' ? 0 : parseInt(zone) || 0;
     const topNum = top === '' ? 0 : parseInt(top) || 0;
-    
+
     if (topNum > 0) {
         if (topNum === 1) {
             // Flash (topped on first attempt) - circle with lightning
             return `<div class="boulder-flash"><i class="bi bi-lightning-fill"></i></div>`;
         } else {
             // Topped in X attempts - full rectangle
-            return `<div class="boulder-top">${topNum}</div>`;
+            // Cap display at 99+ for numbers > 99
+            const displayNum = topNum > 99 ? '99<sup style="font-size: 0.6em;">+</sup>' : topNum;
+            return `<div class="boulder-top">${displayNum}</div>`;
         }
     } else if (zoneNum > 0) {
         // Zone in X attempts - half-filled rectangle
-        return `<div class="boulder-zone">${zoneNum}</div>`;
+        // Cap display at 99+ for numbers > 99
+        const displayNum = zoneNum > 99 ? '99<sup style="font-size: 0.6em;">+</sup>' : zoneNum;
+        return `<div class="boulder-zone">${displayNum}</div>`;
     } else if (triesNum > 0) {
         // Attempts but no zone or top
-        return `<div class="text-muted fw-bold" style="font-size: 0.9em;">${triesNum}</div>`;
+        // Cap display at 99+ for numbers > 99
+        const displayNum = triesNum > 99 ? '99<sup style="font-size: 0.6em;">+</sup>' : triesNum;
+        return `<div class="text-muted fw-bold" style="font-size: 0.9em;">${displayNum}</div>`;
     } else {
         // No attempts or empty
         return `<div class="text-black-50">—</div>`;

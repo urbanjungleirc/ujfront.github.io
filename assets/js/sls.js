@@ -6,22 +6,45 @@
 
 // URL for retrieving scores (public data)
 const scoreUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec";
+    "https://script.google.com/macros/s/AKfycbxT-iCL9thSaPhjBbR2guYymQ6Q9fxuebsgbVT9tavoG1-DWmm6yU8_HR7aovXW5sS-Wg/exec";
+    // previously used URL (https://script.google.com/a/macros/urbanjungleirc.com/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec)
 // URL for retrieving ticks (public data)
-const ticksUrl =
-    "https://script.google.com/macros/s/AKfycbyQtX-xInuAc6JwZ-a370PAifWNGD9z4eyRKZj2oTC-5mUOfSmmBYllC5F_wcSMezcZIA/exec?ticks";
+const ticksUrl = scoreUrl + "?ticks";
 // Number of rows to display per page in the DataTable
 const rowsPerPage = 10;
-const categories = ["open", "advanced", "intermediate", "novice", "youth"];
-const competitionEndTime = new Date("2025-04-02T19:00:00+08:00");
+const categories = ["open", "advanced", "intermediate", "recreational", "youth"];
+const competitionEndTime = new Date("2026-03-25T19:00:00+08:00");
 
-// Bootstrap modal for loading spinner (non-dismissible)
-let mySpinner = new bootstrap.Modal(document.getElementById("modalSpinner"), {
-    keyboard: false,
-});
+// Note: mySpinner is now provided by sls-spinner.js (loaded earlier in HTML)
+// No need to initialize it here - the spinner utility handles it
 
 // On DOM ready, load filters from the URL (if any)
 document.addEventListener("DOMContentLoaded", loadFiltersFromURL);
+
+/**
+ * Computes ranks from scores, grouped by gender+category.
+ * Ties share the same rank; the next rank skips accordingly (1,1,3...).
+ * This is calculated client-side to avoid stale pre-computed ranks from the sheet.
+ */
+function computeRanks(data) {
+    const groups = {};
+    data.forEach(row => {
+        const key = `${row.gender}|${row.category}`;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(row);
+    });
+    Object.values(groups).forEach(group => {
+        group.sort((a, b) => b.score - a.score);
+        let rank = 1;
+        group.forEach((row, i) => {
+            if (i > 0 && row.score < group[i - 1].score) {
+                rank = i + 1;
+            }
+            row.rank = rank;
+        });
+    });
+    return data;
+}
 
 /**
  * -------------------------------------
@@ -80,6 +103,15 @@ $("#tableMale")
         moment.locale("au");
         updatedAtEl.innerText = moment().format("D MMM YY, HH:mm");
         mySpinner.hide();
+
+        // Animate table rows after load
+        setTimeout(() => {
+            $('#tableMale tbody tr').each(function(index) {
+                if (index < 20) {
+                    $(this).addClass('fade-in').css('animation-delay', `${0.05 * index}s`);
+                }
+            });
+        }, 100);
     })
     .dataTable({
         ajax: {
@@ -88,7 +120,9 @@ $("#tableMale")
             data: function (d) {
                 d.format = "json";
             },
-            dataSrc: "data",
+            dataSrc: function (json) {
+                return computeRanks(json.data);
+            },
         },
 
         // Define table columns
@@ -133,7 +167,7 @@ $("#tableMale")
                 render: function (data, type) {
                     if (type === "display") {
                         // Render score as a styled button
-                        return `<span class="btn btn-sm btn-outline-primary">${data}</span>`;
+                        return `<span class="btn btn-sm btn-outline-primary rounded-modern shadow-depth-1">${data}</span>`;
                     }
                     return data;
                 },
@@ -162,7 +196,10 @@ $("#tableMale")
         // Layout configuration
         layout: {
             topStart: null,
-            topEnd: null,
+            topEnd: function() {
+                return $('<button id="toggleAllDetails" class="btn btn-sm btn-outline-primary rounded-modern shadow-depth-1" title="Show/hide all ticks"><i class="bi bi-chevron-expand me-1"></i><span>Show ticks</span></button>')
+                    .on('click', toggleAllDetails);
+            },
             bottomStart: "info",
             bottomEnd: "paging",
             bottom1: "pageLength",
@@ -183,6 +220,11 @@ $("#tableMale")
  * Event Listeners for DataTable Interactions
  * -------------------------------------
  */
+
+// Reset toggle all state when table is redrawn (e.g., after filtering)
+$("#tableMale").on("draw.dt", function() {
+    resetToggleAllState();
+});
 
 // Toggle display of child rows when a cell with the "details-control" class is clicked
 $("#tableMale").on("click", "td.details-control", function () {
@@ -213,6 +255,70 @@ $("#tableMale").on("click", "td.details-control", function () {
 function refreshData() {
     tblMale.DataTable().ajax.reload();
     fetchLatestTicks();
+    resetToggleAllState();
+}
+
+/**
+ * State tracking for expand/collapse all details
+ */
+let allDetailsExpanded = false;
+
+/**
+ * Resets the toggle all details button state.
+ */
+function resetToggleAllState() {
+    allDetailsExpanded = false;
+    const button = document.getElementById("toggleAllDetails");
+    if (button) {
+        const icon = button.querySelector("i");
+        const label = button.querySelector("span");
+        if (icon) {
+            icon.className = "bi bi-chevron-expand me-1";
+        }
+        if (label) {
+            label.textContent = "Show ticks";
+        }
+        button.setAttribute("title", "Show all ticks");
+    }
+}
+
+/**
+ * Toggles all detail rows in the DataTable.
+ * Expands all if collapsed, collapses all if expanded.
+ */
+function toggleAllDetails() {
+    const table = tblMale.DataTable();
+    const button = document.getElementById("toggleAllDetails");
+    const icon = button.querySelector("i");
+    const label = button.querySelector("span");
+
+    if (allDetailsExpanded) {
+        // Collapse all rows
+        table.rows().every(function() {
+            if (this.child.isShown()) {
+                this.child.hide();
+                $(this.node()).removeClass("shown");
+            }
+        });
+        icon.className = "bi bi-chevron-expand me-1";
+        label.textContent = "Show ticks";
+        button.setAttribute("title", "Show all ticks");
+        allDetailsExpanded = false;
+    } else {
+        // Expand all visible rows
+        table.rows({ search: 'applied' }).every(function() {
+            if (!this.child.isShown()) {
+                const tr = $(this.node());
+                const bgClass = tr.hasClass("odd") ? "odd" : "even";
+                this.child(sends(this.data()), bgClass).show();
+                tr.addClass("shown");
+            }
+        });
+        icon.className = "bi bi-chevron-contract me-1";
+        label.textContent = "Hide ticks";
+        button.setAttribute("title", "Hide all ticks");
+        allDetailsExpanded = true;
+    }
 }
 
 /**
@@ -225,6 +331,7 @@ function changeGender(gender) {
     } else {
         tblMale.DataTable().columns(0).search("").draw();
     }
+    setGenderControls(gender);
     urlWithCurrentFilter();
 }
 
@@ -235,8 +342,12 @@ function changeGender(gender) {
 function filterCategory(e) {
     const table = tblMale.DataTable();
     switch (e.value) {
+        case "all":
+        case "":
+            table.columns(1).search("").draw();
+            break;
         case "tr":
-            table.columns(1).search(`\\b(novice|youth)\\b`, true).draw();
+            table.columns(1).search(`\\b(recreational|youth)\\b`, true).draw();
             break;
         case "lead":
             table
@@ -250,6 +361,7 @@ function filterCategory(e) {
                 .search(`\\b${categories[e.value]}\\b`, true)
                 .draw();
     }
+    setCategoryControls(e.value);
     urlWithCurrentFilter();
 }
 
@@ -261,7 +373,7 @@ function updateActiveFilterDisplay() {
     let displayText = "";
 
     const leadCategories = ["advanced", "intermediate", "open"];
-    const topRopeCategories = ["novice", "youth"];
+    const topRopeCategories = ["recreational", "youth"];
 
     if (category) {
         let filteredCategories = category
@@ -294,7 +406,7 @@ function updateActiveFilterDisplay() {
     }
 
     if (!displayText) { 
-        displayText = "Leaderboard";
+        displayText = "All Categories";
     }
 
     document.getElementById("activeFilter").textContent = displayText;
@@ -498,7 +610,100 @@ function loadFiltersFromURL() {
         table.column(1).search(category, true, false).draw();
     }
 
+    syncFilterControls(gender, category);
     updateActiveFilterDisplay();
+}
+
+function handleGenderSelect(selectEl) {
+    const value = selectEl.value || null;
+    changeGender(value);
+}
+
+function handleCategorySelect(selectEl) {
+    filterCategory(selectEl);
+}
+
+function syncFilterControls(genderSearch, categorySearch) {
+    const normalizedGender = normalizeGenderValue(genderSearch);
+    const normalizedCategory = normalizeCategoryValue(categorySearch);
+    setGenderControls(normalizedGender);
+    setCategoryControls(normalizedCategory);
+}
+
+function normalizeGenderValue(searchValue) {
+    if (!searchValue) {
+        return "";
+    }
+    const normalized = searchValue.replace(/\\b/g, "").replace(/[()]/g, "");
+    return normalized === "male" || normalized === "female" ? normalized : "";
+}
+
+function normalizeCategoryValue(searchValue) {
+    if (!searchValue) {
+        return "";
+    }
+    const normalized = searchValue.replace(/\\b/g, "").replace(/[()]/g, "");
+    const parts = normalized.split("|");
+    const leadCategories = ["advanced", "intermediate", "open"];
+    const topRopeCategories = ["recreational", "youth"];
+
+    if (parts.length > 1) {
+        if (leadCategories.every((cat) => parts.includes(cat))) {
+            return "lead";
+        }
+        if (topRopeCategories.every((cat) => parts.includes(cat))) {
+            return "tr";
+        }
+        return "";
+    }
+
+    const index = categories.indexOf(normalized);
+    return index >= 0 ? String(index) : "";
+}
+
+function setGenderControls(value) {
+    const genderSelect = document.getElementById("genderSelect");
+    if (genderSelect) {
+        genderSelect.value = value || "";
+    }
+    const bothRadio = document.getElementById("btnradioBoth");
+    const maleRadio = document.getElementById("btnradioMale");
+    const femaleRadio = document.getElementById("btnradioFemale");
+    if (bothRadio && maleRadio && femaleRadio) {
+        bothRadio.checked = !value;
+        maleRadio.checked = value === "male";
+        femaleRadio.checked = value === "female";
+    }
+}
+
+function setCategoryControls(value) {
+    const categorySelect = document.getElementById("categorySelect");
+    if (categorySelect) {
+        categorySelect.value = value || "all";
+    }
+    const radios = document.querySelectorAll('input[name="radioCategory"]');
+    radios.forEach((radio) => {
+        radio.checked = false;
+    });
+
+    const radioIdsByValue = {
+        all: "btnradioAll",
+        "0": "btnradioAdv",
+        "1": "btnradioInt",
+        "2": "btnradioYou",
+        "3": "btnradioRec",
+        "4": "btnradioYouTR",
+        lead: "btnradioLead",
+        tr: "btnradioTR",
+    };
+
+    const radioId = radioIdsByValue[value || "all"];
+    if (radioId) {
+        const radio = document.getElementById(radioId);
+        if (radio) {
+            radio.checked = true;
+        }
+    }
 }
 
 /**
@@ -567,14 +772,14 @@ function fetchLatestTicks() {
  */
 function displayLatestTicks(data) {
     const groupedData = {};
-    const latestPeople = new Set(); // Track latest 5 unique climbers
+    const latestPeople = new Set(); // Track latest 10 unique climbers
 
     // Sort data by exact timestamp (newest first)
     const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Iterate over sorted data and group by unique climbers
     sortedData.forEach(({ date, name, route, tick, bonus, category, gender }) => {
-        if (latestPeople.size < 5 || latestPeople.has(name)) {
+        if (latestPeople.size < 10 || latestPeople.has(name)) {
             const normalizedDate = luxon.DateTime.fromISO(date).toISODate(); // Keep only date part
             const key = `${normalizedDate}-${name}`;
 
@@ -599,15 +804,25 @@ function displayLatestTicks(data) {
         }
     });
 
-    // Get the latest 5 climbers' logs (already sorted)
-    const latestTicks = Object.values(groupedData).slice(0, 5);
+    // Get the latest 10 climbers' logs (already sorted)
+    const latestTicks = Object.values(groupedData).slice(0, 10);
 
     const container = document.getElementById("latest-ticks");
     container.innerHTML = "";
 
-    latestTicks.forEach(({ date, name, category, gender, ticks }) => {
+    if (latestTicks.length === 0) {
+        container.innerHTML = `
+            <div class="list-group-item list-group-item-action align-items-center list-group-item-hover fade-in">
+                <strong>No ticks yet.</strong><br>
+                <small class="text-muted">Check back soon.</small>
+            </div>
+        `;
+        return;
+    }
+
+    latestTicks.forEach(({ date, name, category, gender, ticks }, index) => {
         const item = document.createElement("div");
-        item.className = "list-group-item list-group-item-action align-items-center";
+        item.className = `list-group-item list-group-item-action align-items-center list-group-item-hover fade-in stagger-${Math.min(index + 1, 5)}`;
 
         // Category
         const categoryShort = category ? category.toUpperCase() : "";

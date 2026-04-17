@@ -13,12 +13,12 @@
     <meta name="keywords" content="climbing competition, Urban Jungle, Perth, lead climbing, climbing event, SLS">
     <meta name="author" content="Urban Jungle IRC">
     <!-- for facebook share -->
-    <meta property="og:url" content="https://ujfront.github.io/sls.html" />
+    <meta property="og:url" content="https://tools.urbanjungleirc.com/sls.html" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Summer Lead Series" />
     <meta property="og:description"
         content="Urban Jungle's premier climbing competition in Perth. Compete, enjoy, and connect with the climbing community." />
-    <meta property="og:image" content="https://ujfront.github.io/assets/img/sls_score_fbshare.png" />
+    <meta property="og:image" content="https://tools.urbanjungleirc.com/assets/img/sls_score_fbshare.jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
@@ -33,18 +33,8 @@
     <link rel="stylesheet" type="text/css" href="assets/css/uj_sls.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://use.typekit.net/tco5lzp.css"> <!-- font-family: 'fatFrank', sans-serif; -->
+    <link rel="stylesheet" href="assets/css/spinner-animations.css"> <!-- SLS Animated Spinner System -->
     <style>
-        /* ENDLESS ROTATE */
-        .rotate {
-            animation: rotate 5s linear infinite;
-        }
-
-        @keyframes rotate {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
         /* SPINNER */
         .spinner {
             display: inline-block;
@@ -57,6 +47,7 @@
         h1,
         h2,
         h3,
+        h4,
         .sls-font {
             font-family: 'FatFrank', sans-serif;
         }
@@ -64,10 +55,10 @@
 
 </head>
 
-<body class="bg-light">
+<body>
 
     <header>
-        <div class="px-3 py-2 text-bg-primary border-bottom">
+        <div class="px-3 py-2 text-bg-primary border-bottom slide-in-top stagger-1">
             <div class="container-md">
                 <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                     <div class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white">
@@ -75,7 +66,9 @@
                             <img src="./assets/img/sls_logo.png" alt="SLS" width="100" height="100">
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h1>Summer Lead Series</br><span class="text-white-50">by Urban Jungle IRC</span></h1>
+                            <h1>Summer Lead Series <span id="sls_year"></span></br>
+                                <span class="text-white-50">Urban Jungle IRC</span>
+                            </h1>
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3 text-end">
@@ -86,10 +79,10 @@
                 </div>
             </div>
         </div>
-        <div class="px-3 py-2 border-bottom mb-3 bg-white">
+        <div class="px-3 py-2 border-bottom mb-3 bg-white slide-in-top stagger-2">
             <div class="container-md">
-                <div class="d-flex flex-wrap justify-content-center">
-                    <div class="d-flex mb-2 mb-lg-0 me-lg-auto">
+                <div class="d-flex flex-wrap justify-content-between align-items-center">
+                    <div class="d-flex mb-2 mb-lg-0">
                         <p class="text-primary mb-0" id="timer">
                             Time left to score </br>
                             <span data-days class="text-primary fw-bold"></span>d
@@ -97,8 +90,11 @@
                             <span data-minutes class="text-primary fw-bold"></span>m
                         </p>
                     </div>
-                    <div class="flex-grow-1 text-end">
-                        <p class="text-end text-primary mb-0">Scores from</br>
+                    <div class="d-flex align-items-center gap-3 ms-auto">
+                        <span id="refreshButton" class="btn btn-outline-primary rounded-modern shadow-depth-1" data-bs-toggle="tooltip"
+                            data-bs-placement="left" title="Reload data" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i>
+                        </span>
+                        <p class="text-primary text-end mb-0">Scores from</br>
                             <span id="updatedAt" class="fw-bold"></span>
                         </p>
                     </div>
@@ -107,24 +103,79 @@
         </div>
     </header>
 
+    <section class="sponsor-strip slide-in-top stagger-3 my-lg-5 my-2">
+        <div class="container-md">
+            <div class="sponsor-strip__inner">
+                <span class="sponsor-strip__label">Sponsors</span>
+                <div class="sponsor-strip__logos">
+                    <a class="sponsor-logo-link slide-in-top stagger-1" href="https://www.camp.it/d/ot/en/outdoor" target="_blank" rel="noopener">
+                        <img src="assets/img/sponsors/camp_logo_white.png" alt="CAMP" class="sponsor-logo" loading="lazy">
+                    </a>
+                    <a class="sponsor-logo-link slide-in-top stagger-2" href="https://www.climbinganchors.com.au/" target="_blank" rel="noopener">
+                        <img src="assets/img/sponsors/climbing_anchors_logo_white.png" alt="Climbing Anchors"
+                            class="sponsor-logo" loading="lazy">
+                    </a>
+                    <a class="sponsor-logo-link slide-in-top stagger-3" href="https://edelrid.com/int-en" target="_blank" rel="noopener">
+                        <img src="assets/img/sponsors/edelrid_logo_white.png" alt="Edelrid" class="sponsor-logo"
+                            loading="lazy">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- main container -->
-    <main class="container-md p-1">
+    <main class="container-md p-1 my-lg-3 my-2">
 
         <div class="row g-3">
             <!-- latest ticks -->
-            <div class="col-12 col-md-6 col-lg-3 order-last order-md-first">
+            <div class="col-12 col-md-6 col-lg-3 order-last order-md-first slide-in-left stagger-3">
                 <h3 class="text-center">Latest Ticks</h3>
+                <div class="d-flex justify-content-center gap-2 mb-2 small">
+                    <span class="text-round1 fw-semibold">R1</span>
+                    <span class="text-round2 fw-semibold">R2</span>
+                    <span class="text-round3 fw-semibold">R3</span>
+                    <span class="text-round4 fw-semibold">R4</span>
+                </div>
                 <div id="latest-ticks" class="list-group px-3"></div>
                 <div class="text-center my-2">
-                    <a href="sls_ticks.html" class="btn btn-outline-primary">Check All Ticks</a>
+                    <a href="sls_ticks.html" class="btn btn-outline-primary rounded-modern shadow-depth-1">Check All Ticks <i class="bi bi-arrow-right"></i></a>
                 </div>
             </div>
             <!-- filters -->
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="col-12 col-md-6 col-lg-3 slide-in-left stagger-4">
                 <h3 class="text-center" id="filterHeader">Filters</h3>
-                <div class="d-flex justify-content-between mb-3 px-3">
+                
+                <!-- mobile filters -->
+                <div class="row g-2 d-md-none mb-3 px-3">
+                    <div class="col-6">
+                        <label class="form-label text-center w-100 mb-2">Gender</label>
+                        <select id="genderSelect" class="form-select rounded-modern shadow-depth-1" onchange="handleGenderSelect(this)">
+                            <option value="">All genders</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-center w-100 mb-2">Category</label>
+                        <select id="categorySelect" class="form-select rounded-modern shadow-depth-1" onchange="handleCategorySelect(this)">
+                            <option value="0">Open</option>
+                            <option value="1">Advanced</option>
+                            <option value="2">Intermediate</option>
+                            <option value="lead">Lead Competitors</option>                            
+                            <option value="3">Recreational</option>
+                            <option value="4">Youth</option>
+                            <option value="tr">Top Rope Competitors</option>
+                            <option value="all">All Competitors</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- desktop filters -->
+                <h4 class="text-center mt-5 d-none d-md-block" id="filterHeader">Gender</h4>
+                <div class="d-none d-md-flex justify-content-center mb-3 px-3">
                     <div class="py-2">
-                        <div class="btn-group" role="group" aria-label="Gender group">
+                        <div class="btn-group rounded-modern shadow-depth-1" role="group" aria-label="Gender group">
                             <input type="radio" class="btn-check" name="radioGender" id="btnradioBoth"
                                 autocomplete="off" checked onchange="changeGender()">
                             <label class="btn btn-outline-primary" for="btnradioBoth"><i
@@ -139,15 +190,10 @@
                                     class="bi bi-gender-female"></i></label>
                         </div>
                     </div>
-                    <div class="py-2">
-                        <span id="refreshButton" class="btn btn-outline-primary" data-bs-toggle="tooltip"
-                            data-bs-placement="left" data-bs-title="Reload data" onclick="refreshData()"><i
-                                class="bi bi-arrow-clockwise"></i>
-                            Reload</span>
-                    </div>
                 </div>
-                <div class="row m-0 mb-3 p-0">
-                    <div class="btn-group justify-content-center">
+                <div class="row m-0 mb-3 p-0 d-none d-md-block">
+                    <h4 class="text-center mt-5" id="filterHeader">Category</h4>
+                    <div class="btn-group justify-content-center d-md-flex">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioAdv" autocomplete="off"
                             value="0" onchange="filterCategory(this)">
                         <label class="btn btn-outline-primary" for="btnradioAdv">Open</label>
@@ -158,36 +204,41 @@
                             value="2" onchange="filterCategory(this)">
                         <label class="btn btn-outline-primary" for="btnradioYou">Intermediate</label>
                     </div>
-                    <div class="btn-group justify-content-center mb-3" style="margin-top: -1px !important;">
+                    <div class="btn-group justify-content-center mb-3 mt-1 d-md-flex">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioLead" autocomplete="off"
                             value="lead" onchange="filterCategory(this)">
-                        <label class="btn btn-outline-secondary" for="btnradioLead">Lead categories</label>
+                        <label class="btn btn-outline-primary " for="btnradioLead">Lead Competitors</label>
                     </div>
 
-                    <div class="btn-group justify-content-center">
-                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioNov" autocomplete="off"
+                    <div class="btn-group justify-content-center mt-3 d-md-flex">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioRec" autocomplete="off"
                             value="3" onchange="filterCategory(this)">
-                        <label class="btn btn-outline-primary" for="btnradioNov">Novice</label>
+                        <label class="btn btn-outline-primary" for="btnradioRec">Recreational</label>
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioYouTR" autocomplete="off"
                             value="4" onchange="filterCategory(this)">
                         <label class="btn btn-outline-primary" for="btnradioYouTR">Youth</label>
                     </div>
-                    <div class="btn-group justify-content-center" style="margin-top: -1px !important;">
+                    <div class="btn-group justify-content-center mt-1 d-md-flex">
                         <input type="radio" class="btn-check" name="radioCategory" id="btnradioTR" autocomplete="off"
                             value="tr" onchange="filterCategory(this)">
-                        <label class="btn btn-outline-secondary" for="btnradioTR">Top Rope categories</label>
+                        <label class="btn btn-outline-primary" for="btnradioTR">Top Rope Competitors</label>
+                    </div>
+                    <div class="btn-group justify-content-center mt-3 d-md-flex">
+                        <input type="radio" class="btn-check" name="radioCategory" id="btnradioAll" autocomplete="off"
+                            value="all" onchange="filterCategory(this)">
+                        <label class="btn btn-outline-primary" for="btnradioAll">All Competitors</label>
                     </div>
                 </div>
             </div>
             <!-- leaderboard -->
-            <div class="col-12 col-lg-6">
-                <h2 class="text-center" id="activeFilter">Leaderboard</h2>
-                <div class="table-responsive mb-3" style="width: 100%;">
-                    <table id="tableMale" class="table table-striped align-middle bg-white align-bottom"
+            <div class="col-12 col-lg-6 slide-in-right stagger-5">
+                <h2 class="text-center">Leaderboard</h2>
+                <h3 class="text-center text-round1" id="activeFilter">All Categories</h3>
+                <div class="table-responsive results-panel mb-3 overflow-hidden p-0" style="width: 100%;">
+                    <table id="tableMale" class="table table-striped align-middle bg-white align-bottom rounded-modern"
                         style="width: 100%;">
                     </table>
                 </div>
-
             </div>
         </div>
 
@@ -198,17 +249,18 @@
         </div>
 
         <!-- rules -->
-        <div class="row my-3 mx-1">
-            <h3 class="text-center mb-3">Type of ticks and scoring</h3>
+        <div class="row my-3 mx-1 fade-in stagger-7">
+            <h3 class="text-center mb-3">Point system</h3>
             <div class="row d-flex justify-content-center">
-                <div class="col" style="max-width: 250px;">
-                    <ul class="list-group bg-light-subtle">
-                        <li class="list-group-item list-group-item-action list-group-item-light"><svg
-                                xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
+                <div class="col stagger-1" style="max-width: 250px;">
+                    <ul class="list-group bg-light-subtle rounded-modern shadow-depth-1">
+                        <li class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                                 class="bi bi-file" viewBox="0 0 16 16">
                                 <path
                                     d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" />
-                            </svg> No score</li>
+                            </svg> No score </span> <span class="badge rounded-pill text-bg-accent-light">0</span>
+                        </li>
                         <li
                             class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
@@ -238,7 +290,7 @@
                                 </svg> Top </span> <span class="badge rounded-pill text-bg-accent-light">50</span>
                         </li>
                         <li
-                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
+                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center mb-0">
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                                     class="bi bi-lightning-fill" viewBox="0 0 16 16">
                                     <path
@@ -247,10 +299,9 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col" style="max-width: 250px;">
-                    <ul class="list-group">
-                        <li class="list-group-item list-group-item-action list-group-item-primary active">Ticks with a
-                            bonus</li>
+                <div class="col stagger-2" style="max-width: 250px;">
+                    <p class="fw-bolder">Ticks with a bonus</p>
+                    <ul class="list-group bg-light-subtle rounded-modern shadow-depth-1">
                         <li
                             class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
@@ -286,7 +337,7 @@
                                 </svg> Top</span> <span class="badge rounded-pill text-bg-accent-dark">60</span>
                         </li>
                         <li
-                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center">
+                            class="list-group-item list-group-item-action list-group-item-light d-flex justify-content-between align-items-center mb-0">
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" fill="currentColor"
                                     class="bi bi-lightning-fill" viewBox="0 0 16 16">
                                     <path
@@ -301,7 +352,7 @@
             </div>
         </div>
         <div class="d-flex justify-content-center my-3">
-            <a class="btn btn-outline-primary" href="https://www.urbanjungleirc.com/sls2025">Full competition
+            <a class="btn btn-outline-primary rounded-modern shadow-depth-1" href="https://www.urbanjungleirc.com/sls-2026">Full competition
                 details</a>
         </div>
 
@@ -310,7 +361,7 @@
     <footer class="bg-primary">
         <div class="container-md d-flex flex-wrap justify-content-between align-items-center py-3 my-4">
             <div class="col-md-4 d-flex align-items-center text-white">
-                <span class="mb-3 mb-md-0">© 2025 Urban Jungle IRC, Jandakot WA</span>
+                <span class="mb-3 mb-md-0">© <span id="year"></span> Urban Jungle IRC, Jandakot WA</span>
             </div>
             <a href="http://urbanjungleirc.com"
                 class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
@@ -328,20 +379,21 @@
         </div>
     </footer>
 
-    <!-- Spinner-->
-    <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal">
-            <div class="modal-content p-3" style="background-color: transparent !important; border: none !important;">
-                <img src="./assets/img/sls_logo.png" alt="SLS" class="rotate">
+    <!-- Spinner Modal (SLS Animated Spinner System) -->
+    <div class="modal fade" id="modalSpinner" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-hidden="true" aria-labelledby="spinnerLabel" aria-live="polite">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content spinner-modal-content">
+                <div class="modal-body text-center spinner-container">
+                    <!-- Animation and slogan will be dynamically inserted here by sls-spinner.js -->
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="assets/js/sls-spinner.js"></script> <!-- SLS Animated Spinner System -->
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js"></script>
@@ -362,6 +414,11 @@
 
     <!-- custom -->
     <script src="assets/js/sls.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        document.getElementById('sls_year').textContent = new Date().getFullYear();
+    </script>
+
 
 </body>
 
