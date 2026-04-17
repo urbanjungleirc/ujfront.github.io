@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Jungle — Day Schedule</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/uj_colors.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .event-card {
+            border-left: 4px solid #ff4709;
+            border-radius: 6px;
+        }
+
+        .event-card.free-class {
+            border-left-color: #198754;
+        }
+
+        .progress {
+            border-radius: 4px;
+        }
+
+        #loadingSpinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #ff4709;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container py-4" style="max-width: 720px;">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-calendar3 me-2 text-uj-primary"></i>Day Schedule
+            </h5>
+            <input type="date" id="datePicker" class="form-control form-control-sm w-auto">
+        </div>
+
+        <!-- Event cards -->
+        <div id="eventContainer"></div>
+
+        <!-- No events -->
+        <div id="noEvents" class="d-none text-center text-muted py-5">
+            <i class="bi bi-calendar-x" style="font-size: 2.5rem;"></i>
+            <p class="mt-3 mb-0">No events scheduled for this day.</p>
+        </div>
+
+        <!-- Error -->
+        <div id="errorMsg" class="d-none alert alert-danger"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-2 py-3 border-top">
+        <div class="container text-center text-muted" style="font-size: 0.75rem; max-width: 720px;">
+            <span id="termsNote"></span>
+        </div>
+    </footer>
+
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbx79mAIC4UHh3OWMMWMsklKyWniEEHBTVwsVdqFmdCRguncLdNX4Heq9o7F_5wx_mKaLA/exec';
+
+        function getUrlParam(name) {
+            return new URLSearchParams(window.location.search).get(name);
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = ('0' + (date.getMonth() + 1)).slice(-2);
+            const d = ('0' + date.getDate()).slice(-2);
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatTimeRange(startAt, endAt) {
+            const parseTime = str => {
+                // Extract HH:MM directly from ISO string (time is already in Perth local time +08:00)
+                const [h, m] = str.substring(11, 16).split(':').map(Number);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                return `${h % 12 || 12}:${('0' + m).slice(-2)} ${ampm}`;
+            };
+            return `${parseTime(startAt)} – ${parseTime(endAt)}`;
+        }
+
+        function formatVerifiedDate(dateStr) {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return `${d} ${months[m - 1]} ${y}`;
+        }
+
+        function progressColor(pct) {
+            if (pct >= 90) return 'bg-danger';
+            if (pct >= 70) return 'bg-warning';
+            return 'bg-success';
+        }
+
+        function buildCard(event) {
+            const timeStr = formatTimeRange(event.event_start_at, event.event_end_at);
+            const pct = event.total_capacity > 0
+                ? Math.round((event.booking_count / event.total_capacity) * 100)
+                : 0;
+            const colorClass = progressColor(pct);
+            const spotsLeft = event.spaces_available;
+            const spotsLabel = spotsLeft === 1 ? '1 spot left' : `${spotsLeft} spots left`;
+
+            const descHtml = event.event_description
+                ? `<p class="card-text small text-muted mb-3">${event.event_description}</p>`
+                : '';
+
+            const seriesHtml = event.series && event.series.is_series
+                ? `<div class="text-muted small mt-2">
+                     <i class="bi bi-arrow-repeat me-1"></i>
+                     ${event.series.sessions_remaining} of ${event.series.total_in_term} sessions remaining this term
+                   </div>`
+                : '';
+
+            const freeLabel = event.free_class
+                ? `<span class="badge bg-success ms-2">Free</span>`
+                : '';
+
+            return `
+                <div class="card mb-3 shadow-sm event-card${event.free_class ? ' free-class' : ''}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span class="text-muted small">${timeStr}</span>
+                            <span class="badge bg-secondary">${event.location_name}</span>
+                        </div>
+                        <h6 class="card-title mb-1 fw-bold">${event.event_name}${freeLabel}</h6>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person me-1"></i>${event.instructor_name || 'UJ Team'}
+                        </p>
+                        ${descHtml}
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span><strong>${event.booking_count}</strong> / ${event.total_capacity} booked</span>
+                            <span>${spotsLabel}</span>
+                        </div>
+                        <div class="progress mb-1" style="height: 7px;">
+                            <div class="progress-bar ${colorClass}" style="width: ${pct}%;" role="progressbar"></div>
+                        </div>
+                        ${seriesHtml}
+                    </div>
+                </div>`;
+        }
+
+        function dayViewCallback(data) {
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            if (data.error) {
+                document.getElementById('errorMsg').textContent = 'Error: ' + data.error;
+                document.getElementById('errorMsg').classList.remove('d-none');
+                return;
+            }
+
+            // Footer
+            if (data.terms_last_verified) {
+                document.getElementById('termsNote').innerHTML =
+                    `WA school term dates last verified ${formatVerifiedDate(data.terms_last_verified)} · ` +
+                    `<a href="https://www.education.wa.edu.au/future-term-dates" target="_blank" class="text-muted">education.wa.edu.au</a>`;
+            }
+
+            const events = data.events || [];
+            if (events.length === 0) {
+                document.getElementById('noEvents').classList.remove('d-none');
+                return;
+            }
+
+            document.getElementById('eventContainer').innerHTML = events.map(buildCard).join('');
+        }
+
+        function loadData(date) {
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            document.getElementById('eventContainer').innerHTML = '';
+            document.getElementById('noEvents').classList.add('d-none');
+            document.getElementById('errorMsg').classList.add('d-none');
+
+            const script = document.createElement('script');
+            script.src = GAS_URL
+                + '?attribute=dayViewJsonp'
+                + '&date=' + date
+                + '&callback=dayViewCallback';
+            script.onerror = () => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('errorMsg').textContent = 'Failed to load data. Check your connection.';
+                document.getElementById('errorMsg').classList.remove('d-none');
+            };
+            document.head.appendChild(script);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = formatDate(new Date());
+            const dateParam = getUrlParam('date') || today;
+
+            const picker = document.getElementById('datePicker');
+            picker.value = dateParam;
+            picker.addEventListener('change', () => {
+                const newDate = picker.value;
+                const url = new URL(window.location.href);
+                url.searchParams.set('date', newDate);
+                window.history.pushState({}, '', url);
+                loadData(newDate);
+            });
+
+            loadData(dateParam);
+        });
+    </script>
+</body>
+
+</html>

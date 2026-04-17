@@ -186,7 +186,8 @@
                     if (event.event_full) {
                         eventTitle += ' (Full)';
                     } else {
-                        eventTitle += ' (' + event.spaces_available + ' spot';
+                        const displaySpots = event.spaces_available > 3 ? '4+' : event.spaces_available;
+                        eventTitle += ' (' + displaySpots + ' spot';
                         eventTitle += event.spaces_available == 1 ? ')' : 's)'; // plural
                     }
                 }
