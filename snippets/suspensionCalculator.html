@@ -256,6 +256,9 @@
                 <div id="resultBox" class="result-box">
                     <div class="result-main" id="resultText"></div>
                 </div>
+                <button type="button" class="btn btn-outline-secondary mt-3 w-100" id="resetBtn">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                </button>
             </div>
         </div>
     </div>
@@ -484,6 +487,17 @@
             resultTextEl.innerHTML = resultText.replace(/\n/g, '<br>');
 
             document.getElementById('results').style.display = 'block';
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function () {
+            fpLastPayment.clear();
+            fpSuspFrom.clear();
+            fpSuspTill.clear();
+            document.getElementById('calcForm').reset();
+            const errorEl = document.getElementById('formError');
+            errorEl.classList.add('d-none');
+            errorEl.textContent = '';
+            document.getElementById('results').style.display = 'none';
         });
     </script>
 </body>
