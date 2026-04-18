@@ -25,6 +25,22 @@
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
         }
 
+        /* Collapsed state */
+        .event-card.is-collapsed { opacity: 0.65; }
+        .event-card.is-collapsed:hover { opacity: 1; }
+        .event-card.is-collapsed .card-full { display: none; }
+        .event-card:not(.is-collapsed) .card-collapsed { display: none; }
+
+        /* Chevron icon via CSS so we don't need JS class swaps */
+        .toggle-icon { font-style: normal; }
+        .event-card.is-collapsed .toggle-icon::before { content: "\f285"; font-family: "bootstrap-icons"; }
+        .event-card:not(.is-collapsed) .toggle-icon::before { content: "\f282"; font-family: "bootstrap-icons"; }
+
+        .toggle-row {
+            cursor: pointer;
+            user-select: none;
+        }
+
         .progress {
             border-radius: 4px;
         }
@@ -81,7 +97,26 @@
             <h5 class="mb-0 fw-bold">
                 <i class="bi bi-calendar3 me-2 text-uj-primary"></i>Day Schedule
             </h5>
-            <input type="date" id="datePicker" class="form-control form-control-sm w-auto">
+            <div class="d-flex align-items-center gap-2">
+                <input type="date" id="datePicker" class="form-control form-control-sm w-auto">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-label="Options">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" onclick="expandAll(); return false;">
+                            <i class="bi bi-chevron-bar-expand me-2"></i>Expand all
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="collapseAll(); return false;">
+                            <i class="bi bi-chevron-bar-contract me-2"></i>Collapse all
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="resetView(); return false;">
+                            <i class="bi bi-layout-text-sidebar me-2"></i>Default view
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Event cards -->
@@ -107,6 +142,13 @@
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbx79mAIC4UHh3OWMMWMsklKyWniEEHBTVwsVdqFmdCRguncLdNX4Heq9o7F_5wx_mKaLA/exec';
 
+        const LOW_PRIORITY = ['urban jungle', 'nuon', 'climbwell', 'anna davey'];
+
+        function isLowPriority(name) {
+            const lower = (name || '').toLowerCase();
+            return LOW_PRIORITY.some(kw => lower.includes(kw));
+        }
+
         function getUrlParam(name) {
             return new URLSearchParams(window.location.search).get(name);
         }
@@ -120,7 +162,6 @@
 
         function formatTimeRange(startAt, endAt) {
             const parseTime = str => {
-                // Extract HH:MM directly from ISO string (time is already in Perth local time +08:00)
                 const [h, m] = str.substring(11, 16).split(':').map(Number);
                 const ampm = h >= 12 ? 'PM' : 'AM';
                 return `${h % 12 || 12}:${('0' + m).slice(-2)} ${ampm}`;
@@ -150,7 +191,27 @@
             return `${days[dow]} ${d} ${months[m - 1]}`;
         }
 
+        function toggleCard(el) {
+            el.closest('.event-card').classList.toggle('is-collapsed');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.event-card').forEach(c => c.classList.remove('is-collapsed'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.event-card').forEach(c => c.classList.add('is-collapsed'));
+        }
+
+        function resetView() {
+            document.querySelectorAll('.event-card').forEach(c => {
+                c.classList.toggle('is-collapsed', isLowPriority(c.dataset.name || ''));
+            });
+        }
+
         function buildCard(event) {
+            const low = isLowPriority(event.event_name);
+            const collapsedClass = low ? 'is-collapsed' : '';
             const timeStr = formatTimeRange(event.event_start_at, event.event_end_at);
             const pct = event.total_capacity > 0
                 ? Math.round((event.booking_count / event.total_capacity) * 100)
@@ -159,13 +220,13 @@
             const spotsLabel = spotsLeft === 0 ? 'Full' : spotsLeft === 1 ? '1 spot left' : `${spotsLeft} spots left`;
             const spotsBadge = spotsBadgeStyle(spotsLeft, event.total_capacity);
 
-            // Series pill (top-right)
+            // Series pill
             let seriesPillHtml = '';
             if (event.series && event.series.is_series) {
                 const s = event.series;
                 const nextStr = s.next_session ? `Next: ${formatNextSession(s.next_session)}` : 'Last session this term';
                 const tooltipText = `Session ${s.session_number} of ${s.total_in_term} this term · ${nextStr}`;
-                seriesPillHtml = `<span class="badge rounded-pill border text-secondary fw-normal"
+                seriesPillHtml = `<span class="badge rounded-pill border fw-normal"
                     style="background:#f8f9fa; font-size:0.75rem; cursor:default; color:#212529;"
                     data-bs-toggle="tooltip" data-bs-title="${tooltipText}">
                     <i class="bi bi-arrow-repeat me-1"></i>${s.session_number} of ${s.total_in_term}
@@ -179,25 +240,40 @@
                       title="Click to expand">${event.event_description}</p>`
                 : '';
 
+            const toggleRow = `
+                <div class="toggle-row d-flex justify-content-between align-items-center"
+                     onclick="toggleCard(this)">
+                    <span>
+                        <i class="toggle-icon me-2"></i><strong>${event.event_name}</strong>
+                    </span>
+                    <span class="text-muted small ms-3 text-nowrap">${timeStr}</span>
+                </div>`;
+
+            const fullBody = `
+                <div class="card-full">
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <span class="text-muted small">${timeStr}</span>
+                        ${seriesPillHtml}
+                    </div>
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-person me-1"></i>${event.instructor_name || 'UJ Team'} · ${event.location_name}
+                    </p>
+                    ${descHtml}
+                    <div class="d-flex justify-content-between align-items-center small mb-1">
+                        <span class="text-muted"><strong>${event.booking_count}</strong> / ${event.total_capacity} booked</span>
+                        <span class="badge rounded-pill" style="${spotsBadge}">${spotsLabel}</span>
+                    </div>
+                    <div class="progress" style="height: 7px;">
+                        <div class="progress-bar bg-secondary" style="width: ${pct}%;" role="progressbar"></div>
+                    </div>
+                </div>`;
+
             return `
-                <div class="card mb-3 shadow-sm event-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <span class="text-muted small">${timeStr}</span>
-                            ${seriesPillHtml}
-                        </div>
-                        <h6 class="card-title mb-1 fw-bold">${event.event_name}</h6>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person me-1"></i>${event.instructor_name || 'UJ Team'} · ${event.location_name}
-                        </p>
-                        ${descHtml}
-                        <div class="d-flex justify-content-between align-items-center small mb-1">
-                            <span class="text-muted"><strong>${event.booking_count}</strong> / ${event.total_capacity} booked</span>
-                            <span class="badge rounded-pill" style="${spotsBadge}">${spotsLabel}</span>
-                        </div>
-                        <div class="progress" style="height: 7px;">
-                            <div class="progress-bar bg-secondary" style="width: ${pct}%;" role="progressbar"></div>
-                        </div>
+                <div class="card mb-2 shadow-sm event-card ${collapsedClass}" data-name="${event.event_name.replace(/"/g, '&quot;')}">
+                    <div class="card-body py-2">
+                        ${toggleRow}
+                        ${fullBody}
                     </div>
                 </div>`;
         }
@@ -211,7 +287,6 @@
                 return;
             }
 
-            // Footer
             if (data.terms_last_verified) {
                 document.getElementById('termsNote').innerHTML =
                     `WA school term dates last verified ${formatVerifiedDate(data.terms_last_verified)} · ` +
@@ -225,7 +300,6 @@
             }
 
             document.getElementById('eventContainer').innerHTML = events.map(buildCard).join('');
-            // Initialise Bootstrap tooltips on series pills
             document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         }
 
