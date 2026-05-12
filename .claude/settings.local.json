@@ -13,7 +13,13 @@
       "mcp__playwright__browser_close",
       "Bash(pkill:*)",
       "Bash(dir:*)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:docs.n8n.io)",
+      "mcp__n8n__get_node_types",
+      "mcp__n8n__validate_workflow",
+      "mcp__n8n__get_workflow_details",
+      "mcp__n8n__get_sdk_reference",
+      "mcp__n8n__update_workflow"
     ],
     "deny": [],
     "ask": []
