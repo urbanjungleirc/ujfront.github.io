@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Display</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <style>
     :root { --p: #4F46E5; --s: #7C3AED; --t: #059669; }
     /* Theme overrides via URL params applied by applyTheme() at runtime */
@@ -343,25 +344,31 @@
       showPanel('loading');
     }
 
-    fetch(buildUrl(_params))
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        if (data.error) throw new Error(data.message || 'GAS returned an error response');
+    // Use $.ajax (jQuery XHR) instead of fetch() — GAS /exec redirects via script.google.com
+    // which Chrome's fetch() blocks on cross-origin redirect. jQuery XHR follows it correctly
+    // (same approach as sls.js in this repo).
+    $.ajax({
+      url: buildUrl(_params),
+      method: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        if (data.error) {
+          var msg = data.message || 'GAS returned an error response';
+          if (_cache) { setRetryIndicator(msg); } else { showError('Could not load data: ' + msg, true); }
+          return;
+        }
         _cache = data;
         showPanel('main');
         renderAll();
         updateLastUpdated();
         if (typeof onFirstLoad === 'function') onFirstLoad();
-      })
-      .catch(function(err) {
-        // FPAR-06: show retry state; preserve _cache data on screen if it exists
-        if (_cache) {
-          // leave main panel showing, but update header-controls to show error indicator
-          setRetryIndicator(err.message);
-        } else {
-          showError('Could not load data: ' + err.message, true);
-        }
-      });
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        var msg = errorThrown || textStatus || 'Request failed';
+        // FPAR-06: preserve _cache data on screen if it exists
+        if (_cache) { setRetryIndicator(msg); } else { showError('Could not load data: ' + msg, true); }
+      }
+    });
   }
 
   /**
