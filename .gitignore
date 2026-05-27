@@ -3,3 +3,6 @@
 /.vscode
 /tests
 /gas
+/.claude
+.codex
+Claude.md
