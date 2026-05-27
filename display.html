@@ -344,13 +344,14 @@
       showPanel('loading');
     }
 
-    // Use $.ajax (jQuery XHR) instead of fetch() — GAS /exec redirects via script.google.com
-    // which Chrome's fetch() blocks on cross-origin redirect. jQuery XHR follows it correctly
-    // (same approach as sls.js in this repo).
+    // Use $.ajax with dataType:'jsonp' — GAS /exec redirects via script.google.com which
+    // Chrome blocks cross-origin (both fetch() and XHR fail on the redirect). JSONP bypasses
+    // CORS entirely: jQuery injects a <script> tag and GAS wraps JSON in the callback function.
+    // GAS Code.gs reads e.parameter.callback and calls makeResponse_() to wrap the response.
     $.ajax({
       url: buildUrl(_params),
       method: 'GET',
-      dataType: 'json',
+      dataType: 'jsonp',
       success: function(data) {
         if (data.error) {
           var msg = data.message || 'GAS returned an error response';
