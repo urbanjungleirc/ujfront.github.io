@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --p: #4F46E5; --s: #7C3AED; --t: #059669; }
+    /* Theme overrides via URL params applied by applyTheme() at runtime */
+    body { background: #0f172a; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <!-- Error state: shown when sheetId/tab missing or fetch fails -->
+  <div id="error-panel" class="hidden flex flex-col items-center justify-center min-h-screen p-8 text-center">
+    <div class="text-5xl mb-4">&#9888;</div>
+    <p id="error-msg" class="text-xl text-slate-300 mb-6"></p>
+    <button id="retry-btn" class="hidden px-6 py-2 rounded-lg font-semibold text-white"
+            style="background: var(--p)" onclick="loadData()">Retry</button>
+  </div>
+
+  <!-- Loading state: shown while initial fetch in progress -->
+  <div id="loading-panel" class="hidden flex flex-col items-center justify-center min-h-screen">
+    <div class="text-slate-400 text-lg animate-pulse">Loading&#8230;</div>
+  </div>
+
+  <!-- Main content: shown after successful fetch -->
+  <div id="main-panel" class="hidden min-h-screen p-4">
+    <!-- Header area -->
+    <div id="header-area" class="mb-4 flex items-center justify-between">
+      <h1 id="page-title" class="text-2xl font-bold text-white"></h1>
+      <div id="header-controls"></div>
+    </div>
+    <!-- Leaderboard content injected here by plan 02-03 -->
+    <div id="leaderboard-root"></div>
+  </div>
+
+  <script>
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbzPeQAbuAS-25LII-tuI9JP9EYnGbi3oOT9BcMukkoRkmt9AuWMKwIyxYXsg9m303nk/exec';
+
+  // Module-level state
+  var _cache        = null;  // last successful fetch result
+  var _params       = null;  // parsed URL params (set once at init)
+  var _refreshTimer = null;  // setInterval handle for TV mode
+  var _activeDimIdx = 0;     // active dimension tab index for the switcher (plan 02-03)
+
+  /**
+   * parseParams() — parse window.location.search into a plain object.
+   * Returns { sheetId, tab, mode, window, refresh, cols, primary, secondary, tertiary }
+   */
+  function parseParams() {
+    var sp = new URLSearchParams(window.location.search);
+    var refresh = parseInt(sp.get('refresh'), 10);
+    var cols = parseInt(sp.get('cols'), 10);
+    return {
+      sheetId:   sp.get('sheetId')   || '',
+      tab:       sp.get('tab')       || '',
+      mode:      sp.get('mode')      || 'leaderboard',
+      window:    sp.get('window')    || null,
+      refresh:   (!isNaN(refresh) && refresh >= 1) ? refresh : null,
+      cols:      (!isNaN(cols))                    ? cols    : null,
+      primary:   sp.get('primary')   || null,
+      secondary: sp.get('secondary') || null,
+      tertiary:  sp.get('tertiary')  || null
+    };
+  }
+
+  /**
+   * applyTheme(params) — write CSS var overrides from URL params.
+   */
+  function applyTheme(params) {
+    if (params.primary)   document.documentElement.style.setProperty('--p', params.primary);
+    if (params.secondary) document.documentElement.style.setProperty('--s', params.secondary);
+    if (params.tertiary)  document.documentElement.style.setProperty('--t', params.tertiary);
+  }
+
+  /**
+   * showPanel(name) — hide all three panels, show the named one ('error', 'loading', 'main').
+   */
+  function showPanel(name) {
+    document.getElementById('error-panel').classList.add('hidden');
+    document.getElementById('loading-panel').classList.add('hidden');
+    document.getElementById('main-panel').classList.add('hidden');
+    document.getElementById(name + '-panel').classList.remove('hidden');
+  }
+
+  /**
+   * showError(msg, canRetry) — show error panel; show retry-btn only if canRetry is true.
+   */
+  function showError(msg, canRetry) {
+    document.getElementById('error-msg').textContent = msg;
+    var btn = document.getElementById('retry-btn');
+    if (canRetry) {
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
+    showPanel('error');
+  }
+
+  /**
+   * buildUrl(params) — construct the GAS request URL from parsed params.
+   */
+  function buildUrl(params) {
+    var u = new URL(GAS_URL);
+    u.searchParams.set('sheetId', params.sheetId);
+    u.searchParams.set('tab', params.tab);
+    u.searchParams.set('mode', params.mode);
+    if (params.window) u.searchParams.set('window', params.window);
+    return u.toString();
+  }
+
+  /**
+   * setRetryIndicator(msg) — when a background refresh fails but _cache exists,
+   * show a small error indicator in header-controls rather than blanking the screen.
+   */
+  function setRetryIndicator(msg) {
+    var ctrl = document.getElementById('header-controls');
+    ctrl.innerHTML = '<span class="text-red-400 text-sm mr-2" title="' + msg + '">&#9888; Refresh failed</span>'
+      + '<button onclick="loadData()" class="text-sm px-3 py-1 rounded text-white" style="background:var(--p)">Retry</button>';
+  }
+
+  /**
+   * escHtml(str) — minimal HTML escape for user-supplied content.
+   */
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /**
+   * relativeTime(isoString) — convert ISO 8601 timestamp to human-readable relative string.
+   * Uses Intl.RelativeTimeFormat with auto unit selection (seconds/minutes/hours/days).
+   */
+  function relativeTime(isoString) {
+    if (!isoString) return '';
+    var then = new Date(isoString);
+    if (isNaN(then.getTime())) return '';
+    var diffSec = Math.round((Date.now() - then.getTime()) / 1000);
+    var rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    if (Math.abs(diffSec) < 60)    return rtf.format(-diffSec, 'second');
+    if (Math.abs(diffSec) < 3600)  return rtf.format(-Math.round(diffSec / 60), 'minute');
+    if (Math.abs(diffSec) < 86400) return rtf.format(-Math.round(diffSec / 3600), 'hour');
+    return rtf.format(-Math.round(diffSec / 86400), 'day');
+  }
+
+  /**
+   * computeEffectiveCols(dimensions, params) — how many columns to show simultaneously.
+   * LAYT-03: ?cols=N is a hard override.
+   * LAYT-02: maxcols:N is a sheet-level flag the backend does not yet return in the response;
+   *          default to showing all dimensions. Update here when backend adds metadata.maxcols.
+   */
+  function computeEffectiveCols(dimensions, params) {
+    if (params.cols && params.cols >= 1) return params.cols;
+    return dimensions.length;
+  }
+
+  /**
+   * renderEntry(group) — returns HTML string for one leaderboard row.
+   * Layout: rank badge · label (grows) · metric value · last-seen relative time.
+   */
+  function renderEntry(group) {
+    var rankCls = group.rank.charAt(0) === '='
+      ? 'text-yellow-400 font-bold w-10 shrink-0 text-right pr-2'
+      : 'text-slate-400 font-bold w-10 shrink-0 text-right pr-2';
+    var lastSeenHtml = group.lastSeen
+      ? '<span class="text-slate-500 text-xs ml-2 shrink-0">' + relativeTime(group.lastSeen) + '</span>'
+      : '';
+    return '<div class="flex items-center py-2 border-b border-slate-700 last:border-0">'
+      + '<span class="' + rankCls + '">' + escHtml(group.rank) + '</span>'
+      + '<span class="flex-1 truncate text-white">' + escHtml(group.label) + '</span>'
+      + '<span class="text-emerald-400 font-mono font-semibold ml-4 shrink-0">' + group.metric + '</span>'
+      + lastSeenHtml
+      + '</div>';
+  }
+
+  /**
+   * renderColumn(dimension) — returns HTML string for one dimension column (heading + all entries).
+   */
+  function renderColumn(dimension) {
+    var entries = dimension.groups.map(renderEntry).join('');
+    return '<div class="bg-slate-800 rounded-xl p-4">'
+      + '<h2 class="text-slate-300 text-sm font-semibold uppercase tracking-wide mb-3">'
+      + escHtml(dimension.column) + '</h2>'
+      + '<div>' + entries + '</div>'
+      + '</div>';
+  }
+
+  /**
+   * renderDimensionSwitcher(dimensions, effectiveCols) — returns HTML tab row.
+   * Called only when dimensions.length > effectiveCols (LAYT-04).
+   * Tab click: sets _activeDimIdx to that dimension's index, calls renderLeaderboard().
+   */
+  function renderDimensionSwitcher(dimensions, effectiveCols) {
+    var tabs = dimensions.map(function(dim, i) {
+      var isActive = (i === _activeDimIdx);
+      var activeCls = isActive
+        ? 'px-4 py-1.5 rounded-full text-sm font-semibold text-white'
+        : 'px-4 py-1.5 rounded-full text-sm text-slate-400 hover:text-white';
+      var activeStyle = isActive ? 'style="background:var(--p)"' : '';
+      return '<button ' + activeStyle + ' class="' + activeCls + '" onclick="_activeDimIdx=' + i + ';renderLeaderboard();">'
+        + escHtml(dim.column) + '</button>';
+    }).join('');
+    return '<div class="flex flex-wrap gap-2 mb-4">' + tabs + '</div>';
+  }
+
+  /**
+   * renderLeaderboard() — main render function.
+   * Reads _cache and _params; builds CSS Grid; injects into #leaderboard-root.
+   * LAYT-01: 1 col mobile / 2 col tablet / N col desktop.
+   * LAYT-04: dimension switcher shown only when dims.length > effectiveCols.
+   * Reads from _cache only — no fetch.
+   */
+  function renderLeaderboard() {
+    var root = document.getElementById('leaderboard-root');
+    if (!_cache || !_cache.dimensions) { root.innerHTML = ''; return; }
+
+    var dims = _cache.dimensions;
+    var effectiveCols = computeEffectiveCols(dims, _params);
+
+    // Clamp _activeDimIdx to valid range
+    if (_activeDimIdx >= dims.length) _activeDimIdx = 0;
+
+    // Dimension switcher — shown only when dims exceed visible cols (LAYT-04)
+    var switcherHtml = (dims.length > effectiveCols)
+      ? renderDimensionSwitcher(dims, effectiveCols)
+      : '';
+
+    // Slice the visible dimensions for this "page"
+    var visibleDims = dims.slice(_activeDimIdx, _activeDimIdx + effectiveCols);
+
+    // CSS Grid: responsive via Tailwind classes + injected style for desktop col count.
+    // Mobile: grid-cols-1 (Tailwind default)
+    // Tablet 768–1199px: md:grid-cols-2
+    // Desktop >= 1200px: effectiveCols via injected <style> (Tailwind CDN cannot generate
+    //   dynamic arbitrary values like grid-cols-[N] at runtime).
+    // !important ensures the xl media query override wins over md:grid-cols-2.
+    var colCount = Math.min(visibleDims.length, effectiveCols);
+    var gridStyle = '<style>'
+      + '@media (min-width: 1200px) { .lb-grid { grid-template-columns: repeat(' + colCount + ', minmax(0, 1fr)) !important; } }'
+      + '</style>';
+
+    var columns = visibleDims.map(renderColumn).join('');
+
+    // LAYT-01: grid-cols-1 (mobile) md:grid-cols-2 (tablet) + xl override via injected style
+    var gridHtml = '<div class="lb-grid grid grid-cols-1 md:grid-cols-2 gap-4">' + columns + '</div>';
+
+    root.innerHTML = gridStyle + switcherHtml + gridHtml;
+  }
+
+  /**
+   * renderAll() — wires plan 02-03 rendering into the fetch lifecycle.
+   */
+  function renderAll() {
+    renderLeaderboard();
+  }
+
+  /**
+   * updateLastUpdated() — update the "Last updated" indicator.
+   * TV mode (DISP-03): fixed-position element in bottom-right corner outside main-panel.
+   * Standard mode (DISP-03): updates text span injected by startStandardMode() in header-controls.
+   */
+  function updateLastUpdated() {
+    if (!_cache || !_cache.generatedAt) return;
+    var rel = relativeTime(_cache.generatedAt);
+    if (_params.refresh) {
+      // TV mode: "Last updated" in top-right corner
+      var corner = document.getElementById('tv-last-updated');
+      if (!corner) {
+        corner = document.createElement('div');
+        corner.id = 'tv-last-updated';
+        corner.className = 'fixed bottom-3 right-4 text-slate-500 text-xs';
+        document.body.appendChild(corner);
+      }
+      corner.textContent = 'Updated ' + rel;
+    } else {
+      // Standard mode: update the text span injected by startStandardMode()
+      var span = document.getElementById('last-updated-text');
+      if (span) span.textContent = 'Updated ' + rel;
+    }
+  }
+
+  /**
+   * startTvMode() — activates TV/kiosk behaviour (DISP-01, DISP-05).
+   * No manual controls in header-controls; starts silent autorefresh interval.
+   * Called once after the first successful loadData() when _params.refresh is set.
+   */
+  function startTvMode() {
+    // DISP-01: no manual controls — header-controls stays empty
+    document.getElementById('header-controls').innerHTML = '';
+
+    // Clear any existing timer before setting a new one
+    if (_refreshTimer) clearInterval(_refreshTimer);
+
+    var intervalMs = _params.refresh * 1000;
+    _refreshTimer = setInterval(function() {
+      // DISP-04: loadData() keeps main-panel visible during background fetch (no flicker)
+      // _activeDimIdx is module-level — preserved across this call automatically
+      loadData();
+    }, intervalMs);
+  }
+
+  /**
+   * startStandardMode() — sets up Refresh button and "Last updated" indicator (DISP-02, DISP-05).
+   * Called once after the first successful loadData() when _params.refresh is falsy.
+   */
+  function startStandardMode() {
+    var ctrl = document.getElementById('header-controls');
+    ctrl.innerHTML =
+      '<span id="last-updated-text" class="text-slate-400 text-sm mr-3"></span>'
+      + '<button onclick="loadData()" class="px-4 py-1.5 rounded-lg text-sm font-semibold text-white" style="background:var(--p)">Refresh</button>';
+    // Populate the text immediately (generatedAt is already in _cache from first fetch)
+    updateLastUpdated();
+  }
+
+  /**
+   * setupMode() — called once after the first successful loadData().
+   * Discriminates on _params.refresh (DISP-05): TV mode or standard mode.
+   */
+  function setupMode() {
+    if (_params.refresh && _params.refresh >= 1) {
+      startTvMode();
+    } else {
+      startStandardMode();
+    }
+  }
+
+  /**
+   * loadData(onFirstLoad) — fetch GAS endpoint, cache result, render or show error.
+   * FPAR-04: full response stored in _cache after every successful fetch.
+   * FPAR-06: on error with prior cache, show retry indicator without blanking screen.
+   * DISP-04: if _cache is already set, main-panel stays visible during fetch (no flicker).
+   * onFirstLoad: optional callback invoked once after the first successful fetch (used by init).
+   */
+  function loadData(onFirstLoad) {
+    // If _cache is null (first load), show loading panel.
+    // If _cache is already set (background refresh), leave main panel visible — no flicker (DISP-04).
+    if (_cache === null) {
+      showPanel('loading');
+    }
+
+    fetch(buildUrl(_params))
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.error) throw new Error(data.message || 'GAS returned an error response');
+        _cache = data;
+        showPanel('main');
+        renderAll();
+        updateLastUpdated();
+        if (typeof onFirstLoad === 'function') onFirstLoad();
+      })
+      .catch(function(err) {
+        // FPAR-06: show retry state; preserve _cache data on screen if it exists
+        if (_cache) {
+          // leave main panel showing, but update header-controls to show error indicator
+          setRetryIndicator(err.message);
+        } else {
+          showError('Could not load data: ' + err.message, true);
+        }
+      });
+  }
+
+  /**
+   * init() — entry point called on DOMContentLoaded.
+   */
+  function init() {
+    _params = parseParams();
+    applyTheme(_params);
+
+    // Validate required params
+    if (!_params.sheetId || !_params.tab) {
+      showError('sheetId and tab URL parameters are required', false);
+      return;
+    }
+
+    // Set page title from tab name
+    document.getElementById('page-title').textContent = _params.tab;
+
+    showPanel('loading');
+    loadData(setupMode);  // setupMode called once after first successful fetch (DISP-05)
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
