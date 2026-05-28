@@ -6,6 +6,7 @@
   <title>Display</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
   <style>
     :root { --p: #4F46E5; --s: #7C3AED; --t: #059669; }
     /* Theme overrides via URL params applied by applyTheme() at runtime */
@@ -42,9 +43,47 @@
       position: relative;
       z-index: 1;
     }
+
+    /* Offcanvas help panel */
+    #help-panel {
+      position: fixed;
+      top: 0; right: 0;
+      height: 100%;
+      width: min(320px, 90vw);
+      background: #0f172a;
+      border-left: 1px solid #334155;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.5);
+      z-index: 40;
+      overflow-y: auto;
+      padding: 1.25rem;
+      transform: translateX(100%);
+      transition: transform 200ms ease;
+    }
+
+    /* Markdown prose styles for #help-content and #desc-root */
+    #help-content p, #desc-root p { margin: 0 0 0.5rem; }
+    #help-content strong, #desc-root strong { font-weight: 700; }
+    #help-content em, #desc-root em { font-style: italic; }
+    #help-content a, #desc-root a { color: var(--p); text-decoration: underline; }
+    #help-content ul, #desc-root ul { list-style: disc; padding-left: 1.25rem; margin: 0 0 0.5rem; }
+    #help-content ol, #desc-root ol { list-style: decimal; padding-left: 1.25rem; margin: 0 0 0.5rem; }
+    #help-content h1, #desc-root h1 { font-size: 1.25rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #f1f5f9; }
+    #help-content h2, #desc-root h2 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #f1f5f9; }
+    #help-content h3, #desc-root h3 { font-size: 1rem; font-weight: 600; margin: 0.5rem 0 0.25rem; color: #f1f5f9; }
   </style>
 </head>
 <body>
+  <!-- Offcanvas help panel (static — always in DOM, survives TV/standard mode setup) -->
+  <div id="help-backdrop" onclick="closeHelp()"
+       class="fixed inset-0 bg-black/50 z-30" style="display:none"></div>
+  <div id="help-panel" aria-label="Help panel">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wide">Help</h2>
+      <button onclick="closeHelp()" class="text-slate-400 hover:text-white text-xl leading-none" aria-label="Close help">&times;</button>
+    </div>
+    <div id="help-content" class="text-slate-300 text-sm leading-relaxed"></div>
+  </div>
+
   <!-- Error state: shown when sheetId/tab missing or fetch fails -->
   <div id="error-panel" class="hidden flex flex-col items-center justify-center min-h-screen p-8 text-center">
     <div class="text-5xl mb-4">&#9888;</div>
@@ -61,9 +100,20 @@
   <!-- Main content: shown after successful fetch -->
   <div id="main-panel" class="hidden min-h-screen p-4">
     <!-- Header area -->
-    <div id="header-area" class="mb-4 flex items-center justify-between">
-      <h1 id="page-title" class="text-2xl font-bold text-white"></h1>
-      <div id="header-controls"></div>
+    <div id="header-area" class="mb-4 flex items-center gap-3 justify-between">
+      <h1 id="page-title" class="text-2xl font-bold text-white flex-1 min-w-0 truncate"></h1>
+      <button id="btn-help" onclick="openHelp()"
+              class="shrink-0 w-7 h-7 rounded-full text-sm font-bold text-slate-400 border border-slate-600 hover:border-slate-400 hover:text-white"
+              style="display:none" aria-label="Help">?</button>
+      <div id="header-controls" class="shrink-0"></div>
+    </div>
+    <!-- Description: type:desc column label rendered as markdown (UX-01) -->
+    <div id="desc-root" class="mb-4 text-slate-300 text-sm leading-relaxed"></div>
+    <!-- Unknown-flag warning banner (UX-04) — amber, matches renderStats() >5000 warning -->
+    <div id="warn-flags" class="rounded-lg p-3 mb-4 text-sm border"
+         style="display:none;background:rgba(120,53,15,0.4);border-color:rgba(217,119,6,0.7);color:#fde68a;">
+      <span class="font-semibold">Unknown column flag(s) &mdash; check spelling: </span>
+      <span id="warn-flags-text"></span>
     </div>
     <!-- Leaderboard content injected here by plan 02-03 -->
     <div id="leaderboard-root"></div>
@@ -163,6 +213,80 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  /**
+   * renderMd(mdText) — safe markdown-to-HTML conversion using marked.js CDN.
+   * Falls back to escaped plain text if marked.js CDN failed to load.
+   * Content source is the Google Sheet owner (operator — trusted); see threat model T-04-03.
+   */
+  function renderMd(mdText) {
+    if (!mdText) return '';
+    if (typeof marked === 'undefined') {
+      return '<p class="text-slate-300">' + escHtml(String(mdText)) + '</p>';
+    }
+    return marked.parse(String(mdText));
+  }
+
+  /**
+   * renderDesc() — inject type:desc markdown content below #page-title into #desc-root.
+   * Clears the element when _cache.desc is absent/null.
+   */
+  function renderDesc() {
+    var root = document.getElementById('desc-root');
+    if (!root) return;
+    var text = (_cache && _cache.desc) ? _cache.desc : '';
+    if (!text) { root.innerHTML = ''; return; }
+    root.innerHTML = renderMd(text);
+  }
+
+  /**
+   * openHelp() — slide the #help-panel into view and show the backdrop.
+   */
+  function openHelp() {
+    document.getElementById('help-panel').style.transform = 'translateX(0)';
+    document.getElementById('help-backdrop').style.display = 'block';
+  }
+
+  /**
+   * closeHelp() — slide the #help-panel out and hide the backdrop.
+   */
+  function closeHelp() {
+    document.getElementById('help-panel').style.transform = 'translateX(100%)';
+    document.getElementById('help-backdrop').style.display = 'none';
+  }
+
+  /**
+   * renderHelpButton(helpText) — show/hide ? button; populate offcanvas content.
+   * #btn-help is static HTML — sibling of #header-controls, NOT inside it — so
+   * startTvMode()/startStandardMode() overwrites cannot remove it (UX-02, Pitfall 1).
+   */
+  function renderHelpButton(helpText) {
+    var btn = document.getElementById('btn-help');
+    if (!btn) return;
+    if (!helpText) { btn.style.display = 'none'; return; }
+    btn.style.display = '';
+    document.getElementById('help-content').innerHTML = renderMd(helpText);
+  }
+
+  /**
+   * renderUnknownFlagWarning() — show amber #warn-flags banner when _cache.unknownFlags
+   * is non-empty; hide it otherwise (UX-04, threat model T-04-04).
+   * Variable text set via textContent (not innerHTML) — XSS-safe for operator column labels.
+   */
+  function renderUnknownFlagWarning() {
+    var banner = document.getElementById('warn-flags');
+    var textEl = document.getElementById('warn-flags-text');
+    if (!banner || !textEl) return;
+    if (!_cache || !_cache.unknownFlags || !_cache.unknownFlags.length) {
+      banner.style.display = 'none';
+      return;
+    }
+    var parts = _cache.unknownFlags.map(function(item) {
+      return '"' + escHtml(item.column) + '": ' + item.flags.map(escHtml).join(', ');
+    });
+    textEl.textContent = parts.join('; ');
+    banner.style.display = '';
   }
 
   /**
@@ -499,6 +623,9 @@
    */
   function renderAll() {
     if (_params && _params.mode === 'stats') { renderStats(); } else { renderLeaderboard(); }
+    renderDesc();
+    renderHelpButton(_cache ? _cache.help : null);
+    renderUnknownFlagWarning();
   }
 
   /**
