@@ -88,12 +88,30 @@ DEPOSIT_WORKER_SHARED_SECRET
 - Deposit Stripe checkout-session creation implemented.
 - Stripe webhook handler implemented.
 - Stripe signature verification implemented.
-- Verified Stripe payment posts to GAS.
+- Worker is implemented to post verified Stripe deposit payments to GAS.
 - `deposits.html` includes Stripe checkout path but PayPal remains active.
 - GAS guard added for Stripe fulfillment.
 - Worker not deployed yet.
-- Worker dependencies not installed yet.
-- Stripe webhook endpoint not configured yet.
+- Worker dependencies installed in `cloudflare/payments-worker`.
+- Local `.dev.vars` created with placeholder test values and confirmed ignored by git.
+- `npm run check` passed in the Worker folder.
+- `npm run dev -- --port 8787` started Wrangler locally.
+- `GET http://127.0.0.1:8787/health` returned `{ ok: true, service: "uj-payments" }`.
+- Worker rejected a fake Stripe webhook with an invalid signature with HTTP 400.
+- Stripe CLI is installed at `C:\Users\Jiri\Documents\stripe.exe`; PATH did not pick it up, so use the full path for now.
+- Local Stripe test secret and webhook signing secret are present in `.dev.vars`.
+- `stripe listen --forward-to localhost:8787/v1/webhooks/stripe` successfully forwarded valid Stripe test events.
+- Worker accepted valid Stripe CLI test webhooks with HTTP 200.
+- Direct POST to local `/v1/checkout/sessions` created a Stripe test Checkout Session.
+- User opened the returned Stripe Checkout URL successfully in browser.
+- User completed a Stripe test Checkout payment successfully.
+- Retrieved paid session confirmed `customer_details.email` was collected.
+- Test session status was `complete` and `payment_status` was `paid`.
+- Retrieved Stripe session confirmed line items:
+  - `Group booking deposit`, AUD 100.00
+  - `Online processing fee`, AUD 2.90
+- Retrieved Stripe session confirmed deposit metadata: product, request ID, organiser name, event date, event time, deposit amount, and fee.
+- Stripe webhook endpoint is configured locally only; production webhook endpoint not configured yet.
 - Tickable transition plan created at `docs/payment-provider-transition-plan.md`.
 
 ## Verification Run
@@ -105,36 +123,39 @@ node --check cloudflare\payments-worker\src\index.js
 node --check gas\online-deposit-payments\Code.js
 ```
 
+Phase 2 local setup also passed:
+
+```bash
+cd cloudflare\payments-worker
+npm install
+npm run check
+npm run dev -- --port 8787
+```
+
+`GET http://127.0.0.1:8787/health` returned OK.
+
 ## Git Notes
 
 Current expected visible changes:
 
 ```text
-M .gitignore
-M deposits.html
-?? cloudflare/payments-worker/README.md
-?? cloudflare/payments-worker/package.json
-?? cloudflare/payments-worker/src/index.js
-?? cloudflare/payments-worker/wrangler.toml
-?? docs/codex-handover.md
-?? docs/payment-provider-transition-plan.md
-?? docs/stripe-deposit-worker-plan.md
+M docs/codex-handover.md
+M docs/payment-provider-transition-plan.md
+?? cloudflare/payments-worker/package-lock.json
 ```
 
 `gas/` is ignored by git, so GAS changes must be deployed/tracked separately with clasp.
 
 ## Next Steps
 
-1. Install Worker dependencies in `cloudflare/payments-worker`.
-2. Run Worker locally with Wrangler.
-3. Configure Stripe test keys and webhook secret.
-4. Test creating a Checkout Session from `deposits.html` or a direct POST.
-5. Use Stripe CLI to forward webhooks locally.
-6. Confirm Worker posts verified deposit data to GAS.
-7. Deploy Worker.
-8. Replace placeholder `PAYMENTS_WORKER_URL` in `deposits.html`.
-9. Switch `PAYMENT_PROVIDER` from `paypal` to `stripe`.
-10. Test with Stripe test mode end to end before live keys.
+1. Configure Stripe test keys and webhook secret.
+2. Test creating a Checkout Session from `deposits.html` or a direct POST.
+3. Use Stripe CLI to forward webhooks locally.
+4. Confirm Worker posts verified deposit data to GAS.
+5. Deploy Worker.
+6. Replace placeholder `PAYMENTS_WORKER_URL` in `deposits.html`.
+7. Switch `PAYMENT_PROVIDER` from `paypal` to `stripe`.
+8. Test with Stripe test mode end to end before live keys.
 
 ## Design Notes
 

@@ -35,30 +35,49 @@ Secondary objective: keep the Worker reusable for future payment products, espec
 
 ## Phase 2: Local Worker Setup
 
-- [ ] Install Worker dependencies in `cloudflare/payments-worker`.
-- [ ] Confirm `npm run check` passes.
-- [ ] Run Worker locally with Wrangler.
-- [ ] Confirm `GET /health` returns OK.
-- [ ] Create local `.dev.vars` for test-only configuration.
-- [ ] Confirm `.dev.vars` is ignored by git.
+- [x] Install Worker dependencies in `cloudflare/payments-worker`.
+- [x] Confirm `npm run check` passes.
+- [x] Run Worker locally with Wrangler.
+- [x] Confirm `GET /health` returns OK.
+- [x] Create local `.dev.vars` for test-only configuration.
+- [x] Confirm `.dev.vars` is ignored by git.
 
 ## Phase 3: Stripe Test Configuration
 
-- [ ] Create or locate Stripe test account keys.
-- [ ] Set local `STRIPE_SECRET_KEY`.
-- [ ] Run Stripe CLI webhook forwarding to local Worker.
-- [ ] Set local `STRIPE_WEBHOOK_SECRET` from Stripe CLI output.
-- [ ] Confirm Worker rejects webhook calls with invalid signature.
-- [ ] Confirm Worker accepts a valid Stripe test webhook.
+- [x] Create or locate Stripe test account keys.
+- [x] Set local `STRIPE_SECRET_KEY`.
+- [x] Run Stripe CLI webhook forwarding to local Worker.
+- [x] Set local `STRIPE_WEBHOOK_SECRET` from Stripe CLI output.
+- [x] Confirm Worker rejects webhook calls with invalid signature.
+- [x] Confirm Worker accepts a valid Stripe test webhook.
+
+### Phase 3 Setup Notes
+
+Stripe CLI is installed at `C:\Users\Jiri\Documents\stripe.exe`. PATH did not pick it up, so use the full path for now. Official install docs:
+
+https://docs.stripe.com/stripe-cli/install
+
+Stripe test keys are in the Stripe Dashboard under Developers/API keys. Use the sandbox/test secret key that starts with `sk_test_`.
+
+https://docs.stripe.com/keys
+
+For local webhook testing, run:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:8787/v1/webhooks/stripe
+```
+
+The `stripe listen` command prints a webhook signing secret beginning with `whsec_`. Put that value in local `.dev.vars` as `STRIPE_WEBHOOK_SECRET`.
 
 ## Phase 4: Deposit Checkout Test
 
-- [ ] Directly POST a test deposit request to `/v1/checkout/sessions`.
-- [ ] Confirm Stripe Checkout Session is created.
-- [ ] Confirm returned Checkout URL opens correctly.
-- [ ] Confirm line items show deposit and online processing fee.
-- [ ] Confirm customer email is collected by Stripe Checkout.
-- [ ] Confirm metadata contains deposit booking details.
+- [x] Directly POST a test deposit request to `/v1/checkout/sessions`.
+- [x] Confirm Stripe Checkout Session is created.
+- [x] Confirm returned Checkout URL opens correctly.
+- [x] Confirm line items show deposit and online processing fee.
+- [x] Confirm customer email is collected by Stripe Checkout.
+- [x] Confirm metadata contains deposit booking details.
 
 ## Phase 5: GAS Fulfillment Test
 
