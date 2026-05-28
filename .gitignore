@@ -1,8 +1,37 @@
-# dependencies
-/node_modules
-/.vscode
-/tests
-/gas
-/.claude
-.codex
-Claude.md
+# Dependencies and generated output
+/node_modules/
+/.wrangler/
+/cloudflare/**/.wrangler/
+/cloudflare/**/dist/
+
+# Local editor and test state
+/.vscode/
+/.playwright-mcp/
+/tests/
+
+# AI assistant local files
+/.claude/
+/.codex
+/CLAUDE.md
+/Claude.md
+/AGENTS.md
+/Agents.md
+
+# Private Google Apps Script projects and local clasp settings
+/gas/
+**/.clasp.json
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+*secrets*
+*credentials*
+*service-account*
+
+# Cloudflare local configuration that can contain secrets
+.dev.vars
+.dev.vars.*
+wrangler.local.toml

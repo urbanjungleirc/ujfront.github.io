@@ -297,6 +297,9 @@
 
 <!-- form a pp scripts -->
 <script>
+  const PAYMENT_PROVIDER = 'paypal'; // Change to 'stripe' after the Worker is deployed and tested.
+  const PAYMENTS_WORKER_URL = 'https://uj-payments.YOUR_WORKERS_SUBDOMAIN.workers.dev';
+
   function initPayPalButton() {
       var shipping = 0;
       var quantity = parseInt();
@@ -480,7 +483,98 @@
           },
       }).render('#paypal-button-container');
   }
-  initPayPalButton();
+
+  function initStripeCheckoutButton() {
+      const container = document.getElementById('paypal-button-container');
+      const warning = document.getElementById('warningMassage');
+      const form = document.forms['orderForm'];
+
+      container.innerHTML = '<button type="button" id="stripe-checkout-button" class="btn btn-primary btn-lg w-100" disabled>Pay deposit securely</button>';
+
+      const button = document.getElementById('stripe-checkout-button');
+      const nameInput = document.getElementById('name');
+      const dateInput = document.getElementById('event_date');
+      const timeInput = document.getElementById('event_time');
+
+      function validateStripeForm() {
+          const enteredDate = new Date(dateInput.value);
+          const currentDate = new Date();
+          const dateIsValid = dateInput.value && enteredDate > currentDate;
+
+          if (dateInput.value && !dateIsValid) {
+              dateInput.classList.add('is-invalid');
+          } else {
+              dateInput.classList.remove('is-invalid');
+          }
+
+          const isValid = nameInput.checkValidity() && dateInput.checkValidity() && timeInput.checkValidity() && dateIsValid;
+          button.disabled = !isValid;
+
+          if (isValid) {
+              warning.classList.remove('alert-danger');
+              warning.classList.add('alert-light');
+              warning.innerText = 'Please proceed with the payment below.';
+          } else {
+              warning.classList.remove('alert-light');
+              warning.classList.add('alert-danger');
+              warning.innerText = 'Please ensure to fill in all details correctly.';
+          }
+      }
+
+      nameInput.addEventListener('input', validateStripeForm);
+      dateInput.addEventListener('input', validateStripeForm);
+      timeInput.addEventListener('input', validateStripeForm);
+
+      button.addEventListener('click', async function () {
+          validateStripeForm();
+          if (button.disabled) {
+              return;
+          }
+
+          button.disabled = true;
+          button.innerText = 'Opening secure checkout...';
+
+          try {
+              const selectedOption = timeInput.options[timeInput.selectedIndex];
+              const response = await fetch(`${PAYMENTS_WORKER_URL}/v1/checkout/sessions`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      product: 'deposit',
+                      name: form.elements['name'].value,
+                      event_date: form.elements['event_date'].value,
+                      event_time: form.elements['event_time'].value,
+                      event_time_label: selectedOption ? selectedOption.innerText : form.elements['event_time'].value,
+                  }),
+              });
+
+              const result = await response.json();
+              if (!response.ok || !result.url) {
+                  throw new Error(result.error || 'Unable to start checkout');
+              }
+
+              window.location.href = result.url;
+          } catch (error) {
+              console.error(error);
+              warning.hidden = false;
+              warning.classList.remove('alert-light');
+              warning.classList.add('alert-danger');
+              warning.innerText = 'Payment checkout could not be started. Please try again or contact us.';
+              button.disabled = false;
+              button.innerText = 'Pay deposit securely';
+          }
+      });
+
+      validateStripeForm();
+  }
+
+  if (PAYMENT_PROVIDER === 'stripe') {
+      initStripeCheckoutButton();
+  } else {
+      initPayPalButton();
+  }
 
 </script>
 
