@@ -9,6 +9,16 @@
   <meta content="" name="description">
   <meta content="" name="keywords">
 
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NP52DRP3');
+  </script>
+  <!-- End Google Tag Manager -->
+
   <!-- Favicons -->
   <link href="assets/img/favicon.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
@@ -38,6 +48,10 @@
 </head>
 
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NP52DRP3"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <!-- ======= Top Bar ======= -->
   <section id="topbar" class="d-flex align-items-center">
@@ -435,6 +449,21 @@
                   form.elements["id"].value = orderData.id;
                   form.elements["paid"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
                   form.elements["fee"].value = orderData.purchase_units[0].amount.breakdown.handling.value;
+                  window.dataLayer = window.dataLayer || [];
+                  window.dataLayer.push({
+                      event: 'deposit_purchase',
+                      ecommerce: {
+                          transaction_id: orderData.id,
+                          value: parseFloat(orderData.purchase_units[0].amount.value),
+                          currency: orderData.purchase_units[0].amount.currency_code,
+                          items: [{
+                              item_id: 'group_booking_deposit',
+                              item_name: 'Group booking deposit',
+                              price: parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value),
+                              quantity: 1
+                          }]
+                      }
+                  });
                   const scriptURL = 'https://script.google.com/macros/s/AKfycbyZlYo_tNjTxxhMQPmVKmuezurH7PlXyAXwE9uC1cYAYh5CaxJJnNbEY3KyQOeqTrPw/exec';
                   fetch(scriptURL, {
                       method: 'POST',
