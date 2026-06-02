@@ -855,5 +855,98 @@
 
   document.addEventListener('DOMContentLoaded', init);
   </script>
+
+  <!-- Reference guide — hidden by default, toggled by footer link -->
+  <div id="ref-guide" style="display:none"
+       class="border-t border-slate-700 mt-8 px-4 py-6 text-slate-400 text-xs">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <div>
+        <h3 class="text-slate-200 font-semibold text-sm mb-2">URL parameters</h3>
+        <table class="w-full border-collapse">
+          <thead><tr class="text-left border-b border-slate-700">
+            <th class="pb-1 pr-4 text-slate-300">Parameter</th>
+            <th class="pb-1 pr-4 text-slate-300">Default</th>
+            <th class="pb-1 text-slate-300">What it does</th>
+          </tr></thead>
+          <tbody class="[&>tr]:border-b [&>tr]:border-slate-800">
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">sheetId</td><td class="py-1 pr-4 text-red-400">required</td><td class="py-1">Google Sheets ID (from the sheet URL)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">tab</td><td class="py-1 pr-4">first tab</td><td class="py-1">Sheet tab name</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">mode</td><td class="py-1 pr-4">leaderboard</td><td class="py-1"><code class="bg-slate-800 px-1 rounded">leaderboard</code> or <code class="bg-slate-800 px-1 rounded">stats</code></td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">window</td><td class="py-1 pr-4">from sheet</td><td class="py-1">Override time window — see values below</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">refresh</td><td class="py-1 pr-4">off</td><td class="py-1">Seconds between data refresh; enables TV/kiosk mode (no controls shown)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">cycle</td><td class="py-1 pr-4">10</td><td class="py-1">Division page auto-cycle seconds in TV mode (minimum 3); ignored without <code class="bg-slate-800 px-1 rounded">refresh</code></td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">cols</td><td class="py-1 pr-4">from sheet</td><td class="py-1">Override number of visible columns</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">primary</td><td class="py-1 pr-4">4F46E5</td><td class="py-1">Theme colour — hex without <code class="bg-slate-800 px-1 rounded">#</code></td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">secondary</td><td class="py-1 pr-4">—</td><td class="py-1">Second theme colour</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">tertiary</td><td class="py-1 pr-4">—</td><td class="py-1">Third theme colour</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2 text-slate-500">Example: <span class="font-mono text-slate-400">display.html?sheetId=ABC&amp;tab=Log&amp;refresh=30&amp;primary=10B981</span></p>
+      </div>
+
+      <div>
+        <h3 class="text-slate-200 font-semibold text-sm mb-2">Sheet config flags <span class="font-normal text-slate-500">(row 1, pipe-separated per cell — e.g. <code class="bg-slate-800 px-1 rounded">type:text|groupby:1|aggregate:count</code>)</span></h3>
+        <table class="w-full border-collapse">
+          <thead><tr class="text-left border-b border-slate-700">
+            <th class="pb-1 pr-4 text-slate-300">Flag</th>
+            <th class="pb-1 pr-4 text-slate-300">Column type</th>
+            <th class="pb-1 text-slate-300">What it does</th>
+          </tr></thead>
+          <tbody class="[&>tr]:border-b [&>tr]:border-slate-800">
+            <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Column types</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:text</td><td class="py-1 pr-4">—</td><td class="py-1">Plain text column</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:number</td><td class="py-1 pr-4">—</td><td class="py-1">Numeric column</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:timestamp</td><td class="py-1 pr-4">—</td><td class="py-1">Datetime — drives time-window filter and last-seen timestamps</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:combo</td><td class="py-1 pr-4">—</td><td class="py-1">Dropdown/list column</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:desc</td><td class="py-1 pr-4">—</td><td class="py-1">Short description shown below the page heading (markdown)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:help</td><td class="py-1 pr-4">—</td><td class="py-1">Extended help text in the <strong>?</strong> side panel (markdown)</td></tr>
+            <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Leaderboard grouping</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">groupby</td><td class="py-1 pr-4">any</td><td class="py-1">Group rows by this column; display order = sheet column order</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">groupby:N</td><td class="py-1 pr-4">any</td><td class="py-1">Same, with explicit display position (1 = leftmost column)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:count</td><td class="py-1 pr-4">any</td><td class="py-1">Count rows per group</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:sum</td><td class="py-1 pr-4">number</td><td class="py-1">Sum values per group</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:avg</td><td class="py-1 pr-4">number</td><td class="py-1">Average per group</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:min</td><td class="py-1 pr-4">number</td><td class="py-1">Minimum per group</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:max</td><td class="py-1 pr-4">number</td><td class="py-1">Maximum per group</td></tr>
+            <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Stats mode</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:first</td><td class="py-1 pr-4">any</td><td class="py-1">Earliest entry by timestamp</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:last</td><td class="py-1 pr-4">any</td><td class="py-1">Most recent entry by timestamp</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:distribution</td><td class="py-1 pr-4">text/combo</td><td class="py-1">Value frequency breakdown panel</td></tr>
+            <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Division mode (compound groups)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">splitby:N</td><td class="py-1 pr-4">any</td><td class="py-1">Division axis — 1 = outer loop, 2 = inner loop (e.g. Category × Gender)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">order:val1,val2,…</td><td class="py-1 pr-4">splitby col</td><td class="py-1">Explicit order for division titles; unlisted values appended alphabetically</td></tr>
+            <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Layout</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">maxcols:N</td><td class="py-1 pr-4">any cell</td><td class="py-1">Maximum groupby columns shown simultaneously (ceiling for responsive layout)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">window:X</td><td class="py-1 pr-4">timestamp</td><td class="py-1">Time-window filter applied before aggregation — see values below</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h3 class="text-slate-200 font-semibold text-sm mb-1">Time window values</h3>
+        <p class="mb-2">Used in <code class="bg-slate-800 px-1 rounded">window:X</code> sheet flag or <code class="bg-slate-800 px-1 rounded">?window=X</code> URL param.</p>
+        <div class="flex flex-wrap gap-2">
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">today</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">month</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">year</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">all</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">7d</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">2w</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">3m</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">1y</span>
+          <span class="bg-slate-800 px-2 py-0.5 rounded font-mono text-indigo-300">2026-01-01</span>
+        </div>
+        <p class="mt-2 text-slate-500">Patterns: <code class="bg-slate-800 px-1 rounded">Nd</code> = N days &nbsp;·&nbsp; <code class="bg-slate-800 px-1 rounded">Nw</code> = N weeks &nbsp;·&nbsp; <code class="bg-slate-800 px-1 rounded">Nm</code> = N months &nbsp;·&nbsp; <code class="bg-slate-800 px-1 rounded">Ny</code> = N years &nbsp;·&nbsp; <code class="bg-slate-800 px-1 rounded">YYYY-MM-DD</code> = from that date to today</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer toggle -->
+  <footer class="text-center py-4 text-slate-600 text-xs">
+    <button onclick="(function(){var g=document.getElementById('ref-guide');var open=g.style.display!=='none';g.style.display=open?'none':'block';this.textContent=open?'Configuration reference ▾':'Hide reference ▴';}).call(this)"
+            class="hover:text-slate-400 transition-colors">Configuration reference ▾</button>
+  </footer>
 </body>
 </html>
