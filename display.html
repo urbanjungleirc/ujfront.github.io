@@ -127,6 +127,8 @@
   var _params       = null;  // parsed URL params (set once at init)
   var _refreshTimer = null;  // setInterval handle for TV mode
   var _activeDimIdx = 0;     // active dimension tab index for the switcher (plan 02-03)
+  var _activeDivPage = 0;    // current division page index; preserved across background refresh (DIV-07)
+  var _cycleTimer    = null; // TV auto-cycle interval handle (plan 05-03)
 
   /**
    * parseParams() — parse window.location.search into a plain object.
@@ -136,6 +138,7 @@
     var sp = new URLSearchParams(window.location.search);
     var refresh = parseInt(sp.get('refresh'), 10);
     var cols = parseInt(sp.get('cols'), 10);
+    var cycle = parseInt(sp.get('cycle'), 10);
     return {
       sheetId:   sp.get('sheetId')   || '',
       tab:       sp.get('tab')       || '',
@@ -143,6 +146,7 @@
       window:    sp.get('window')    || null,
       refresh:   (!isNaN(refresh) && refresh >= 1) ? refresh : null,
       cols:      (!isNaN(cols))                    ? cols    : null,
+      cycle:     (!isNaN(cycle) && cycle >= 1)     ? Math.max(3, cycle) : 10,
       primary:   sp.get('primary')   || null,
       secondary: sp.get('secondary') || null,
       tertiary:  sp.get('tertiary')  || null
@@ -345,6 +349,83 @@
       + escHtml(dimension.column) + '</h2>'
       + '<div>' + entries + '</div>'
       + '</div>';
+  }
+
+  /**
+   * renderDivisionColumn(division) — returns HTML string for one division column (heading + all entries).
+   * Mirrors renderColumn(); uses division.title (string) instead of dimension.column.
+   * XSS: division.title is backend-sourced; escaped via escHtml (T-05-02-01).
+   */
+  function renderDivisionColumn(division) {
+    var entries = (division.groups || []).map(renderEntry).join('');
+    return '<div class="bg-slate-800 rounded-xl p-4">'
+      + '<h2 class="text-slate-300 text-sm font-semibold uppercase tracking-wide mb-3">'
+      + escHtml(division.title) + '</h2>'
+      + '<div>' + entries + '</div>'
+      + '</div>';
+  }
+
+  /**
+   * renderDivisions() — renders the current page of division columns into #leaderboard-root.
+   * Reads _cache.divisions and _activeDivPage; no network request (DIV-08).
+   * Arrow navigation is empty in this plan (05-03 will inject renderDivArrows()).
+   */
+  function renderDivisions() {
+    var root = document.getElementById('leaderboard-root');
+    var divs = _cache.divisions;
+    var effectiveCols = computeEffectiveCols(_cache.divisions, _params);
+    var totalPages = Math.ceil(divs.length / effectiveCols);
+
+    // Clamp _activeDivPage when a background refresh shrinks the divisions array (DIV-07)
+    if (_activeDivPage >= totalPages) _activeDivPage = 0;
+
+    var pageStart = _activeDivPage * effectiveCols;
+    var visibleDivs = divs.slice(pageStart, pageStart + effectiveCols);
+
+    // CSS Grid: same injected @media (min-width: 1200px) pattern as renderLeaderboard
+    var colCount = Math.min(visibleDivs.length, effectiveCols);
+    var gridStyle = '<style>'
+      + '@media (min-width: 1200px) { .lb-grid { grid-template-columns: repeat(' + colCount + ', minmax(0, 1fr)) !important; } }'
+      + '</style>';
+
+    // Arrow nav: shown in standard mode only, and only when divisions span more than one page (DIV-05)
+    var arrowHtml = (!_params.refresh && divs.length > effectiveCols) ? renderDivArrows(totalPages) : '';
+
+    var columns = visibleDivs.map(renderDivisionColumn).join('');
+    var gridHtml = '<div class="lb-grid grid grid-cols-1 md:grid-cols-2 gap-4">' + columns + '</div>';
+
+    root.innerHTML = gridStyle + arrowHtml + gridHtml;
+  }
+
+  /**
+   * renderDivArrows(totalPages) — returns HTML chevron nav row for standard division paging.
+   * Left/right buttons call advanceDivPage(-1/1). Buttons are disabled (opacity-30) at page boundaries.
+   * Called only in standard mode (!_params.refresh) and only when divisions span more than one page.
+   */
+  function renderDivArrows(totalPages) {
+    var prevDisabled = (_activeDivPage === 0) ? ' opacity-30 pointer-events-none' : '';
+    var nextDisabled = (_activeDivPage >= totalPages - 1) ? ' opacity-30 pointer-events-none' : '';
+    return '<div class="flex justify-between items-center mb-3 px-1">'
+      + '<button onclick="advanceDivPage(-1)" aria-label="Previous page"'
+      + ' class="text-2xl text-slate-300 hover:text-white' + prevDisabled + '">'
+      + '<i class="bi bi-chevron-left"></i></button>'
+      + '<span class="text-slate-500 text-xs">' + (_activeDivPage + 1) + ' / ' + totalPages + '</span>'
+      + '<button onclick="advanceDivPage(1)" aria-label="Next page"'
+      + ' class="text-2xl text-slate-300 hover:text-white' + nextDisabled + '">'
+      + '<i class="bi bi-chevron-right"></i></button>'
+      + '</div>';
+  }
+
+  /**
+   * advanceDivPage(delta) — updates _activeDivPage by delta (+1 or -1) with modulo wrap (D-05).
+   * Calls renderLeaderboard() (not renderDivisions() directly) to honour top-level dispatch.
+   */
+  function advanceDivPage(delta) {
+    if (!_cache || !_cache.divisions || !_cache.divisions.length) return;
+    var effectiveCols = computeEffectiveCols(_cache.divisions, _params);
+    var totalPages = Math.ceil(_cache.divisions.length / effectiveCols);
+    _activeDivPage = (_activeDivPage + delta + totalPages) % totalPages;
+    renderLeaderboard();
   }
 
   /**
@@ -582,7 +663,9 @@
    */
   function renderLeaderboard() {
     var root = document.getElementById('leaderboard-root');
-    if (!_cache || !_cache.dimensions) { root.innerHTML = ''; return; }
+    if (!_cache) { root.innerHTML = ''; return; }
+    if (_cache.divisions && _cache.divisions.length) { renderDivisions(); return; }   // D-01: data-driven dispatch
+    if (!_cache.dimensions) { root.innerHTML = ''; return; }
 
     var dims = _cache.dimensions;
     var effectiveCols = computeEffectiveCols(dims, _params);
@@ -671,6 +754,16 @@
       // _activeDimIdx is module-level — preserved across this call automatically
       loadData();
     }, intervalMs);
+
+    // NEW: division auto-cycle (DIV-06) — only when ?cycle was set AND divisions exist
+    // D-03: startTvMode is only called when _params.refresh is set — cycle silently ignored for non-TV sheets
+    // D-04: cycle already clamped to >= 3 in parseParams()
+    if (_cycleTimer) clearInterval(_cycleTimer);
+    if (_params.cycle && _cache.divisions && _cache.divisions.length) {
+      _cycleTimer = setInterval(function() {
+        advanceDivPage(1);   // D-05: advanceDivPage wraps at last page
+      }, _params.cycle * 1000);
+    }
   }
 
   /**
