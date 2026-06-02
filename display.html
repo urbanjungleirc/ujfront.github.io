@@ -326,9 +326,9 @@
    * Layout: rank badge · label (grows) · metric value · last-seen relative time.
    */
   function renderEntry(group) {
-    var rankCls = group.rank.charAt(0) === '='
-      ? 'text-yellow-400 font-bold w-10 shrink-0 text-right pr-2'
-      : 'text-slate-400 font-bold w-10 shrink-0 text-right pr-2';
+    var rankNum = parseInt(group.rank.replace('=', ''), 10);
+    var rankColor = rankNum === 1 ? 'text-yellow-400' : rankNum === 2 ? 'text-slate-300' : rankNum === 3 ? 'text-orange-400' : 'text-slate-500';
+    var rankCls = rankColor + ' font-bold w-10 shrink-0 text-right pr-2';
     var lastSeenHtml = group.lastSeen
       ? '<span class="text-slate-500 text-xs ml-2 shrink-0">' + relativeTime(group.lastSeen) + '</span>'
       : '';
@@ -404,15 +404,15 @@
    * Called only in standard mode (!_params.refresh) and only when divisions span more than one page.
    */
   function renderDivArrows(totalPages) {
-    var prevDisabled = (_activeDivPage === 0) ? ' opacity-30 pointer-events-none' : '';
-    var nextDisabled = (_activeDivPage >= totalPages - 1) ? ' opacity-30 pointer-events-none' : '';
+    var prevDisabled = (_activeDivPage === 0) ? ' opacity-40 pointer-events-none' : '';
+    var nextDisabled = (_activeDivPage >= totalPages - 1) ? ' opacity-40 pointer-events-none' : '';
     return '<div class="flex justify-between items-center mb-3 px-1">'
       + '<button onclick="advanceDivPage(-1)" aria-label="Previous page"'
-      + ' class="text-2xl text-slate-300 hover:text-white' + prevDisabled + '">'
+      + ' class="bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-2 text-lg leading-none transition-colors' + prevDisabled + '">'
       + '<i class="bi bi-chevron-left"></i></button>'
-      + '<span class="text-slate-500 text-xs">' + (_activeDivPage + 1) + ' / ' + totalPages + '</span>'
+      + '<span class="text-slate-400 text-xs font-medium">' + (_activeDivPage + 1) + ' / ' + totalPages + '</span>'
       + '<button onclick="advanceDivPage(1)" aria-label="Next page"'
-      + ' class="text-2xl text-slate-300 hover:text-white' + nextDisabled + '">'
+      + ' class="bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-2 text-lg leading-none transition-colors' + nextDisabled + '">'
       + '<i class="bi bi-chevron-right"></i></button>'
       + '</div>';
   }
@@ -859,7 +859,7 @@
 
   <!-- Reference guide — hidden by default, toggled by footer link -->
   <div id="ref-guide" style="display:none"
-       class="border-t border-slate-700 mt-8 px-4 py-6 text-slate-400 text-xs">
+       class="border-t border-slate-700 mt-8 px-4 py-6 text-slate-300 text-xs">
     <div class="max-w-4xl mx-auto space-y-8">
 
       <!-- EXAMPLES -->
