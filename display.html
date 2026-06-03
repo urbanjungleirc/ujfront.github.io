@@ -9,28 +9,74 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
-    :root { --p: #4F46E5; --s: #7C3AED; --t: #059669; }
+    :root {
+      --p: #4F46E5;
+      --s: #7C3AED;
+      --t: #059669;
+      --p-text: #818CF8;
+      --s-text: #A78BFA;
+      --t-text: #34D399;
+      --p-action: #4F46E5;
+      --on-p: #FFFFFF;
+      --p-border: #6366F1;
+      --s-border: #8B5CF6;
+    }
     /* Theme overrides via URL params applied by applyTheme() at runtime */
     body { background: #0f172a; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+    .theme-button {
+      background: var(--p-action);
+      color: var(--on-p);
+      transition: opacity 150ms ease, filter 150ms ease;
+    }
+    .theme-button:hover { opacity: 0.9; }
+    .theme-button:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--p-text) 65%, white);
+      outline-offset: 2px;
+    }
+    .theme-link,
+    #help-content a,
+    #desc-root a {
+      color: var(--p-text);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .theme-primary-text { color: var(--p-text); }
+    .theme-code { color: var(--s-text); }
+    .theme-value { color: var(--t-text); }
+    .theme-secondary-border {
+      border-color: color-mix(in srgb, var(--s-border) 42%, #334155);
+    }
+    .text-slate-500 { color: #94a3b8 !important; }
+    .text-slate-400 { color: #cbd5e1 !important; }
+    .rank-muted { color: #94a3b8; }
+    .last-seen { color: #a8b3c2; }
+    #page-subtitle,
+    #help-subtitle { color: #cbd5e1 !important; }
+    #desc-root,
+    #help-content { color: #d4dce8; }
 
     /* Stats mode — dark gradient panel (matches sls_stats.html prior art) */
     .stats-panel {
       position: relative;
       background:
-        linear-gradient(135deg, rgba(21,31,46,0.88), rgba(11,19,32,0.9)) padding-box,
-        linear-gradient(135deg, rgba(0,255,255,0.45), rgba(255,61,251,0.45)) border-box;
+        linear-gradient(135deg, rgba(21,31,46,0.94), rgba(11,19,32,0.96)) padding-box,
+        linear-gradient(135deg,
+          color-mix(in srgb, var(--p-border) 42%, #334155),
+          color-mix(in srgb, var(--s-border) 38%, #334155)) border-box;
       border: 1px solid transparent;
-      border-radius: 16px;
+      border-radius: 12px;
       color: #FEFDFB;
       overflow: hidden;
       padding: 1.25rem 1rem;
+      box-shadow: 0 1px 0 color-mix(in srgb, var(--p-border) 10%, transparent);
     }
     /* Subtle 24px grid overlay */
     .stats-panel::before {
       content: "";
       position: absolute;
       inset: 0;
-      border-radius: 15px;
+      border-radius: 11px;
       background-image:
         linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
@@ -52,7 +98,7 @@
       height: 100%;
       width: min(320px, 90vw);
       background: #0f172a;
-      border-left: 1px solid #334155;
+      border-left: 1px solid color-mix(in srgb, var(--s-border) 35%, #334155);
       box-shadow: -4px 0 24px rgba(0,0,0,0.5);
       z-index: 40;
       overflow-y: auto;
@@ -65,21 +111,49 @@
     #help-content p, #desc-root p { margin: 0 0 0.5rem; }
     #help-content strong, #desc-root strong { font-weight: 700; }
     #help-content em, #desc-root em { font-style: italic; }
-    #help-content a, #desc-root a { color: var(--p); text-decoration: underline; }
     #help-content ul, #desc-root ul { list-style: disc; padding-left: 1.25rem; margin: 0 0 0.5rem; }
     #help-content ol, #desc-root ol { list-style: decimal; padding-left: 1.25rem; margin: 0 0 0.5rem; }
     #help-content h1, #desc-root h1 { font-size: 1.25rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #f1f5f9; }
     #help-content h2, #desc-root h2 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #f1f5f9; }
     #help-content h3, #desc-root h3 { font-size: 1rem; font-weight: 600; margin: 0.5rem 0 0.25rem; color: #f1f5f9; }
+    #help-panel,
+    .overflow-x-auto {
+      scrollbar-color: #64748b #1e293b;
+      scrollbar-width: thin;
+    }
+    #help-panel::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    #help-panel::-webkit-scrollbar-track,
+    .overflow-x-auto::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 999px;
+    }
+    #help-panel::-webkit-scrollbar-thumb,
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+      background: #64748b;
+      border-radius: 999px;
+      border: 1px solid #0f172a;
+    }
+    #help-panel::-webkit-scrollbar-thumb:hover,
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
 
     /* Page header card — clean title block */
     #header-card {
+      position: relative;
       background:
-        linear-gradient(135deg, rgba(30,41,59,0.55), rgba(15,23,42,0.45)) padding-box,
-        linear-gradient(135deg, rgba(99,102,241,0.28), rgba(168,85,247,0.28)) border-box;
+        linear-gradient(180deg, rgba(30,41,59,0.82), rgba(15,23,42,0.78)) padding-box,
+        linear-gradient(135deg,
+          color-mix(in srgb, var(--p-border) 32%, #475569),
+          color-mix(in srgb, var(--s-border) 28%, #334155)) border-box;
       border: 1px solid transparent;
-      border-radius: 14px;
+      border-radius: 10px;
       padding: 1rem 1.25rem 1.1rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
     #header-card #desc-root { margin-top: 0.3rem; }
 
@@ -87,12 +161,15 @@
     .lb-card {
       position: relative;
       background:
-        linear-gradient(135deg, rgba(21,31,46,0.88), rgba(11,19,32,0.9)) padding-box,
-        linear-gradient(135deg, rgba(0,255,255,0.45), rgba(255,61,251,0.45)) border-box;
+        linear-gradient(135deg, rgba(21,31,46,0.94), rgba(11,19,32,0.96)) padding-box,
+        linear-gradient(135deg,
+          color-mix(in srgb, var(--p-border) 36%, #334155),
+          color-mix(in srgb, var(--s-border) 32%, #334155)) border-box;
       border: 1px solid transparent;
-      border-radius: 16px;
+      border-radius: 12px;
       overflow: hidden;
       padding: 1.1rem 1rem;
+      box-shadow: 0 1px 0 color-mix(in srgb, var(--p-border) 10%, transparent);
     }
   </style>
 </head>
@@ -115,8 +192,8 @@
   <div id="error-panel" class="hidden flex flex-col items-center justify-center min-h-screen p-8 text-center">
     <div class="text-5xl mb-4">&#9888;</div>
     <p id="error-msg" class="text-xl text-slate-300 mb-6"></p>
-    <button id="retry-btn" class="hidden px-6 py-2 rounded-lg font-semibold text-white"
-            style="background: var(--p)" onclick="loadData()">Retry</button>
+    <button id="retry-btn" class="hidden px-6 py-2 rounded-lg font-semibold theme-button"
+            onclick="loadData()">Retry</button>
   </div>
 
   <!-- Loading state: shown while initial fetch in progress -->
@@ -163,6 +240,16 @@
   var _activeDivPage = 0;    // current division page index; preserved across background refresh (DIV-07)
   var _cycleTimer    = null; // TV auto-cycle interval handle (plan 05-03)
 
+  function readColorParam(sp, name) {
+    var value = sp.get(name);
+    if (value) return value;
+    if (name === 'primary' && sp.has('primary')) {
+      var hashMatch = window.location.hash.match(/^#([0-9a-fA-F]{6})(?:&|$)/);
+      if (hashMatch) return hashMatch[1];
+    }
+    return null;
+  }
+
   /**
    * parseParams() — parse window.location.search into a plain object.
    * Returns { sheetId, tab, mode, window, refresh, cols, primary, secondary, tertiary }
@@ -180,19 +267,137 @@
       refresh:   (!isNaN(refresh) && refresh >= 1) ? refresh : null,
       cols:      (!isNaN(cols))                    ? cols    : null,
       cycle:     (!isNaN(cycle) && cycle >= 1)     ? Math.max(3, cycle) : 10,
-      primary:   sp.get('primary')   || null,
-      secondary: sp.get('secondary') || null,
-      tertiary:  sp.get('tertiary')  || null
+      primary:   readColorParam(sp, 'primary'),
+      secondary: readColorParam(sp, 'secondary'),
+      tertiary:  readColorParam(sp, 'tertiary')
     };
   }
 
+  function normalizeHex(value, fallback) {
+    var hex = String(value || '').replace(/^#/, '').trim();
+    return /^[0-9a-fA-F]{6}$/.test(hex) ? hex.toUpperCase() : fallback;
+  }
+
+  function hexToHsl(hex) {
+    var r = parseInt(hex.slice(0, 2), 16) / 255;
+    var g = parseInt(hex.slice(2, 4), 16) / 255;
+    var b = parseInt(hex.slice(4, 6), 16) / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b), h, s, l = (max + min) / 2;
+    if (max === min) { h = s = 0; }
+    else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+      else if (max === g) h = ((b - r) / d + 2) / 6;
+      else h = ((r - g) / d + 4) / 6;
+    }
+    return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+  }
+
+  function hslToHex(h, s, l) {
+    s /= 100; l /= 100;
+    var k = function(n) { return (n + h / 30) % 12; };
+    var a = s * Math.min(l, 1 - l);
+    var f = function(n) {
+      return l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    };
+    return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)]
+      .map(function(v) { return v.toString(16).padStart(2, '0'); }).join('').toUpperCase();
+  }
+
+  function hexToRgb(hex) {
+    return [
+      parseInt(hex.slice(0, 2), 16),
+      parseInt(hex.slice(2, 4), 16),
+      parseInt(hex.slice(4, 6), 16)
+    ];
+  }
+
+  function rgbToHex(rgb) {
+    return rgb.map(function(v) {
+      return Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0');
+    }).join('').toUpperCase();
+  }
+
+  function relativeLuminance(hex) {
+    var rgb = hexToRgb(hex).map(function(v) {
+      var channel = v / 255;
+      return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    });
+    return (0.2126 * rgb[0]) + (0.7152 * rgb[1]) + (0.0722 * rgb[2]);
+  }
+
+  function contrastRatio(foreground, background) {
+    var fg = relativeLuminance(foreground);
+    var bg = relativeLuminance(background);
+    var light = Math.max(fg, bg);
+    var dark = Math.min(fg, bg);
+    return (light + 0.05) / (dark + 0.05);
+  }
+
+  function mixHex(from, to, amount) {
+    var a = hexToRgb(from);
+    var b = hexToRgb(to);
+    return rgbToHex([
+      a[0] + (b[0] - a[0]) * amount,
+      a[1] + (b[1] - a[1]) * amount,
+      a[2] + (b[2] - a[2]) * amount
+    ]);
+  }
+
+  function ensureContrast(hex, background, minimum) {
+    if (contrastRatio(hex, background) >= minimum) return hex;
+    for (var i = 1; i <= 20; i++) {
+      var candidate = mixHex(hex, 'FFFFFF', i / 20);
+      if (contrastRatio(candidate, background) >= minimum) return candidate;
+    }
+    return 'FFFFFF';
+  }
+
+  function bestTextOn(hex) {
+    return contrastRatio('FFFFFF', hex) >= contrastRatio('0F172A', hex) ? 'FFFFFF' : '0F172A';
+  }
+
+  function readableButtonBg(hex) {
+    if (contrastRatio('FFFFFF', hex) >= 4.5 || contrastRatio('0F172A', hex) >= 4.5) return hex;
+    for (var i = 1; i <= 20; i++) {
+      var darker = mixHex(hex, '0F172A', i / 20);
+      if (contrastRatio('FFFFFF', darker) >= 4.5) return darker;
+    }
+    return '0F172A';
+  }
+
   /**
-   * applyTheme(params) — write CSS var overrides from URL params.
+   * applyTheme(params) — derive and write CSS var overrides from URL params.
    */
   function applyTheme(params) {
-    if (params.primary)   document.documentElement.style.setProperty('--p', params.primary);
-    if (params.secondary) document.documentElement.style.setProperty('--s', params.secondary);
-    if (params.tertiary)  document.documentElement.style.setProperty('--t', params.tertiary);
+    var p = normalizeHex(params.primary, '4F46E5');
+    var hsl = hexToHsl(p);
+    var s = normalizeHex(
+      params.secondary,
+      hslToHex((hsl[0] + 150) % 360, Math.min(hsl[1] + 5, 100), Math.max(hsl[2] - 8, 10))
+    );
+    var t = normalizeHex(
+      params.tertiary,
+      hslToHex((hsl[0] + 210) % 360, hsl[1], hsl[2])
+    );
+    var darkBg = '0F172A';
+    var cardBg = '111827';
+    var pText = ensureContrast(p, darkBg, 5.5);
+    var sText = ensureContrast(s, darkBg, 5.5);
+    var tText = ensureContrast(t, cardBg, 6);
+    var pAction = readableButtonBg(p);
+    var onP = bestTextOn(pAction);
+    document.documentElement.style.setProperty('--p', '#' + p);
+    document.documentElement.style.setProperty('--s', '#' + s);
+    document.documentElement.style.setProperty('--t', '#' + t);
+    document.documentElement.style.setProperty('--p-text', '#' + pText);
+    document.documentElement.style.setProperty('--s-text', '#' + sText);
+    document.documentElement.style.setProperty('--t-text', '#' + tText);
+    document.documentElement.style.setProperty('--p-action', '#' + pAction);
+    document.documentElement.style.setProperty('--on-p', '#' + onP);
+    document.documentElement.style.setProperty('--p-border', '#' + ensureContrast(p, darkBg, 3));
+    document.documentElement.style.setProperty('--s-border', '#' + ensureContrast(s, darkBg, 3));
   }
 
   /**
@@ -238,7 +443,7 @@
   function setRetryIndicator(msg) {
     var ctrl = document.getElementById('header-controls');
     ctrl.innerHTML = '<span class="text-red-400 text-sm mr-2" title="' + msg + '">&#9888; Refresh failed</span>'
-      + '<button onclick="loadData()" class="text-sm px-3 py-1 rounded text-white" style="background:var(--p)">Retry</button>';
+      + '<button onclick="loadData()" class="text-sm px-3 py-1 rounded font-semibold theme-button">Retry</button>';
   }
 
   /**
@@ -391,15 +596,15 @@
    */
   function renderEntry(group) {
     var rankNum = parseInt(group.rank.replace('=', ''), 10);
-    var rankColor = rankNum === 1 ? 'text-yellow-400' : rankNum === 2 ? 'text-slate-300' : rankNum === 3 ? 'text-orange-400' : 'text-slate-500';
+    var rankColor = rankNum === 1 ? 'text-yellow-400' : rankNum === 2 ? 'text-slate-300' : rankNum === 3 ? 'text-orange-400' : 'rank-muted';
     var rankCls = rankColor + ' font-bold w-10 shrink-0 text-right pr-2';
     var lastSeenHtml = group.lastSeen
-      ? '<span class="text-slate-500 text-xs ml-2 shrink-0">' + relativeTime(group.lastSeen) + '</span>'
+      ? '<span class="last-seen text-xs ml-2 shrink-0">' + relativeTime(group.lastSeen) + '</span>'
       : '';
     return '<div class="flex items-center py-2 border-b border-slate-700 last:border-0">'
       + '<span class="' + rankCls + '">' + escHtml(group.rank) + '</span>'
       + '<span class="flex-1 truncate text-white">' + escHtml(group.label) + '</span>'
-      + '<span class="text-emerald-400 font-mono font-semibold ml-4 shrink-0">' + group.metric + '</span>'
+      + '<span class="theme-value font-mono font-semibold ml-4 shrink-0">' + group.metric + '</span>'
       + lastSeenHtml
       + '</div>';
   }
@@ -411,7 +616,7 @@
     var entries = dimension.groups.map(renderEntry).join('');
     return '<div class="lb-card">'
       + '<div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-700/60">'
-      + '<div class="w-1 h-4 rounded-full shrink-0" style="background:var(--p)"></div>'
+      + '<div class="w-1 h-4 rounded-full shrink-0" style="background:var(--p-border)"></div>'
       + '<h2 class="text-white text-sm font-semibold uppercase tracking-wide">'
       + escHtml(dimension.column) + '</h2>'
       + '</div>'
@@ -428,7 +633,7 @@
     var entries = (division.groups || []).map(renderEntry).join('');
     return '<div class="lb-card">'
       + '<div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-700/60">'
-      + '<div class="w-1 h-4 rounded-full shrink-0" style="background:var(--p)"></div>'
+      + '<div class="w-1 h-4 rounded-full shrink-0" style="background:var(--p-border)"></div>'
       + '<h2 class="text-white text-sm font-semibold uppercase tracking-wide">'
       + escHtml(division.title) + '</h2>'
       + '</div>'
@@ -478,11 +683,11 @@
     var nextDisabled = (_activeDivPage >= totalPages - 1) ? ' opacity-40 pointer-events-none' : '';
     return '<div class="flex justify-between items-center mb-3 px-1">'
       + '<button onclick="advanceDivPage(-1)" aria-label="Previous page"'
-      + ' class="bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-2 text-lg leading-none transition-colors' + prevDisabled + '">'
+      + ' class="bg-slate-700 hover:bg-slate-600 text-slate-200 border theme-secondary-border rounded-lg px-3 py-2 text-lg leading-none transition-colors' + prevDisabled + '">'
       + '<i class="bi bi-chevron-left"></i></button>'
       + '<span class="text-slate-400 text-xs font-medium">' + (_activeDivPage + 1) + ' / ' + totalPages + '</span>'
       + '<button onclick="advanceDivPage(1)" aria-label="Next page"'
-      + ' class="bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-2 text-lg leading-none transition-colors' + nextDisabled + '">'
+      + ' class="bg-slate-700 hover:bg-slate-600 text-slate-200 border theme-secondary-border rounded-lg px-3 py-2 text-lg leading-none transition-colors' + nextDisabled + '">'
       + '<i class="bi bi-chevron-right"></i></button>'
       + '</div>';
   }
@@ -508,9 +713,9 @@
     var tabs = dimensions.map(function(dim, i) {
       var isActive = (i === _activeDimIdx);
       var activeCls = isActive
-        ? 'px-4 py-1.5 rounded-full text-sm font-semibold text-white'
+        ? 'px-4 py-1.5 rounded-full text-sm font-semibold theme-button'
         : 'px-4 py-1.5 rounded-full text-sm text-slate-400 hover:text-white';
-      var activeStyle = isActive ? 'style="background:var(--p)"' : '';
+      var activeStyle = '';
       return '<button ' + activeStyle + ' class="' + activeCls + '" onclick="_activeDimIdx=' + i + ';renderLeaderboard();">'
         + escHtml(dim.column) + '</button>';
     }).join('');
@@ -636,17 +841,17 @@
 
         html += '<div class="text-center">'
               + '<div class="text-xs uppercase text-slate-400 mb-1">Count</div>'
-              + '<div class="font-mono font-semibold text-lg" style="color:var(--t)">' + fmtVal(r.count) + '</div>'
+              + '<div class="theme-value font-mono font-semibold text-lg">' + fmtVal(r.count) + '</div>'
               + '</div>';
 
         html += '<div class="text-center">'
               + '<div class="text-xs uppercase text-slate-400 mb-1">Sum</div>'
-              + '<div class="font-mono font-semibold text-lg" style="color:var(--t)">' + fmtVal(r.sum) + '</div>'
+              + '<div class="theme-value font-mono font-semibold text-lg">' + fmtVal(r.sum) + '</div>'
               + '</div>';
 
         html += '<div class="text-center">'
               + '<div class="text-xs uppercase text-slate-400 mb-1">Avg</div>'
-              + '<div class="font-mono font-semibold text-lg" style="color:var(--t)">' + fmtVal(r.avg) + '</div>'
+              + '<div class="theme-value font-mono font-semibold text-lg">' + fmtVal(r.avg) + '</div>'
               + '</div>';
 
         html += '</div>'; // end top row
@@ -656,12 +861,12 @@
 
         html += '<div class="text-center">'
               + '<div class="text-xs uppercase text-slate-400 mb-1">Min</div>'
-              + '<div class="font-mono font-semibold text-lg" style="color:var(--t)">' + fmtVal(r.min) + '</div>'
+              + '<div class="theme-value font-mono font-semibold text-lg">' + fmtVal(r.min) + '</div>'
               + '</div>';
 
         html += '<div class="text-center">'
               + '<div class="text-xs uppercase text-slate-400 mb-1">Max</div>'
-              + '<div class="font-mono font-semibold text-lg" style="color:var(--t)">' + fmtVal(r.max) + '</div>'
+              + '<div class="theme-value font-mono font-semibold text-lg">' + fmtVal(r.max) + '</div>'
               + '</div>';
 
         html += '</div>'; // end bottom row
@@ -707,11 +912,11 @@
         html += '<div class="mb-2">';
         html += '<div class="flex items-center mb-1">'
               + '<span class="flex-1 text-white text-sm truncate">' + escHtml(entry.value) + '</span>'
-              + '<span class="font-mono text-emerald-400 font-semibold ml-4 shrink-0">' + escHtml(String(entry.count)) + '</span>'
+              + '<span class="font-mono theme-value font-semibold ml-4 shrink-0">' + escHtml(String(entry.count)) + '</span>'
               + '</div>';
         // Progress bar
         html += '<div class="bg-slate-700 rounded-full h-1">'
-              + '<div class="rounded-full h-1" style="width:' + pct + '%;background:var(--p)"></div>'
+              + '<div class="rounded-full h-1" style="width:' + pct + '%;background:var(--p-border)"></div>'
               + '</div>';
         html += '</div>'; // end row
       });
@@ -848,7 +1053,7 @@
     var ctrl = document.getElementById('header-controls');
     ctrl.innerHTML =
       '<span id="last-updated-text" class="text-slate-400 text-sm mr-3"></span>'
-      + '<button onclick="loadData()" class="px-4 py-1.5 rounded-lg text-sm font-semibold text-white" style="background:var(--p)">Refresh</button>';
+      + '<button onclick="loadData()" class="px-4 py-1.5 rounded-lg text-sm font-semibold theme-button">Refresh</button>';
     // Populate the text immediately (generatedAt is already in _cache from first fetch)
     updateLastUpdated();
   }
@@ -966,16 +1171,16 @@
             <th class="pb-1 text-slate-300">What it does</th>
           </tr></thead>
           <tbody class="[&>tr]:border-b [&>tr]:border-slate-800">
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">sheetId</td><td class="py-1 pr-4 text-red-400">required</td><td class="py-1">Google Sheets ID — the long string in the sheet URL between /d/ and /edit</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">tab</td><td class="py-1 pr-4">first tab</td><td class="py-1">Sheet tab name (exactly as shown on the tab)</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">mode</td><td class="py-1 pr-4">leaderboard</td><td class="py-1"><code class="bg-slate-800 px-1 rounded">leaderboard</code> (ranked groups) or <code class="bg-slate-800 px-1 rounded">stats</code> (scalar cards + distributions)</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">refresh</td><td class="py-1 pr-4">off</td><td class="py-1"><strong class="text-slate-300">Enables TV mode.</strong> Seconds between silent data re-fetches. Remove to get standard interactive mode.</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">cycle</td><td class="py-1 pr-4">10</td><td class="py-1">Division page auto-cycle seconds in TV mode (min 3). Has no effect without <code class="bg-slate-800 px-1 rounded">refresh</code>.</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">cols</td><td class="py-1 pr-4">all</td><td class="py-1">Number of columns to show at once. Overrides sheet <code class="bg-slate-800 px-1 rounded">maxcols:N</code> and responsive breakpoints.</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">window</td><td class="py-1 pr-4">from sheet</td><td class="py-1">Override the time window set in the sheet config — see values below</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">primary</td><td class="py-1 pr-4">4F46E5</td><td class="py-1">Theme colour — hex code without the <code class="bg-slate-800 px-1 rounded">#</code> (e.g. <code class="bg-slate-800 px-1 rounded">primary=10B981</code> for green)</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">secondary</td><td class="py-1 pr-4">—</td><td class="py-1">Second theme colour</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">tertiary</td><td class="py-1 pr-4">—</td><td class="py-1">Third theme colour</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">sheetId</td><td class="py-1 pr-4 text-red-400">required</td><td class="py-1">Google Sheets ID — the long string in the sheet URL between /d/ and /edit</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">tab</td><td class="py-1 pr-4">first tab</td><td class="py-1">Sheet tab name (exactly as shown on the tab)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">mode</td><td class="py-1 pr-4">leaderboard</td><td class="py-1"><code class="bg-slate-800 px-1 rounded">leaderboard</code> (ranked groups) or <code class="bg-slate-800 px-1 rounded">stats</code> (scalar cards + distributions)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">refresh</td><td class="py-1 pr-4">off</td><td class="py-1"><strong class="text-slate-300">Enables TV mode.</strong> Seconds between silent data re-fetches. Remove to get standard interactive mode.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">cycle</td><td class="py-1 pr-4">10</td><td class="py-1">Division page auto-cycle seconds in TV mode (min 3). Has no effect without <code class="bg-slate-800 px-1 rounded">refresh</code>.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">cols</td><td class="py-1 pr-4">all</td><td class="py-1">Number of columns to show at once. Overrides sheet <code class="bg-slate-800 px-1 rounded">maxcols:N</code> and responsive breakpoints.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">window</td><td class="py-1 pr-4">from sheet</td><td class="py-1">Override the time window set in the sheet config — see values below</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">primary</td><td class="py-1 pr-4">4F46E5</td><td class="py-1">Primary theme colour — hex code with or without the <code class="bg-slate-800 px-1 rounded">#</code> (e.g. <code class="bg-slate-800 px-1 rounded">primary=10B981</code> for green)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">secondary</td><td class="py-1 pr-4">auto</td><td class="py-1">Secondary theme colour. Auto-generated from primary when omitted.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">tertiary</td><td class="py-1 pr-4">auto</td><td class="py-1">Tertiary theme colour for metric emphasis. Auto-generated from primary when omitted.</td></tr>
           </tbody>
         </table>
       </div>
@@ -992,33 +1197,33 @@
           </tr></thead>
           <tbody class="[&>tr]:border-b [&>tr]:border-slate-800">
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Column type — always first</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:timestamp</td><td class="py-1 pr-4">—</td><td class="py-1">Datetime column — drives time-window filtering and "last seen" timestamps</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:text</td><td class="py-1 pr-4">—</td><td class="py-1">Plain text</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:combo</td><td class="py-1 pr-4">—</td><td class="py-1">Dropdown / fixed values</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:number</td><td class="py-1 pr-4">—</td><td class="py-1">Numeric — required for sum/avg/min/max aggregates</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:desc</td><td class="py-1 pr-4">—</td><td class="py-1">Column value shown as markdown description below the page heading</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">type:help</td><td class="py-1 pr-4">—</td><td class="py-1">Column value shown in the <strong>?</strong> help side panel (markdown)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">type:timestamp</td><td class="py-1 pr-4">—</td><td class="py-1">Datetime column — drives time-window filtering and "last seen" timestamps</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">type:text</td><td class="py-1 pr-4">—</td><td class="py-1">Plain text</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">type:combo</td><td class="py-1 pr-4">—</td><td class="py-1">Dropdown / fixed values</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">type:number</td><td class="py-1 pr-4">—</td><td class="py-1">Numeric — required for sum/avg/min/max aggregates</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">type:desc</td><td class="py-1 pr-4">—</td><td class="py-1">Column value shown as markdown description below the page heading</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">type:help</td><td class="py-1 pr-4">—</td><td class="py-1">Column value shown in the <strong>?</strong> help side panel (markdown)</td></tr>
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Leaderboard — what to group and rank by</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">groupby</td><td class="py-1 pr-4">any type</td><td class="py-1">Group rows by unique values in this column. Each unique value becomes a ranked row.</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">groupby:N</td><td class="py-1 pr-4">any type</td><td class="py-1">Same, with explicit column display position (1 = leftmost)</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:count</td><td class="py-1 pr-4">any type</td><td class="py-1">Rank by number of rows per group (e.g. total visits)</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:sum</td><td class="py-1 pr-4">type:number</td><td class="py-1">Rank by sum of a numeric column (e.g. total score)</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:avg</td><td class="py-1 pr-4">type:number</td><td class="py-1">Rank by average</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:min / max</td><td class="py-1 pr-4">type:number</td><td class="py-1">Rank by minimum or maximum value</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">groupby</td><td class="py-1 pr-4">any type</td><td class="py-1">Group rows by unique values in this column. Each unique value becomes a ranked row.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">groupby:N</td><td class="py-1 pr-4">any type</td><td class="py-1">Same, with explicit column display position (1 = leftmost)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:count</td><td class="py-1 pr-4">any type</td><td class="py-1">Rank by number of rows per group (e.g. total visits)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:sum</td><td class="py-1 pr-4">type:number</td><td class="py-1">Rank by sum of a numeric column (e.g. total score)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:avg</td><td class="py-1 pr-4">type:number</td><td class="py-1">Rank by average</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:min / max</td><td class="py-1 pr-4">type:number</td><td class="py-1">Rank by minimum or maximum value</td></tr>
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Stats mode — scalar cards per column</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:first</td><td class="py-1 pr-4">any</td><td class="py-1">Show the earliest entry value</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:last</td><td class="py-1 pr-4">any</td><td class="py-1">Show the most recent entry value</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">aggregate:distribution</td><td class="py-1 pr-4">text/combo</td><td class="py-1">Show a frequency count panel — how many rows have each unique value</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:first</td><td class="py-1 pr-4">any</td><td class="py-1">Show the earliest entry value</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:last</td><td class="py-1 pr-4">any</td><td class="py-1">Show the most recent entry value</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">aggregate:distribution</td><td class="py-1 pr-4">text/combo</td><td class="py-1">Show a frequency count panel — how many rows have each unique value</td></tr>
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Division mode — combine two columns into compound columns</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">splitby:1</td><td class="py-1 pr-4">any type</td><td class="py-1">Outer division axis (e.g. Category). Combined with splitby:2 to form columns like "Open Male".</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">splitby:2</td><td class="py-1 pr-4">any type</td><td class="py-1">Inner division axis (e.g. Gender). Order: splitby:1 value cycles once per splitby:2 value.</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">order:val1,val2,…</td><td class="py-1 pr-4">splitby col</td><td class="py-1">Fix the order of values for that axis. Unlisted values are appended alphabetically at the end.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">splitby:1</td><td class="py-1 pr-4">any type</td><td class="py-1">Outer division axis (e.g. Category). Combined with splitby:2 to form columns like "Open Male".</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">splitby:2</td><td class="py-1 pr-4">any type</td><td class="py-1">Inner division axis (e.g. Gender). Order: splitby:1 value cycles once per splitby:2 value.</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">order:val1,val2,…</td><td class="py-1 pr-4">splitby col</td><td class="py-1">Fix the order of values for that axis. Unlisted values are appended alphabetically at the end.</td></tr>
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Page header overrides</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">title:Text</td><td class="py-1 pr-4">type:desc / type:help</td><td class="py-1">On <code class="bg-slate-800 px-1 rounded">type:desc</code>: overrides the page title (default: tab name). On <code class="bg-slate-800 px-1 rounded">type:help</code>: overrides the help panel heading (default: "Help")</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">subtitle:Text</td><td class="py-1 pr-4">type:desc / type:help</td><td class="py-1">On <code class="bg-slate-800 px-1 rounded">type:desc</code>: adds a subtitle line below the page title. On <code class="bg-slate-800 px-1 rounded">type:help</code>: adds a subheading below the help panel heading</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">title:Text</td><td class="py-1 pr-4">type:desc / type:help</td><td class="py-1">On <code class="bg-slate-800 px-1 rounded">type:desc</code>: overrides the page title (default: tab name). On <code class="bg-slate-800 px-1 rounded">type:help</code>: overrides the help panel heading (default: "Help")</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">subtitle:Text</td><td class="py-1 pr-4">type:desc / type:help</td><td class="py-1">On <code class="bg-slate-800 px-1 rounded">type:desc</code>: adds a subtitle line below the page title. On <code class="bg-slate-800 px-1 rounded">type:help</code>: adds a subheading below the help panel heading</td></tr>
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Layout &amp; filtering</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">window:X</td><td class="py-1 pr-4">type:timestamp</td><td class="py-1">Time filter applied before all aggregation — see values below</td></tr>
-            <tr><td class="py-1 pr-4 font-mono text-indigo-300">maxcols:N</td><td class="py-1 pr-4">any cell</td><td class="py-1">Maximum columns shown at once (can be overridden by <code class="bg-slate-800 px-1 rounded">?cols=N</code> in the URL)</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">window:X</td><td class="py-1 pr-4">type:timestamp</td><td class="py-1">Time filter applied before all aggregation — see values below</td></tr>
+            <tr><td class="py-1 pr-4 font-mono theme-code">maxcols:N</td><td class="py-1 pr-4">any cell</td><td class="py-1">Maximum columns shown at once (can be overridden by <code class="bg-slate-800 px-1 rounded">?cols=N</code> in the URL)</td></tr>
           </tbody>
         </table>
       </div>
@@ -1033,15 +1238,15 @@
             <th class="pb-1 text-slate-300">Meaning</th>
           </tr></thead>
           <tbody class="[&>tr]:border-b [&>tr]:border-slate-800">
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">today</td><td class="py-1">From midnight today to now</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">month</td><td class="py-1">From the 1st of the current calendar month</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">year</td><td class="py-1">From 1 Jan of the current year</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">7d · 14d · 30d</td><td class="py-1">Rolling N days back from now (replace N with any number)</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">2w · 4w</td><td class="py-1">Rolling N weeks (replace N with any number)</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">3m · 6m</td><td class="py-1">Rolling N calendar months</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">1y · 2y</td><td class="py-1">Rolling N years</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">2026-01-01</td><td class="py-1">From that specific date to today (inclusive)</td></tr>
-            <tr><td class="py-1 pr-6 font-mono text-indigo-300">all</td><td class="py-1">No filter — use all rows in the sheet</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">today</td><td class="py-1">From midnight today to now</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">month</td><td class="py-1">From the 1st of the current calendar month</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">year</td><td class="py-1">From 1 Jan of the current year</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">7d · 14d · 30d</td><td class="py-1">Rolling N days back from now (replace N with any number)</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">2w · 4w</td><td class="py-1">Rolling N weeks (replace N with any number)</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">3m · 6m</td><td class="py-1">Rolling N calendar months</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">1y · 2y</td><td class="py-1">Rolling N years</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">2026-01-01</td><td class="py-1">From that specific date to today (inclusive)</td></tr>
+            <tr><td class="py-1 pr-6 font-mono theme-code">all</td><td class="py-1">No filter — use all rows in the sheet</td></tr>
           </tbody>
         </table>
       </div>
@@ -1061,8 +1266,8 @@
                   <th class="pr-6 pb-1 font-normal">Col B — Category</th>
                 </tr></thead>
                 <tbody><tr>
-                  <td class="pr-6 pt-1 font-mono text-indigo-300">type:timestamp|window:today</td>
-                  <td class="pr-6 pt-1 font-mono text-indigo-300">type:combo|groupby|aggregate:count</td>
+                  <td class="pr-6 pt-1 font-mono theme-code">type:timestamp|window:today</td>
+                  <td class="pr-6 pt-1 font-mono theme-code">type:combo|groupby|aggregate:count</td>
                 </tr></tbody>
               </table>
             </div>
@@ -1083,7 +1288,7 @@
                   <th class="pr-4 pb-1 font-normal">Gender</th>
                   <th class="pb-1 font-normal">Score</th>
                 </tr></thead>
-                <tbody><tr class="font-mono text-indigo-300">
+                <tbody><tr class="font-mono theme-code">
                   <td class="pr-4 pt-1">type:timestamp|window:today</td>
                   <td class="pr-4 pt-1">type:text|groupby</td>
                   <td class="pr-4 pt-1">type:combo|splitby:1</td>
@@ -1107,7 +1312,7 @@
                   <th class="pr-6 pb-1 font-normal">Category</th>
                   <th class="pb-1 font-normal">Score</th>
                 </tr></thead>
-                <tbody><tr class="font-mono text-indigo-300">
+                <tbody><tr class="font-mono theme-code">
                   <td class="pr-6 pt-1">type:timestamp|window:month</td>
                   <td class="pr-6 pt-1">type:combo|aggregate:distribution</td>
                   <td class="pt-1">type:number|aggregate:sum|aggregate:avg|aggregate:max</td>
