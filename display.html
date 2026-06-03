@@ -71,6 +71,29 @@
     #help-content h1, #desc-root h1 { font-size: 1.25rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #f1f5f9; }
     #help-content h2, #desc-root h2 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; color: #f1f5f9; }
     #help-content h3, #desc-root h3 { font-size: 1rem; font-weight: 600; margin: 0.5rem 0 0.25rem; color: #f1f5f9; }
+
+    /* Page header card — clean title block */
+    #header-card {
+      background:
+        linear-gradient(135deg, rgba(30,41,59,0.55), rgba(15,23,42,0.45)) padding-box,
+        linear-gradient(135deg, rgba(99,102,241,0.28), rgba(168,85,247,0.28)) border-box;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 1rem 1.25rem 1.1rem;
+    }
+    #header-card #desc-root { margin-top: 0.3rem; }
+
+    /* Leaderboard column card — same gradient border family as stats-panel */
+    .lb-card {
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(21,31,46,0.88), rgba(11,19,32,0.9)) padding-box,
+        linear-gradient(135deg, rgba(0,255,255,0.45), rgba(255,61,251,0.45)) border-box;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      overflow: hidden;
+      padding: 1.1rem 1rem;
+    }
   </style>
 </head>
 <body>
@@ -100,16 +123,21 @@
 
   <!-- Main content: shown after successful fetch -->
   <div id="main-panel" class="hidden min-h-screen p-4">
-    <!-- Header area -->
-    <div id="header-area" class="mb-4 flex items-center gap-3 justify-between">
-      <h1 id="page-title" class="text-2xl font-bold text-white flex-1 min-w-0 truncate"></h1>
-      <button id="btn-help" onclick="openHelp()"
-              class="shrink-0 w-7 h-7 rounded-full text-sm font-bold text-slate-400 border border-slate-600 hover:border-slate-400 hover:text-white"
-              style="display:none" aria-label="Help">?</button>
-      <div id="header-controls" class="shrink-0"></div>
+    <!-- Header card: title + description + controls (UX-01) -->
+    <div id="header-card" class="mb-5">
+      <div class="flex items-start gap-3 justify-between">
+        <div class="min-w-0 flex-1">
+          <h1 id="page-title" class="text-2xl font-bold text-white leading-tight truncate"></h1>
+          <div id="desc-root" class="text-slate-400 text-sm leading-relaxed"></div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0 mt-0.5">
+          <button id="btn-help" onclick="openHelp()"
+                  class="w-7 h-7 rounded-full text-sm font-bold text-slate-400 border border-slate-600 hover:border-slate-400 hover:text-white"
+                  style="display:none" aria-label="Help">?</button>
+          <div id="header-controls"></div>
+        </div>
+      </div>
     </div>
-    <!-- Description: type:desc column label rendered as markdown (UX-01) -->
-    <div id="desc-root" class="mb-4 text-slate-300 text-sm leading-relaxed"></div>
     <!-- Unknown-flag warning banner (UX-04) — amber, matches renderStats() >5000 warning -->
     <div id="warn-flags" class="rounded-lg p-3 mb-4 text-sm border"
          style="display:none;background:rgba(120,53,15,0.4);border-color:rgba(217,119,6,0.7);color:#fde68a;">
@@ -345,9 +373,12 @@
    */
   function renderColumn(dimension) {
     var entries = dimension.groups.map(renderEntry).join('');
-    return '<div class="bg-slate-800 rounded-xl p-4">'
-      + '<h2 class="text-slate-300 text-sm font-semibold uppercase tracking-wide mb-3">'
+    return '<div class="lb-card">'
+      + '<div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-700/60">'
+      + '<div class="w-1 h-4 rounded-full shrink-0" style="background:var(--p)"></div>'
+      + '<h2 class="text-white text-sm font-semibold uppercase tracking-wide">'
       + escHtml(dimension.column) + '</h2>'
+      + '</div>'
       + '<div>' + entries + '</div>'
       + '</div>';
   }
@@ -359,9 +390,12 @@
    */
   function renderDivisionColumn(division) {
     var entries = (division.groups || []).map(renderEntry).join('');
-    return '<div class="bg-slate-800 rounded-xl p-4">'
-      + '<h2 class="text-slate-300 text-sm font-semibold uppercase tracking-wide mb-3">'
+    return '<div class="lb-card">'
+      + '<div class="flex items-center gap-2 pb-2 mb-3 border-b border-slate-700/60">'
+      + '<div class="w-1 h-4 rounded-full shrink-0" style="background:var(--p)"></div>'
+      + '<h2 class="text-white text-sm font-semibold uppercase tracking-wide">'
       + escHtml(division.title) + '</h2>'
+      + '</div>'
       + '<div>' + entries + '</div>'
       + '</div>';
   }
@@ -527,7 +561,9 @@
     var root = document.getElementById('leaderboard-root');
     if (!_cache || !_cache.columns) { root.innerHTML = ''; return; }
 
-    var results = computeStats(_cache);
+    var results = computeStats(_cache).filter(function(r) {
+      return r.column.type !== 'desc' && r.column.type !== 'help';
+    });
     var html    = '';
 
     // PERF-04: large-dataset warning
@@ -862,82 +898,6 @@
        class="border-t border-slate-700 mt-8 px-4 py-6 text-slate-300 text-xs">
     <div class="max-w-4xl mx-auto space-y-8">
 
-      <!-- EXAMPLES -->
-      <div>
-        <h3 class="text-slate-200 font-semibold text-sm mb-3">Examples</h3>
-        <div class="space-y-4">
-
-          <div class="bg-slate-800/60 rounded-lg p-4">
-            <p class="text-slate-300 font-semibold mb-1">Simple leaderboard — count visits by category, refresh every 30 s</p>
-            <p class="text-slate-500 mb-2">Sheet row 1:</p>
-            <div class="overflow-x-auto mb-2">
-              <table class="border-collapse text-xs">
-                <thead><tr class="text-slate-400 border-b border-slate-700">
-                  <th class="pr-6 pb-1 font-normal">Col A — Timestamp</th>
-                  <th class="pr-6 pb-1 font-normal">Col B — Category</th>
-                </tr></thead>
-                <tbody><tr>
-                  <td class="pr-6 pt-1 font-mono text-indigo-300">type:timestamp|window:today</td>
-                  <td class="pr-6 pt-1 font-mono text-indigo-300">type:combo|groupby|aggregate:count</td>
-                </tr></tbody>
-              </table>
-            </div>
-            <p class="text-slate-500 mb-1">URL:</p>
-            <code class="text-slate-300 break-all">display.html?sheetId=YOUR_ID&amp;tab=Log&amp;refresh=30</code>
-            <p class="text-slate-500 mt-2">Result: one column ranked by visit count. Refreshes silently every 30 s. Refresh button hidden (TV mode).</p>
-          </div>
-
-          <div class="bg-slate-800/60 rounded-lg p-4">
-            <p class="text-slate-300 font-semibold mb-1">Division leaderboard — Category × Gender, Male before Female, rank by score</p>
-            <p class="text-slate-500 mb-2">Sheet row 1 (columns in order: Timestamp, Name, Category, Gender, Score):</p>
-            <div class="overflow-x-auto mb-2">
-              <table class="border-collapse text-xs">
-                <thead><tr class="text-slate-400 border-b border-slate-700">
-                  <th class="pr-4 pb-1 font-normal">Timestamp</th>
-                  <th class="pr-4 pb-1 font-normal">Name</th>
-                  <th class="pr-4 pb-1 font-normal">Category</th>
-                  <th class="pr-4 pb-1 font-normal">Gender</th>
-                  <th class="pb-1 font-normal">Score</th>
-                </tr></thead>
-                <tbody><tr class="font-mono text-indigo-300">
-                  <td class="pr-4 pt-1">type:timestamp|window:today</td>
-                  <td class="pr-4 pt-1">type:text|groupby</td>
-                  <td class="pr-4 pt-1">type:combo|splitby:1</td>
-                  <td class="pr-4 pt-1">type:combo|splitby:2|order:Male,Female</td>
-                  <td class="pt-1">type:number|aggregate:sum</td>
-                </tr></tbody>
-              </table>
-            </div>
-            <p class="text-slate-500 mb-1">URL:</p>
-            <code class="text-slate-300 break-all">display.html?sheetId=YOUR_ID&amp;tab=Log&amp;refresh=30&amp;cols=2</code>
-            <p class="text-slate-500 mt-2">Result: columns like <em>Open Male · Open Female · Advanced Male · Advanced Female …</em> showing names ranked by total score. 2 columns visible at a time, pages auto-cycle every 10 s.</p>
-          </div>
-
-          <div class="bg-slate-800/60 rounded-lg p-4">
-            <p class="text-slate-300 font-semibold mb-1">Stats view — totals and distributions for the current month</p>
-            <p class="text-slate-500 mb-2">Sheet row 1:</p>
-            <div class="overflow-x-auto mb-2">
-              <table class="border-collapse text-xs">
-                <thead><tr class="text-slate-400 border-b border-slate-700">
-                  <th class="pr-6 pb-1 font-normal">Timestamp</th>
-                  <th class="pr-6 pb-1 font-normal">Category</th>
-                  <th class="pb-1 font-normal">Score</th>
-                </tr></thead>
-                <tbody><tr class="font-mono text-indigo-300">
-                  <td class="pr-6 pt-1">type:timestamp|window:month</td>
-                  <td class="pr-6 pt-1">type:combo|aggregate:distribution</td>
-                  <td class="pt-1">type:number|aggregate:sum|aggregate:avg|aggregate:max</td>
-                </tr></tbody>
-              </table>
-            </div>
-            <p class="text-slate-500 mb-1">URL:</p>
-            <code class="text-slate-300 break-all">display.html?sheetId=YOUR_ID&amp;tab=Log&amp;mode=stats</code>
-            <p class="text-slate-500 mt-2">Result: stat cards showing sum / avg / max score for the month, plus a distribution panel with visit counts per category.</p>
-          </div>
-
-        </div>
-      </div>
-
       <!-- TV MODE -->
       <div>
         <h3 class="text-slate-200 font-semibold text-sm mb-2">TV / kiosk mode</h3>
@@ -1044,6 +1004,82 @@
             <tr><td class="py-1 pr-6 font-mono text-indigo-300">all</td><td class="py-1">No filter — use all rows in the sheet</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- EXAMPLES -->
+      <div>
+        <h3 class="text-slate-200 font-semibold text-sm mb-3">Examples</h3>
+        <div class="space-y-4">
+
+          <div class="bg-slate-800/60 rounded-lg p-4">
+            <p class="text-slate-300 font-semibold mb-1">Simple leaderboard — count visits by category, refresh every 30 s</p>
+            <p class="text-slate-500 mb-2">Sheet row 1:</p>
+            <div class="overflow-x-auto mb-2">
+              <table class="border-collapse text-xs">
+                <thead><tr class="text-slate-400 border-b border-slate-700">
+                  <th class="pr-6 pb-1 font-normal">Col A — Timestamp</th>
+                  <th class="pr-6 pb-1 font-normal">Col B — Category</th>
+                </tr></thead>
+                <tbody><tr>
+                  <td class="pr-6 pt-1 font-mono text-indigo-300">type:timestamp|window:today</td>
+                  <td class="pr-6 pt-1 font-mono text-indigo-300">type:combo|groupby|aggregate:count</td>
+                </tr></tbody>
+              </table>
+            </div>
+            <p class="text-slate-500 mb-1">URL:</p>
+            <code class="text-slate-300 break-all">display.html?sheetId=YOUR_ID&amp;tab=Log&amp;refresh=30</code>
+            <p class="text-slate-500 mt-2">Result: one column ranked by visit count. Refreshes silently every 30 s. Refresh button hidden (TV mode).</p>
+          </div>
+
+          <div class="bg-slate-800/60 rounded-lg p-4">
+            <p class="text-slate-300 font-semibold mb-1">Division leaderboard — Category × Gender, Male before Female, rank by score</p>
+            <p class="text-slate-500 mb-2">Sheet row 1 (columns in order: Timestamp, Name, Category, Gender, Score):</p>
+            <div class="overflow-x-auto mb-2">
+              <table class="border-collapse text-xs">
+                <thead><tr class="text-slate-400 border-b border-slate-700">
+                  <th class="pr-4 pb-1 font-normal">Timestamp</th>
+                  <th class="pr-4 pb-1 font-normal">Name</th>
+                  <th class="pr-4 pb-1 font-normal">Category</th>
+                  <th class="pr-4 pb-1 font-normal">Gender</th>
+                  <th class="pb-1 font-normal">Score</th>
+                </tr></thead>
+                <tbody><tr class="font-mono text-indigo-300">
+                  <td class="pr-4 pt-1">type:timestamp|window:today</td>
+                  <td class="pr-4 pt-1">type:text|groupby</td>
+                  <td class="pr-4 pt-1">type:combo|splitby:1</td>
+                  <td class="pr-4 pt-1">type:combo|splitby:2|order:Male,Female</td>
+                  <td class="pt-1">type:number|aggregate:sum</td>
+                </tr></tbody>
+              </table>
+            </div>
+            <p class="text-slate-500 mb-1">URL:</p>
+            <code class="text-slate-300 break-all">display.html?sheetId=YOUR_ID&amp;tab=Log&amp;refresh=30&amp;cols=2</code>
+            <p class="text-slate-500 mt-2">Result: columns like <em>Open Male · Open Female · Advanced Male · Advanced Female …</em> showing names ranked by total score. 2 columns visible at a time, pages auto-cycle every 10 s.</p>
+          </div>
+
+          <div class="bg-slate-800/60 rounded-lg p-4">
+            <p class="text-slate-300 font-semibold mb-1">Stats view — totals and distributions for the current month</p>
+            <p class="text-slate-500 mb-2">Sheet row 1:</p>
+            <div class="overflow-x-auto mb-2">
+              <table class="border-collapse text-xs">
+                <thead><tr class="text-slate-400 border-b border-slate-700">
+                  <th class="pr-6 pb-1 font-normal">Timestamp</th>
+                  <th class="pr-6 pb-1 font-normal">Category</th>
+                  <th class="pb-1 font-normal">Score</th>
+                </tr></thead>
+                <tbody><tr class="font-mono text-indigo-300">
+                  <td class="pr-6 pt-1">type:timestamp|window:month</td>
+                  <td class="pr-6 pt-1">type:combo|aggregate:distribution</td>
+                  <td class="pt-1">type:number|aggregate:sum|aggregate:avg|aggregate:max</td>
+                </tr></tbody>
+              </table>
+            </div>
+            <p class="text-slate-500 mb-1">URL:</p>
+            <code class="text-slate-300 break-all">display.html?sheetId=YOUR_ID&amp;tab=Log&amp;mode=stats</code>
+            <p class="text-slate-500 mt-2">Result: stat cards showing sum / avg / max score for the month, plus a distribution panel with visit counts per category.</p>
+          </div>
+
+        </div>
       </div>
 
     </div>
