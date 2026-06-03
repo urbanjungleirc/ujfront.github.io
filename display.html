@@ -102,7 +102,10 @@
        class="fixed inset-0 bg-black/50 z-30" style="display:none"></div>
   <div id="help-panel" aria-label="Help panel">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wide">Help</h2>
+      <div>
+        <h2 id="help-title" class="text-sm font-semibold text-slate-300 uppercase tracking-wide">Help</h2>
+        <p id="help-subtitle" style="display:none" class="text-slate-500 text-xs mt-0.5"></p>
+      </div>
       <button onclick="closeHelp()" class="text-slate-400 hover:text-white text-xl leading-none" aria-label="Close help">&times;</button>
     </div>
     <div id="help-content" class="text-slate-300 text-sm leading-relaxed"></div>
@@ -128,6 +131,7 @@
       <div class="flex items-start gap-3 justify-between">
         <div class="min-w-0 flex-1">
           <h1 id="page-title" class="text-2xl font-bold text-white leading-tight truncate"></h1>
+          <p id="page-subtitle" style="display:none" class="text-slate-500 text-xs mt-0.5"></p>
           <div id="desc-root" class="text-slate-400 text-sm leading-relaxed"></div>
         </div>
         <div class="flex items-center gap-2 shrink-0 mt-0.5">
@@ -262,6 +266,27 @@
   }
 
   /**
+   * renderPageTitle() — set #page-title and #page-subtitle from cache descTitle/descSubtitle.
+   * Falls back to _params.tab when descTitle is absent (matches init() default).
+   */
+  function renderPageTitle() {
+    var titleEl    = document.getElementById('page-title');
+    var subtitleEl = document.getElementById('page-subtitle');
+    if (!titleEl) return;
+    var title = (_cache && _cache.descTitle) ? _cache.descTitle : _params.tab;
+    titleEl.textContent = title;
+    document.title = title;
+    if (subtitleEl) {
+      if (_cache && _cache.descSubtitle) {
+        subtitleEl.textContent = _cache.descSubtitle;
+        subtitleEl.style.display = '';
+      } else {
+        subtitleEl.style.display = 'none';
+      }
+    }
+  }
+
+  /**
    * renderDesc() — inject type:desc markdown content below #page-title into #desc-root.
    * Clears the element when _cache.desc is absent/null.
    */
@@ -299,6 +324,17 @@
     if (!btn) return;
     if (!helpText) { btn.style.display = 'none'; return; }
     btn.style.display = '';
+    var titleEl    = document.getElementById('help-title');
+    var subtitleEl = document.getElementById('help-subtitle');
+    if (titleEl)    titleEl.textContent = (_cache && _cache.helpTitle) ? _cache.helpTitle : 'Help';
+    if (subtitleEl) {
+      if (_cache && _cache.helpSubtitle) {
+        subtitleEl.textContent = _cache.helpSubtitle;
+        subtitleEl.style.display = '';
+      } else {
+        subtitleEl.style.display = 'none';
+      }
+    }
     document.getElementById('help-content').innerHTML = renderMd(helpText);
   }
 
@@ -743,6 +779,7 @@
    */
   function renderAll() {
     if (_params && _params.mode === 'stats') { renderStats(); } else { renderLeaderboard(); }
+    renderPageTitle();
     renderDesc();
     renderHelpButton(_cache ? _cache.help : null);
     renderUnknownFlagWarning();
@@ -976,6 +1013,9 @@
             <tr><td class="py-1 pr-4 font-mono text-indigo-300">splitby:1</td><td class="py-1 pr-4">any type</td><td class="py-1">Outer division axis (e.g. Category). Combined with splitby:2 to form columns like "Open Male".</td></tr>
             <tr><td class="py-1 pr-4 font-mono text-indigo-300">splitby:2</td><td class="py-1 pr-4">any type</td><td class="py-1">Inner division axis (e.g. Gender). Order: splitby:1 value cycles once per splitby:2 value.</td></tr>
             <tr><td class="py-1 pr-4 font-mono text-indigo-300">order:val1,val2,…</td><td class="py-1 pr-4">splitby col</td><td class="py-1">Fix the order of values for that axis. Unlisted values are appended alphabetically at the end.</td></tr>
+            <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Page header overrides</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">title:Text</td><td class="py-1 pr-4">type:desc / type:help</td><td class="py-1">On <code class="bg-slate-800 px-1 rounded">type:desc</code>: overrides the page title (default: tab name). On <code class="bg-slate-800 px-1 rounded">type:help</code>: overrides the help panel heading (default: "Help")</td></tr>
+            <tr><td class="py-1 pr-4 font-mono text-indigo-300">subtitle:Text</td><td class="py-1 pr-4">type:desc / type:help</td><td class="py-1">On <code class="bg-slate-800 px-1 rounded">type:desc</code>: adds a subtitle line below the page title. On <code class="bg-slate-800 px-1 rounded">type:help</code>: adds a subheading below the help panel heading</td></tr>
             <tr><td colspan="3" class="pt-2 pb-1 text-slate-500 font-semibold">Layout &amp; filtering</td></tr>
             <tr><td class="py-1 pr-4 font-mono text-indigo-300">window:X</td><td class="py-1 pr-4">type:timestamp</td><td class="py-1">Time filter applied before all aggregation — see values below</td></tr>
             <tr><td class="py-1 pr-4 font-mono text-indigo-300">maxcols:N</td><td class="py-1 pr-4">any cell</td><td class="py-1">Maximum columns shown at once (can be overridden by <code class="bg-slate-800 px-1 rounded">?cols=N</code> in the URL)</td></tr>
