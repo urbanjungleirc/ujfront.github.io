@@ -113,10 +113,10 @@
             <ul>
                 <li><i class="bi bi-check-circle"></i> You should proceed with the payment only if you have already made a tentative booking and have been specifically instructed to pay the deposit.</li>
                 <li><i class="bi bi-check-circle"></i> Making the payment does not guarantee the confirmation of the event, especially if the payment is processed after the due date or if the booking has not been made yet.</li>
-                <li><i class="bi bi-check-circle"></i> The $100 deposit will be deducted from the final balance on the day of the event. Please be aware that the handling fee, which is approximately $2.90, is not part off the deposit amount.</li>
+                <li><i class="bi bi-check-circle"></i> The $100 deposit will be deducted from the final balance on the day of the event. Please be aware that the online processing fee of approximately $2.30 is not part of the deposit amount.</li>
                 <li><i class="bi bi-check-circle"></i> It's important to note that $50 of the deposit is non-refundable, regardless of any circumstances.</li>
-                <li><i class="bi bi-check-circle"></i> The booking confirmation, along with any further details, will be sent to the email address registered with your PayPal account.</li>
-                <li><i class="bi bi-check-circle"></i> The transaction is subject to the standard PayPal policies and terms of service.</li>
+                <li><i class="bi bi-check-circle"></i> The booking confirmation, along with any further details, will be sent to the email address you provide at checkout.</li>
+                <li><i class="bi bi-check-circle"></i> The transaction is processed securely via Stripe. Your card details are never stored by Urban Jungle.</li>
             </ul>
             <p>
               If you have any further questions or require additional clarification, please do not hesitate to reach out. We are here to assist you.
@@ -297,8 +297,8 @@
 
 <!-- form a pp scripts -->
 <script>
-  const PAYMENT_PROVIDER = 'paypal'; // Change to 'stripe' after the Worker is deployed and tested.
-  const PAYMENTS_WORKER_URL = 'https://uj-payments.YOUR_WORKERS_SUBDOMAIN.workers.dev';
+  const PAYMENT_PROVIDER = 'stripe';
+  const PAYMENTS_WORKER_URL = 'https://uj-payments.urbanjungle.workers.dev';
 
   function initPayPalButton() {
       var shipping = 0;
@@ -575,6 +575,38 @@
   } else {
       initPayPalButton();
   }
+
+  (function handleReturnFromCheckout() {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('payment');
+      if (!status) return;
+
+      const paymentSection = document.getElementById('payment');
+      const container = document.getElementById('paypal-button-container');
+      const warning = document.getElementById('warningMassage');
+      const form = document.getElementById('orderForm');
+
+      if (status === 'success') {
+          warning.hidden = true;
+          if (form) form.hidden = true;
+          if (container) {
+              container.innerHTML = `<div class="alert alert-success" role="alert">
+                  <h4 class="alert-heading">Payment received!</h4>
+                  <p>Thank you for your deposit. Once the booking is confirmed, we will send you a confirmation with further details.</p>
+                  <hr>
+                  <p class="mb-0">If you have any questions please <a href="#contact" class="alert-link scrollto">contact us</a>.</p>
+              </div>`;
+          }
+          if (paymentSection) paymentSection.scrollIntoView({ behavior: 'smooth' });
+      } else if (status === 'cancelled') {
+          warning.hidden = false;
+          warning.classList.remove('alert-light');
+          warning.classList.add('alert-warning');
+          warning.innerText = 'Payment was cancelled. You can try again below.';
+      }
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+  })();
 
 </script>
 

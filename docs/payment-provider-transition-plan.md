@@ -81,15 +81,15 @@ The `stripe listen` command prints a webhook signing secret beginning with `whse
 
 ## Phase 5: GAS Fulfillment Test
 
-- [ ] Add `DEPOSIT_WORKER_SHARED_SECRET` to GAS script properties.
-- [ ] Set local Worker `GAS_DEPOSIT_WEBAPP_URL`.
-- [ ] Set local Worker `GAS_DEPOSIT_SHARED_SECRET`.
-- [ ] Pay a Stripe test Checkout Session.
-- [ ] Confirm webhook triggers Worker fulfillment.
-- [ ] Confirm GAS appends a row to `deposits`.
-- [ ] Confirm staff email sends.
-- [ ] Confirm purchaser email sends.
-- [ ] Confirm fake `payment_platform=stripe` browser POST without the shared secret is rejected.
+- [x] Add `DEPOSIT_WORKER_SHARED_SECRET` to GAS script properties.
+- [x] Set local Worker `GAS_DEPOSIT_WEBAPP_URL`.
+- [x] Set local Worker `GAS_DEPOSIT_SHARED_SECRET`.
+- [x] Pay a Stripe test Checkout Session.
+- [x] Confirm webhook triggers Worker fulfillment.
+- [x] Confirm GAS appends a row to `deposits`.
+- [x] Confirm staff email sends.
+- [x] Confirm purchaser email sends.
+- [x] Confirm fake `payment_platform=stripe` browser POST without the shared secret is rejected.
 
 ## Phase 6: Frontend Stripe Trial
 
