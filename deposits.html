@@ -145,13 +145,7 @@
         </div>
 
         <div class="row">
-          <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-up">
-            <div class="alert alert-danger text-center" role="alert" id="warningMassage">
-                Ensure to fill out all details before purchase.
-            </div>
-            <div id="paypal-button-container"></div>
-          </div>
-          <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content" data-aos="fade-up">
+          <div class="col-lg-6 content" data-aos="fade-up">
             <form name="orderForm" id="orderForm" class="row mt-3 mx-0 g-3 needs-validation" novalidate>
               <input class="form-control" name="id" type="text" hidden>
               <input class="form-control" name="paid" type="text" hidden>
@@ -189,7 +183,13 @@
                   </div>
               </div>
               <select style="visibility: hidden" id="quantitySelect"></select>
-          </form>                                
+          </form>
+          </div>
+          <div class="col-lg-6 pt-4 pt-lg-0" data-aos="fade-up">
+            <div class="alert alert-secondary text-center" role="alert" id="warningMassage">
+                Fill in your booking details to continue.
+            </div>
+            <div id="paypal-button-container"></div>
           </div>
         </div>            
       </div>
@@ -489,12 +489,19 @@
       const warning = document.getElementById('warningMassage');
       const form = document.forms['orderForm'];
 
-      container.innerHTML = '<button type="button" id="stripe-checkout-button" class="btn btn-primary btn-lg w-100" disabled>Pay deposit securely</button>';
+      container.innerHTML = '<button type="button" id="stripe-checkout-button" class="btn btn-primary btn-lg w-100" disabled>Pay $100 deposit securely</button>';
 
       const button = document.getElementById('stripe-checkout-button');
       const nameInput = document.getElementById('name');
       const dateInput = document.getElementById('event_date');
       const timeInput = document.getElementById('event_time');
+
+      let hasTouched = false;
+
+      function setWarning(type, text) {
+          warning.className = 'alert text-center alert-' + type;
+          warning.innerText = text;
+      }
 
       function validateStripeForm() {
           const enteredDate = new Date(dateInput.value);
@@ -511,19 +518,22 @@
           button.disabled = !isValid;
 
           if (isValid) {
-              warning.classList.remove('alert-danger');
-              warning.classList.add('alert-light');
-              warning.innerText = 'Please proceed with the payment below.';
+              setWarning('success', 'Ready — click the button below to pay.');
+          } else if (hasTouched) {
+              setWarning('danger', 'Please fill in all details correctly before continuing.');
           } else {
-              warning.classList.remove('alert-light');
-              warning.classList.add('alert-danger');
-              warning.innerText = 'Please ensure to fill in all details correctly.';
+              setWarning('secondary', 'Fill in your booking details to continue.');
           }
       }
 
-      nameInput.addEventListener('input', validateStripeForm);
-      dateInput.addEventListener('input', validateStripeForm);
-      timeInput.addEventListener('input', validateStripeForm);
+      function touchAndValidate() {
+          hasTouched = true;
+          validateStripeForm();
+      }
+
+      nameInput.addEventListener('input', touchAndValidate);
+      dateInput.addEventListener('input', touchAndValidate);
+      timeInput.addEventListener('input', touchAndValidate);
 
       button.addEventListener('click', async function () {
           validateStripeForm();
@@ -591,7 +601,7 @@
           if (form) form.hidden = true;
           if (container) {
               container.innerHTML = `<div class="alert alert-success" role="alert">
-                  <h4 class="alert-heading">Payment received!</h4>
+                  <h4 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>Payment received!</h4>
                   <p>Thank you for your deposit. Once the booking is confirmed, we will send you a confirmation with further details.</p>
                   <hr>
                   <p class="mb-0">If you have any questions please <a href="#contact" class="alert-link scrollto">contact us</a>.</p>
@@ -600,8 +610,7 @@
           if (paymentSection) paymentSection.scrollIntoView({ behavior: 'smooth' });
       } else if (status === 'cancelled') {
           warning.hidden = false;
-          warning.classList.remove('alert-light');
-          warning.classList.add('alert-warning');
+          warning.className = 'alert text-center alert-warning';
           warning.innerText = 'Payment was cancelled. You can try again below.';
       }
 
