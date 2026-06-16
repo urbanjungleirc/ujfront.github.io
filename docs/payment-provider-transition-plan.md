@@ -1,6 +1,6 @@
 # Payment Provider Transition Plan
 
-Last updated: 2026-05-28
+Last updated: 2026-06-16
 
 ## Objective
 
@@ -8,16 +8,13 @@ Move online deposit payments from browser-side PayPal capture to Stripe Checkout
 
 Secondary objective: keep the Worker reusable for future payment products, especially the planned voucher rebuild with Supabase.
 
-## Current State
+## Current State (as of 2026-06-16)
 
-- `deposits.html` is live with PayPal.
-- Stripe checkout code exists in `deposits.html`, but is disabled behind:
-  ```js
-  const PAYMENT_PROVIDER = 'paypal';
-  ```
-- Cloudflare Worker scaffold exists under `cloudflare/payments-worker`.
-- GAS still writes the deposit sheet and sends emails.
-- GAS has a Stripe shared-secret guard for future Worker fulfillment.
+- `deposits.html` is **live on Stripe**. PayPal code is retained for rollback only.
+- Worker deployed at `https://uj-payments.urbanjungle.workers.dev`.
+- GAS handles deposit sheet writes and sends staff + customer emails.
+- Stripe live webhook registered at the deployed Worker URL.
+- Phase 9 cleanup (removing PayPal code) deferred until Stripe is stable.
 
 ## Phase 1: Foundation
 
@@ -93,41 +90,38 @@ The `stripe listen` command prints a webhook signing secret beginning with `whse
 
 ## Phase 6: Frontend Stripe Trial
 
-- [ ] Replace placeholder `PAYMENTS_WORKER_URL` in `deposits.html` with local or deployed Worker URL for testing.
-- [ ] Temporarily set `PAYMENT_PROVIDER = 'stripe'` in a local-only test copy or branch.
-- [ ] Open `deposits.html` locally.
-- [ ] Confirm validation enables/disables the Stripe button correctly.
-- [ ] Confirm button redirects to Stripe Checkout.
-- [ ] Confirm return to `deposits.html?payment=success`.
-- [ ] Add user-facing success/cancel message handling if needed.
+- [x] Replace placeholder `PAYMENTS_WORKER_URL` in `deposits.html` with local Worker URL for testing.
+- [x] Set `PAYMENT_PROVIDER = 'stripe'` for local testing.
+- [x] Open `deposits.html` locally.
+- [x] Confirm validation enables/disables the Stripe button correctly.
+- [x] Confirm button redirects to Stripe Checkout.
+- [x] Confirm return to `deposits.html?payment=success`.
+- [x] Add user-facing success/cancel message handling.
 
 ## Phase 7: Worker Deployment
 
-- [ ] Decide Worker production URL.
-- [ ] Set Cloudflare Worker production secrets:
+- [x] Decide Worker production URL: `https://uj-payments.urbanjungle.workers.dev`.
+- [x] Set Cloudflare Worker production secrets:
   ```bash
   wrangler secret put STRIPE_SECRET_KEY
   wrangler secret put STRIPE_WEBHOOK_SECRET
   wrangler secret put GAS_DEPOSIT_WEBAPP_URL
   wrangler secret put GAS_DEPOSIT_SHARED_SECRET
   ```
-- [ ] Deploy Worker.
-- [ ] Confirm deployed `/health`.
-- [ ] Configure Stripe webhook endpoint to deployed Worker URL.
-- [ ] Confirm live webhook endpoint receives test events.
+- [x] Deploy Worker.
+- [x] Confirm deployed `/health`.
+- [x] Configure Stripe webhook endpoint to deployed Worker URL.
+- [x] Confirm live webhook endpoint receives test events.
 
 ## Phase 8: Production Cutover
 
-- [ ] Keep PayPal code available as rollback.
-- [ ] Update `PAYMENTS_WORKER_URL` to deployed Worker URL.
-- [ ] Change:
-  ```js
-  const PAYMENT_PROVIDER = 'stripe';
-  ```
-- [ ] Update page text that mentions PayPal to payment-provider-neutral or Stripe-specific wording.
-- [ ] Test one low-risk real payment or Stripe live-mode controlled payment.
-- [ ] Confirm sheet row, staff email, purchaser email, and Stripe dashboard payment.
-- [ ] Monitor first few real transactions.
+- [x] Keep PayPal code available as rollback.
+- [x] Update `PAYMENTS_WORKER_URL` to deployed Worker URL.
+- [x] Change `PAYMENT_PROVIDER` to `'stripe'`.
+- [x] Update page text — removed PayPal references, updated fee amount and email wording.
+- [x] Test end-to-end with Stripe test keys on deployed Worker.
+- [x] Switch to live Stripe keys.
+- [ ] Monitor first few real transactions (ongoing).
 
 ## Phase 9: Cleanup After Stable Operation
 
