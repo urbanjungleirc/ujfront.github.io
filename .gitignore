@@ -17,6 +17,9 @@
 /AGENTS.md
 /Agents.md
 
+# Internal documentation (keep in private storage, not public repo)
+/docs/
+
 # Private Google Apps Script projects and local clasp settings
 /gas/
 **/.clasp.json
