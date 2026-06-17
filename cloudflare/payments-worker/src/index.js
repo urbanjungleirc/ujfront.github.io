@@ -743,7 +743,7 @@ async function sendVoucherEmail(env, opts) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Urban Jungle IRC <noreply@urbanjungleirc.com>',
+      from: 'Urban Jungle IRC <no-reply@urbanjungleirc.com>',
       reply_to: 'frontdesk@urbanjungleirc.com',
       to: [to],
       subject,
