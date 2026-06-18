@@ -416,7 +416,7 @@ async function getVoucherTypes(request, env) {
   const promoId = url.searchParams.get('promo_id') || '';
   const staffMode = isStaffAuthed(request, env);
 
-  let query = 'voucher_types?is_active=eq.true&order=sort_order.asc&select=type_id,display_name,description,is_physical,expiry_months,availability,max_per_customer,limit_period,promo_id,sort_order';
+  let query = 'voucher_types?is_active=eq.true&order=sort_order.asc&select=type_id,display_name,description,is_physical,expiry_months,availability,max_per_customer,limit_period,promo_id,terms_conditions,sort_order';
 
   if (!staffMode) {
     // Public: only online-available types
