@@ -72,6 +72,11 @@ async function handleStaffRequest(request, env, url) {
     return getReport(url.searchParams, request, env);
   }
 
+  // GET /v1/vouchers/stats  (dashboard summary)
+  if (method === 'GET' && path === '/v1/vouchers/stats') {
+    return getVoucherStats(request, env);
+  }
+
   // GET /v1/vouchers/:code
   if (method === 'GET' && path.startsWith('/v1/vouchers/')) {
     const code = path.split('/')[3];
@@ -463,7 +468,7 @@ async function searchVouchers(params, request, env) {
 
   const q = cleanString(params.get('q') || '', 200);
   const status = cleanString(params.get('status') || '', 20);
-  const limit = Math.min(Number(params.get('limit') || 50), 200);
+  const limit = Math.min(Number(params.get('limit') || 100), 500);
 
   let query = `vouchers?order=created_timestamp.desc&limit=${limit}&select=voucher_id,voucher_type_id,customer_name,customer_email,value,balance,status,issued_date,expiry_date,is_physical,email_sent`;
 
@@ -509,6 +514,34 @@ async function getReport(params, request, env) {
   const redeemed = await sbGet(env, `vouchers?last_redeemed_date=gte.${startStr}&order=last_redeemed_date.desc&select=voucher_id,voucher_type_id,customer_name,customer_email,value,balance,status,last_redeemed_date,last_redeemed_by,last_redeemed_amount,clubworx_receipt`);
 
   return json({ type, start: startStr, issued, redeemed }, 200, request, env);
+}
+
+async function getVoucherStats(request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const todayStart = todayStr + 'T00:00:00.000Z';
+  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  const [activeVouchers, todayIssued, todayRedeemed] = await Promise.all([
+    sbGet(env, `vouchers?status=eq.active&select=balance,expiry_date`),
+    sbGet(env, `vouchers?issued_date=gte.${todayStart}&select=voucher_id`),
+    sbGet(env, `vouchers?last_redeemed_date=gte.${todayStart}&select=voucher_id`),
+  ]);
+
+  const activeTotalValue = activeVouchers.reduce((s, v) => s + Number(v.balance || 0), 0);
+  const expiringSoonCount = activeVouchers.filter(v =>
+    v.expiry_date && v.expiry_date >= todayStr && v.expiry_date <= in30Days
+  ).length;
+
+  return json({
+    active_count: activeVouchers.length,
+    expiring_soon_count: expiringSoonCount,
+    active_total_value: activeTotalValue,
+    today_issued: todayIssued.length,
+    today_redeemed: todayRedeemed.length,
+  }, 200, request, env);
 }
 
 async function createPhysicalVoucher(request, env) {
@@ -673,19 +706,23 @@ async function resendVoucherEmail(code, request, env) {
 
   const data = await request.json();
   const staffId = cleanString(data.resent_by || 'staff', 100);
+  const rawOverride = data.override_email ? cleanString(data.override_email, 254) : null;
 
   const vouchers = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
   if (!vouchers.length) return json({ error: 'Voucher not found' }, 404, request, env);
   const voucher = vouchers[0];
 
   if (voucher.is_physical) return json({ error: 'Physical vouchers do not have emails' }, 400, request, env);
-  if (!voucher.customer_email) return json({ error: 'Voucher has no email address' }, 400, request, env);
+  if (!voucher.customer_email && !rawOverride) return json({ error: 'Voucher has no email address' }, 400, request, env);
+
+  const sendTo = rawOverride || voucher.customer_email;
+  const overridden = !!(rawOverride && rawOverride !== voucher.customer_email);
 
   const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(voucher.voucher_type_id)}&select=*`);
   const vt = types[0] || {};
 
   await sendVoucherEmail(env, {
-    to: voucher.customer_email,
+    to: sendTo,
     customerName: voucher.customer_name || '',
     voucherCode: code,
     value: voucher.value,
@@ -705,7 +742,7 @@ async function resendVoucherEmail(code, request, env) {
     voucher_id: code,
     voucher_type_id: voucher.voucher_type_id,
     user_id: staffId,
-    data: { to: voucher.customer_email },
+    data: { to: sendTo, original_email: voucher.customer_email, overridden },
   });
 
   return json({ ok: true }, 200, request, env);
@@ -1046,6 +1083,11 @@ function corsHeaders(request, env) {
 
 function isAllowedOrigin(origin, env) {
   if (!origin) return false;
+  // Allow any localhost / 127.0.0.1 origin in development (any port)
+  try {
+    const u = new URL(origin);
+    if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return true;
+  } catch { /* invalid URL — fall through to list check */ }
   return (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean).includes(origin);
 }
 
