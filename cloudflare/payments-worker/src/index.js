@@ -552,6 +552,10 @@ async function createPhysicalVoucher(request, env) {
   const itemId = cleanString(data.voucher_item_id || '', 100);
   const customerName = cleanString(data.customer_name || '', 200);
   const staffId = cleanString(data.issued_by || 'staff', 100);
+  const customerEmail = data.customer_email ? cleanString(data.customer_email, 254) : null;
+  const giftFrom = data.gift_from ? cleanString(data.gift_from, 200) : null;
+  const giftTo = data.gift_to ? cleanString(data.gift_to, 200) : null;
+  const giftMessage = data.gift_message ? cleanString(data.gift_message, 500) : null;
 
   if (!typeId || !customerName) {
     return json({ error: 'voucher_type_id and customer_name are required' }, 400, request, env);
@@ -561,6 +565,11 @@ async function createPhysicalVoucher(request, env) {
   const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(typeId)}&select=*`);
   if (!types.length) return json({ error: 'Voucher type not found' }, 404, request, env);
   const vt = types[0];
+  const isPhysical = vt.is_physical;
+
+  if (!isPhysical && !customerEmail) {
+    return json({ error: 'customer_email is required for non-physical vouchers' }, 400, request, env);
+  }
 
   // Determine value
   let value;
@@ -588,13 +597,13 @@ async function createPhysicalVoucher(request, env) {
     expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
     issued_by: staffId,
     customer_name: customerName,
-    customer_email: data.customer_email ? cleanString(data.customer_email, 254) : null,
+    customer_email: customerEmail,
     customer_phone: data.customer_phone ? cleanString(data.customer_phone, 30) : null,
     reason: data.reason ? cleanString(data.reason, 500) : null,
-    is_physical: true,
-    gift_from: data.gift_from ? cleanString(data.gift_from, 200) : null,
-    gift_to: data.gift_to ? cleanString(data.gift_to, 200) : null,
-    gift_message: data.gift_message ? cleanString(data.gift_message, 500) : null,
+    is_physical: isPhysical,
+    gift_from: giftFrom,
+    gift_to: giftTo,
+    gift_message: giftMessage,
     payment_platform: 'cash',
     email_sent: false,
     purchase_source: 'staff',
@@ -607,8 +616,34 @@ async function createPhysicalVoucher(request, env) {
     voucher_id: voucherCode,
     voucher_type_id: typeId,
     user_id: staffId,
-    data: { is_physical: true, value, customer_name: customerName },
+    data: { is_physical: isPhysical, value, customer_name: customerName },
   });
+
+  if (!isPhysical && customerEmail) {
+    await sendVoucherEmail(env, {
+      to: customerEmail,
+      customerName,
+      voucherCode,
+      value,
+      expiryDate,
+      typeName: vt.display_name || 'Voucher',
+      emailSubject: vt.email_subject,
+      termsConditions: vt.terms_conditions,
+      giftFrom,
+      giftTo,
+      giftMessage,
+    });
+    const emailNow = new Date().toISOString();
+    await sbPatch(env, `vouchers?voucher_id=eq.${encodeURIComponent(voucherCode)}`, { email_sent: true });
+    await sbPost(env, 'audit_log', {
+      timestamp: emailNow,
+      action: 'email_sent',
+      voucher_id: voucherCode,
+      voucher_type_id: typeId,
+      user_id: staffId,
+      data: { to: customerEmail },
+    });
+  }
 
   const voucher = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(voucherCode)}&select=*`);
   return json(voucher[0], 201, request, env);
