@@ -1,4 +1,5 @@
 import { encode as qrEncode } from 'uqr';
+import { renderVoucherEmail } from './email.js';
 
 const STRIPE_API_BASE = 'https://api.stripe.com/v1';
 const STRIPE_API_VERSION = '2025-08-27.basil';
@@ -400,6 +401,7 @@ async function fulfillVoucher(session, env) {
       expiryDate: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
       typeName: vt.display_name,
       emailSubject: vt.email_subject,
+      emailBody: vt.email_body,
       termsConditions: vt.terms_conditions,
       giftFrom: metadata.gift_from || null,
       giftTo: metadata.gift_to || null,
@@ -628,6 +630,7 @@ async function createPhysicalVoucher(request, env) {
       expiryDate,
       typeName: vt.display_name || 'Voucher',
       emailSubject: vt.email_subject,
+      emailBody: vt.email_body,
       termsConditions: vt.terms_conditions,
       giftFrom,
       giftTo,
@@ -764,6 +767,7 @@ async function resendVoucherEmail(code, request, env) {
     expiryDate: voucher.expiry_date,
     typeName: vt.display_name || 'Voucher',
     emailSubject: vt.email_subject,
+    emailBody: vt.email_body,
     termsConditions: vt.terms_conditions,
     giftFrom: voucher.gift_from,
     giftTo: voucher.gift_to,
@@ -803,10 +807,10 @@ async function upsertVoucherItem(request, env) {
 // ════════════════════════════════════════════════════════════════════════════
 
 async function sendVoucherEmail(env, opts) {
-  const { to, customerName, voucherCode, value, expiryDate, typeName, emailSubject, termsConditions, giftFrom, giftTo, giftMessage } = opts;
+  const { to, customerName, voucherCode, value, expiryDate, typeName, emailSubject, emailBody, termsConditions, giftFrom, giftTo, giftMessage } = opts;
 
   const subject = emailSubject || `Your Urban Jungle ${typeName}`;
-  const html = renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, termsConditions, giftFrom, giftTo, giftMessage });
+  const html = renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, emailBody, termsConditions, giftFrom, giftTo, giftMessage });
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -827,101 +831,6 @@ async function sendVoucherEmail(env, opts) {
     const text = await res.text();
     throw new Error(`Resend email failed: ${res.status} ${text}`);
   }
-}
-
-function renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, termsConditions, giftFrom, giftTo, giftMessage }) {
-  const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(voucherCode)}`;
-  const formattedValue = `$${Number(value).toFixed(2)}`;
-  const formattedExpiry = expiryDate ? new Date(expiryDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }) : 'No expiry';
-
-  const giftSection = giftFrom ? `
-    <div style="background:#fff3e0;border-left:4px solid #ae222a;padding:12px 16px;margin:16px 0;border-radius:0 4px 4px 0;">
-      <p style="margin:0 0 4px;font-size:13px;color:#bf360c;font-weight:600;">Gift message</p>
-      <p style="margin:0 0 4px;font-size:14px;color:#333;">From: ${escHtml(giftFrom)}${giftTo ? ` &nbsp;→&nbsp; To: ${escHtml(giftTo)}` : ''}</p>
-      ${giftMessage ? `<p style="margin:8px 0 0;font-size:14px;color:#333;font-style:italic;">"${escHtml(giftMessage)}"</p>` : ''}
-    </div>` : '';
-
-  const termsSection = termsConditions ? `
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;">
-      <p style="font-size:12px;color:#777;margin:0 0 8px;font-weight:600;">Terms &amp; Conditions</p>
-      <div style="font-size:12px;color:#999;line-height:1.5;">${renderTCMdEmail(termsConditions)}</div>
-    </div>` : '';
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escHtml(typeName)}</title>
-<style>
-  @media print {
-    body { margin: 0; }
-    .no-print { display: none !important; }
-    .voucher-box { box-shadow: none !important; border: 2px solid #ae222a !important; }
-  }
-</style>
-</head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
-
-<div class="no-print" style="background:#ae222a;padding:12px 24px;text-align:center;">
-  <p style="margin:0;color:#fff;font-size:13px;">Forward or print this email to use as your voucher at Urban Jungle.</p>
-</div>
-
-<div style="max-width:520px;margin:32px auto;padding:0 16px 32px;">
-
-  <div class="voucher-box" style="background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1);overflow:hidden;">
-
-    <!-- Header -->
-    <div style="background:linear-gradient(135deg,#1C121B,#ae222a,#c24657);padding:24px;text-align:center;">
-      <p style="margin:0 0 4px;color:#fff;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Urban Jungle Indoor Rock Climbing</p>
-      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700;">${escHtml(typeName)}</h1>
-    </div>
-
-    <!-- Body -->
-    <div style="padding:24px;">
-
-      <p style="margin:0 0 16px;font-size:15px;color:#333;">
-        ${customerName ? `Hi ${escHtml(customerName)},<br><br>` : ''}
-        Here is your Urban Jungle ${escHtml(typeName)}. Present this email at the front desk or scan the QR code below.
-      </p>
-
-      ${giftSection}
-
-      <!-- Voucher code block -->
-      <div style="background:#f8f8f8;border:2px solid #ae222a;border-radius:6px;padding:20px;text-align:center;margin:16px 0;">
-        <p style="margin:0 0 8px;font-size:12px;color:#777;letter-spacing:1px;text-transform:uppercase;">Voucher Code</p>
-        <p style="margin:0 0 16px;font-size:28px;font-weight:700;color:#ae222a;letter-spacing:3px;font-family:monospace;">${escHtml(voucherCode)}</p>
-        <div style="margin:0 auto 16px;width:140px;height:140px;">
-          <img src="${qrImgUrl}" width="140" height="140" alt="QR code" style="display:block;">
-        </div>
-        <table style="width:100%;border-top:1px solid #eee;padding-top:12px;margin-top:4px;">
-          <tr>
-            <td style="text-align:center;padding:4px;">
-              <p style="margin:0 0 2px;font-size:11px;color:#999;text-transform:uppercase;">Value</p>
-              <p style="margin:0;font-size:20px;font-weight:700;color:#333;">${formattedValue}</p>
-            </td>
-            <td style="text-align:center;padding:4px;border-left:1px solid #eee;">
-              <p style="margin:0 0 2px;font-size:11px;color:#999;text-transform:uppercase;">Expires</p>
-              <p style="margin:0;font-size:14px;font-weight:600;color:#333;">${formattedExpiry}</p>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      ${termsSection}
-
-    </div>
-
-    <!-- Footer -->
-    <div style="background:#f8f8f8;padding:12px 24px;text-align:center;border-top:1px solid #eee;">
-      <p style="margin:0;font-size:12px;color:#999;">Urban Jungle Indoor Rock Climbing &bull; frontdesk@urbanjungleirc.com</p>
-    </div>
-
-  </div>
-</div>
-
-</body>
-</html>`;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -946,47 +855,6 @@ function generateQrSvg(text) {
   }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="140" height="140" style="display:block;"><rect width="${dim}" height="${dim}" fill="#fff"/><g fill="#000">${rects.join('')}</g></svg>`;
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// Markdown → inline-styled HTML for email (email-client safe)
-// ════════════════════════════════════════════════════════════════════════════
-
-function _boldEmail(s) {
-  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-}
-
-function renderMdEmail(md) {
-  if (!md) return '';
-  const lines = md.split('\n');
-  let html = '', inList = false;
-  for (const raw of lines) {
-    const line = raw.trimEnd();
-    if (line.startsWith('# ')) {
-      if (inList) { html += '</ul>'; inList = false; }
-      html += `<p style="margin:4px 0;font-size:12px;font-weight:700;color:#555;">${escHtml(line.slice(2))}</p>`;
-    } else if (line.startsWith('## ') || line.startsWith('### ')) {
-      if (inList) { html += '</ul>'; inList = false; }
-      const text = line.replace(/^#{2,3}\s+/, '');
-      html += `<p style="margin:4px 0;font-size:12px;font-weight:600;color:#666;">${escHtml(text)}</p>`;
-    } else if (line.startsWith('- ')) {
-      if (!inList) { html += '<ul style="margin:4px 0;padding-left:16px;">'; inList = true; }
-      html += `<li style="font-size:12px;color:#999;margin:2px 0;line-height:1.5;">${_boldEmail(escHtml(line.slice(2)))}</li>`;
-    } else if (line.trim() === '') {
-      if (inList) { html += '</ul>'; inList = false; }
-    } else {
-      if (inList) { html += '</ul>'; inList = false; }
-      html += `<p style="margin:4px 0;font-size:12px;color:#999;line-height:1.5;">${_boldEmail(escHtml(line))}</p>`;
-    }
-  }
-  if (inList) html += '</ul>';
-  return html;
-}
-
-function renderTCMdEmail(md) {
-  if (!md) return '<p style="font-size:12px;color:#999;margin:0;line-height:1.5;">Standard terms and conditions apply.</p>';
-  const stripped = md.replace(/^#\s+terms\s+and\s+conditions\s*[\r\n]*/i, '').trimStart();
-  return renderMdEmail(stripped) || '<p style="font-size:12px;color:#999;margin:0;line-height:1.5;">Standard terms and conditions apply.</p>';
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1070,10 +938,6 @@ function addMonths(date, months) {
   const d = new Date(date);
   d.setMonth(d.getMonth() + months);
   return d;
-}
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 async function stripeRequest(path, params, env) {
