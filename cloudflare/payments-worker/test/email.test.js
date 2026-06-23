@@ -89,4 +89,24 @@ describe('renderVoucherEmail token substitution', () => {
     const html = renderVoucherEmail({ ...base, usageInfo: 'Worth {{value}}.' });
     expect(html).toContain('Worth $100.00.');
   });
+
+  it('substitutes tokens in terms_conditions and leaves no braces', () => {
+    const html = renderVoucherEmail({ ...base, termsConditions: 'Valid for {{value}} until {{expiry_date}}.' });
+    expect(html).toContain('$100.00');
+    expect(html).not.toContain('{{');
+    expect(html).not.toContain('}}');
+  });
+
+  it('substitutes tokens in redemption_instructions', () => {
+    const html = renderVoucherEmail({ ...base, redemptionInstructions: 'Quote {{voucher_id}} at the desk' });
+    expect(html).toContain('UJ-AAAA-BBBB');
+    expect(html).not.toContain('{{');
+    expect(html).not.toContain('}}');
+  });
+
+  it('redemption_instructions escapes an HTML-special substituted value', () => {
+    const html = renderVoucherEmail({ ...base, customerName: 'A<b>&', redemptionInstructions: 'Hi {{name}}' });
+    expect(html).toContain('A&lt;b&gt;&amp;');
+    expect(html).not.toContain('A<b>&');
+  });
 });
