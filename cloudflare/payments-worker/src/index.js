@@ -213,7 +213,7 @@ async function createVoucherSession(data, origin, request, env) {
   const item = items[0];
   if (!item.is_active) return json({ error: 'Voucher item is not available' }, 400, request, env);
 
-  const amountCents = Math.round(item.value * 100);
+  const amountCents = chargeAmountCents(item);
   const currency = 'aud';
 
   const params = new URLSearchParams();
@@ -1059,6 +1059,11 @@ function assertStaffAuth(request, env) {
   if (!isStaffAuthed(request, env)) {
     throw Object.assign(new Error('Unauthorised'), { status: 401 });
   }
+}
+
+export function chargeAmountCents(item) {
+  const dollars = item.price === null || item.price === undefined ? item.value : item.price;
+  return Math.round(Number(dollars) * 100);
 }
 
 function assertEnv(env, keys) {
