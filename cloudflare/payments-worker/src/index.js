@@ -464,6 +464,12 @@ async function getVoucher(code, request, env) {
 
   const voucher = vouchers[0];
 
+  // Attach the type's staff-facing fields (e.g. redemption warning for credits)
+  const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(voucher.voucher_type_id)}&select=redemption_warning,usage_info,voucher_label`);
+  voucher._redemption_warning = types[0]?.redemption_warning ?? null;
+  voucher._usage_info = types[0]?.usage_info ?? null;
+  voucher._voucher_label = types[0]?.voucher_label ?? null;
+
   // Attach recent audit history
   const history = await sbGet(env, `audit_log?voucher_id=eq.${encodeURIComponent(code)}&order=timestamp.desc&limit=20&select=*`);
   voucher._history = history;
