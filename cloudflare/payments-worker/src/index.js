@@ -117,6 +117,12 @@ async function handleStaffRequest(request, env, url) {
     return upsertVoucherItem(request, env);
   }
 
+  // GET /v1/staff/voucher-types/:typeId/items — all items, including inactive
+  if (method === 'GET' && path.startsWith('/v1/staff/voucher-types/') && path.endsWith('/items')) {
+    const typeId = path.split('/')[4];
+    return await getVoucherItemsStaff(typeId, request, env);
+  }
+
   return json({ error: 'Not found' }, 404, request, env);
 }
 
@@ -455,6 +461,13 @@ async function getVoucherItems(typeId, request, env) {
   assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
 
   const items = await sbGet(env, `voucher_items?voucher_type=eq.${encodeURIComponent(typeId)}&is_active=eq.true&order=display_order.asc&select=*`);
+  return json(items, 200, request, env);
+}
+
+async function getVoucherItemsStaff(typeId, request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+
+  const items = await sbGet(env, `voucher_items?voucher_type=eq.${encodeURIComponent(typeId)}&order=display_order.asc&select=*`);
   return json(items, 200, request, env);
 }
 
