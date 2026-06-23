@@ -402,6 +402,12 @@ async function fulfillVoucher(session, env) {
       typeName: vt.display_name,
       emailSubject: vt.email_subject,
       emailBody: vt.email_body,
+      accentColor: vt.accent_color,
+      voucherLabel: vt.voucher_label,
+      redemptionInstructions: vt.redemption_instructions,
+      usageInfo: vt.usage_info,
+      showQr: vt.show_qr,
+      showValue: vt.show_value,
       termsConditions: vt.terms_conditions,
       giftFrom: metadata.gift_from || null,
       giftTo: metadata.gift_to || null,
@@ -631,6 +637,12 @@ async function createPhysicalVoucher(request, env) {
       typeName: vt.display_name || 'Voucher',
       emailSubject: vt.email_subject,
       emailBody: vt.email_body,
+      accentColor: vt.accent_color,
+      voucherLabel: vt.voucher_label,
+      redemptionInstructions: vt.redemption_instructions,
+      usageInfo: vt.usage_info,
+      showQr: vt.show_qr,
+      showValue: vt.show_value,
       termsConditions: vt.terms_conditions,
       giftFrom,
       giftTo,
@@ -768,6 +780,12 @@ async function resendVoucherEmail(code, request, env) {
     typeName: vt.display_name || 'Voucher',
     emailSubject: vt.email_subject,
     emailBody: vt.email_body,
+    accentColor: vt.accent_color,
+    voucherLabel: vt.voucher_label,
+    redemptionInstructions: vt.redemption_instructions,
+    usageInfo: vt.usage_info,
+    showQr: vt.show_qr,
+    showValue: vt.show_value,
     termsConditions: vt.terms_conditions,
     giftFrom: voucher.gift_from,
     giftTo: voucher.gift_to,
@@ -807,10 +825,10 @@ async function upsertVoucherItem(request, env) {
 // ════════════════════════════════════════════════════════════════════════════
 
 async function sendVoucherEmail(env, opts) {
-  const { to, customerName, voucherCode, value, expiryDate, typeName, emailSubject, emailBody, termsConditions, giftFrom, giftTo, giftMessage } = opts;
+  const { to, customerName, voucherCode, value, expiryDate, typeName, emailSubject, emailBody, termsConditions, giftFrom, giftTo, giftMessage, accentColor, voucherLabel, redemptionInstructions, usageInfo, showQr, showValue } = opts;
 
   const subject = emailSubject || `Your Urban Jungle ${typeName}`;
-  const html = renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, emailBody, termsConditions, giftFrom, giftTo, giftMessage });
+  const html = renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, emailBody, termsConditions, giftFrom, giftTo, giftMessage, accentColor, voucherLabel, redemptionInstructions, usageInfo, showQr, showValue });
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
