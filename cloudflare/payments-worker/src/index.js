@@ -122,6 +122,11 @@ async function handleStaffRequest(request, env, url) {
     return upsertVoucherItem(request, env);
   }
 
+  // GET /v1/staff/voucher-types — all types, including inactive, full fields
+  if (method === 'GET' && path === '/v1/staff/voucher-types') {
+    return await getVoucherTypesStaff(request, env);
+  }
+
   // GET /v1/staff/voucher-types/:typeId/items — all items, including inactive
   if (method === 'GET' && path.startsWith('/v1/staff/voucher-types/') && path.endsWith('/items')) {
     const typeId = path.split('/')[4];
@@ -474,6 +479,13 @@ async function getVoucherItemsStaff(typeId, request, env) {
 
   const items = await sbGet(env, `voucher_items?voucher_type=eq.${encodeURIComponent(typeId)}&order=display_order.asc&select=*`);
   return json(items, 200, request, env);
+}
+
+async function getVoucherTypesStaff(request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+
+  const types = await sbGet(env, 'voucher_types?order=sort_order.asc&select=*');
+  return json(types, 200, request, env);
 }
 
 // Built-in sample per-voucher data for the live email preview. The draft
