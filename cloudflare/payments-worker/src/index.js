@@ -393,6 +393,11 @@ async function fulfillVoucher(session, env) {
 
   // Send email
   if (customerEmail) {
+    let itemName = null;
+    if (metadata.voucher_item_id) {
+      const itemRows = await sbGet(env, `voucher_items?id=eq.${encodeURIComponent(metadata.voucher_item_id)}&select=name`);
+      itemName = itemRows[0]?.name || null;
+    }
     await sendVoucherEmail(env, {
       to: customerEmail,
       customerName,
@@ -400,6 +405,7 @@ async function fulfillVoucher(session, env) {
       value,
       expiryDate: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
       typeName: vt.display_name,
+      itemName,
       emailSubject: vt.email_subject,
       emailBody: vt.email_body,
       accentColor: vt.accent_color,
@@ -587,10 +593,12 @@ async function createPhysicalVoucher(request, env) {
 
   // Determine value
   let value;
+  let itemName = null;
   if (itemId) {
     const items = await sbGet(env, `voucher_items?id=eq.${encodeURIComponent(itemId)}&select=*`);
     if (!items.length) return json({ error: 'Voucher item not found' }, 404, request, env);
     value = items[0].value;
+    itemName = items[0].name || null;
   } else {
     value = Number(data.value || 0);
     if (!value) return json({ error: 'value or voucher_item_id is required' }, 400, request, env);
@@ -641,6 +649,7 @@ async function createPhysicalVoucher(request, env) {
       value,
       expiryDate,
       typeName: vt.display_name || 'Voucher',
+      itemName,
       emailSubject: vt.email_subject,
       emailBody: vt.email_body,
       accentColor: vt.accent_color,
@@ -777,6 +786,12 @@ async function resendVoucherEmail(code, request, env) {
   const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(voucher.voucher_type_id)}&select=*`);
   const vt = types[0] || {};
 
+  let itemName = null;
+  if (voucher.voucher_item_id) {
+    const itemRows = await sbGet(env, `voucher_items?id=eq.${encodeURIComponent(voucher.voucher_item_id)}&select=name`);
+    itemName = itemRows[0]?.name || null;
+  }
+
   await sendVoucherEmail(env, {
     to: sendTo,
     customerName: voucher.customer_name || '',
@@ -784,6 +799,7 @@ async function resendVoucherEmail(code, request, env) {
     value: voucher.value,
     expiryDate: voucher.expiry_date,
     typeName: vt.display_name || 'Voucher',
+    itemName,
     emailSubject: vt.email_subject,
     emailBody: vt.email_body,
     accentColor: vt.accent_color,
@@ -831,10 +847,10 @@ async function upsertVoucherItem(request, env) {
 // ════════════════════════════════════════════════════════════════════════════
 
 async function sendVoucherEmail(env, opts) {
-  const { to, customerName, voucherCode, value, expiryDate, typeName, emailSubject, emailBody, termsConditions, giftFrom, giftTo, giftMessage, accentColor, voucherLabel, redemptionInstructions, usageInfo, showQr, showValue } = opts;
+  const { to, customerName, voucherCode, value, expiryDate, typeName, emailSubject, emailBody, termsConditions, giftFrom, giftTo, giftMessage, accentColor, voucherLabel, redemptionInstructions, usageInfo, showQr, showValue, itemName } = opts;
 
   const subject = emailSubject || `Your Urban Jungle ${typeName}`;
-  const html = renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, emailBody, termsConditions, giftFrom, giftTo, giftMessage, accentColor, voucherLabel, redemptionInstructions, usageInfo, showQr, showValue });
+  const html = renderVoucherEmail({ customerName, voucherCode, value, expiryDate, typeName, emailBody, termsConditions, giftFrom, giftTo, giftMessage, accentColor, voucherLabel, redemptionInstructions, usageInfo, showQr, showValue, itemName });
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
