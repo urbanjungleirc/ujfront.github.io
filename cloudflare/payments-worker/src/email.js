@@ -13,7 +13,11 @@
 // scan it during redemption.
 // ════════════════════════════════════════════════════════════════════════════
 
-const BRAND_RED = '#ae222a';
+const DEFAULT_ACCENT = '#ae222a';
+
+export function safeColor(input) {
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(input || '')) ? input : DEFAULT_ACCENT;
+}
 
 export function renderVoucherEmail({
   customerName,
@@ -26,7 +30,16 @@ export function renderVoucherEmail({
   giftFrom,
   giftTo,
   giftMessage,
+  accentColor,
+  voucherLabel,
+  redemptionInstructions,
+  usageInfo,
+  showQr = true,
+  showValue = true,
 }) {
+  const accent = safeColor(accentColor);
+  const label = voucherLabel || 'Your Voucher';
+  const instructions = redemptionInstructions || 'Scan at the front desk to redeem';
   const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${encodeURIComponent(voucherCode)}`;
   const formattedValue = `$${Number(value).toFixed(2)}`;
   const formattedExpiry = expiryDate
@@ -75,7 +88,7 @@ export function renderVoucherEmail({
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
 
-<div class="no-print" style="background:${BRAND_RED};padding:12px 24px;text-align:center;">
+<div class="no-print" style="background:${accent};padding:12px 24px;text-align:center;">
   <p style="margin:0;color:#fff;font-size:13px;">Forward or print this email to use your voucher at Urban Jungle.</p>
 </div>
 
@@ -84,7 +97,7 @@ export function renderVoucherEmail({
   <div style="background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1);overflow:hidden;">
 
     <!-- Header -->
-    <div style="background:linear-gradient(135deg,#1C121B,${BRAND_RED},#c24657);padding:24px;text-align:center;">
+    <div style="background:linear-gradient(135deg,#1C121B,${accent},#c24657);padding:24px;text-align:center;">
       <p style="margin:0 0 4px;color:#fff;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Urban Jungle Indoor Rock Climbing</p>
       <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700;">${escHtml(typeName)}</h1>
     </div>
@@ -97,16 +110,18 @@ export function renderVoucherEmail({
 
     <!-- Section 2: the voucher -->
     <div style="padding:8px 24px 24px;">
-      <div class="voucher-ticket" style="background:#fffaf7;border:2px dashed ${BRAND_RED};border-radius:10px;padding:22px;text-align:center;box-shadow:0 1px 4px rgba(174,34,42,.08);">
+      <div class="voucher-ticket" style="background:#fffaf7;border:2px dashed ${accent};border-radius:10px;padding:22px;text-align:center;box-shadow:0 1px 4px rgba(174,34,42,.08);">
 
-        <p style="margin:0 0 14px;font-size:12px;color:${BRAND_RED};letter-spacing:2px;text-transform:uppercase;font-weight:700;">Your Voucher</p>
+        <p style="margin:0 0 14px;font-size:12px;color:${accent};letter-spacing:2px;text-transform:uppercase;font-weight:700;">${escHtml(label)}</p>
 
         ${giftRows}
 
-        <p style="margin:0 0 4px;font-size:11px;color:#999;letter-spacing:1px;text-transform:uppercase;">Voucher Code</p>
-        <p style="margin:0 0 16px;font-size:26px;font-weight:700;color:${BRAND_RED};letter-spacing:3px;font-family:'Courier New',monospace;">${escHtml(voucherCode)}</p>
+        ${usageInfo ? `<div style="margin:0 0 16px;padding:12px 14px;background:#fff;border:1px solid #f0e0db;border-radius:6px;text-align:left;">${renderBodyMdEmail(usageInfo)}</div>` : ''}
 
-        <table role="presentation" width="100%" style="border-collapse:collapse;border-top:1px solid #f0e0db;border-bottom:1px solid #f0e0db;margin:0 0 16px;">
+        <p style="margin:0 0 4px;font-size:11px;color:#999;letter-spacing:1px;text-transform:uppercase;">Voucher Code</p>
+        <p style="margin:0 0 16px;font-size:26px;font-weight:700;color:${accent};letter-spacing:3px;font-family:'Courier New',monospace;">${escHtml(voucherCode)}</p>
+
+        ${showValue ? `<table role="presentation" width="100%" style="border-collapse:collapse;border-top:1px solid #f0e0db;border-bottom:1px solid #f0e0db;margin:0 0 16px;">
           <tr>
             <td style="text-align:center;padding:12px 4px;width:50%;">
               <p style="margin:0 0 2px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px;">Value</p>
@@ -117,12 +132,13 @@ export function renderVoucherEmail({
               <p style="margin:0;font-size:15px;font-weight:600;color:#1C121B;">${formattedExpiry}</p>
             </td>
           </tr>
-        </table>
+        </table>` : ''}
 
-        <div style="margin:0 auto;width:100px;height:100px;">
+        ${showQr ? `<div style="margin:0 auto;width:100px;height:100px;">
           <img src="${qrImgUrl}" width="100" height="100" alt="Voucher QR code" style="display:block;border:6px solid #fff;border-radius:4px;background:#fff;">
         </div>
-        <p style="margin:8px 0 0;font-size:11px;color:#999;">Scan at the front desk to redeem</p>
+        <p style="margin:8px 0 0;font-size:11px;color:#999;">${escHtml(instructions)}</p>`
+        : (instructions ? `<p style="margin:4px 0 0;font-size:12px;color:#666;">${escHtml(instructions)}</p>` : '')}
 
       </div>
 
