@@ -107,6 +107,11 @@ async function handleStaffRequest(request, env, url) {
     return resendVoucherEmail(code, request, env);
   }
 
+  // POST /v1/staff/voucher-types/preview — render the email for a draft type
+  if (method === 'POST' && path === '/v1/staff/voucher-types/preview') {
+    return await previewVoucherType(request, env);
+  }
+
   // POST /v1/staff/voucher-types  (create/update)
   if (method === 'POST' && path === '/v1/staff/voucher-types') {
     return upsertVoucherType(request, env);
@@ -469,6 +474,51 @@ async function getVoucherItemsStaff(typeId, request, env) {
 
   const items = await sbGet(env, `voucher_items?voucher_type=eq.${encodeURIComponent(typeId)}&order=display_order.asc&select=*`);
   return json(items, 200, request, env);
+}
+
+// Built-in sample per-voucher data for the live email preview. The draft
+// voucher-type supplies the type-driven fields (wording/branding); these
+// supply the per-voucher fields so the preview shows a faithful rendering.
+const PREVIEW_SAMPLE = {
+  customerName: 'Sarah Chen',
+  voucherCode: 'UJ-7K4M-9XQP',
+  value: 100,
+  expiryDate: '2027-06-22',
+  itemName: 'Family Pass (2 adults, 2 children)',
+  giftFrom: 'Sarah',
+  giftTo: 'Dad',
+  giftMessage: 'Happy birthday! Time to finally try that overhang. Love you x',
+};
+
+async function previewVoucherType(request, env) {
+  const t = await request.json();
+
+  const html = renderVoucherEmail({
+    // per-voucher sample data
+    customerName: PREVIEW_SAMPLE.customerName,
+    voucherCode: PREVIEW_SAMPLE.voucherCode,
+    value: PREVIEW_SAMPLE.value,
+    expiryDate: PREVIEW_SAMPLE.expiryDate,
+    itemName: PREVIEW_SAMPLE.itemName,
+    giftFrom: PREVIEW_SAMPLE.giftFrom,
+    giftTo: PREVIEW_SAMPLE.giftTo,
+    giftMessage: PREVIEW_SAMPLE.giftMessage,
+    // type-driven fields from the draft (snake_case DB columns)
+    typeName: t.display_name || 'Sample Voucher',
+    emailBody: t.email_body ?? null,
+    termsConditions: t.terms_conditions ?? null,
+    usageInfo: t.usage_info ?? null,
+    accentColor: t.accent_color,            // safeColor() inside the renderer validates/defaults
+    voucherLabel: t.voucher_label,          // renderer defaults to 'Your Voucher' when falsy
+    redemptionInstructions: t.redemption_instructions, // renderer defaults when falsy
+    showQr: t.show_qr ?? true,
+    showValue: t.show_value ?? true,
+  });
+
+  return new Response(html, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8', ...corsHeaders(request, env) },
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
