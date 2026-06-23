@@ -228,6 +228,17 @@ function renderTCMdEmail(md) {
   return renderMdEmail(stripped) || '<p style="font-size:12px;color:#999;margin:0;line-height:1.5;">Standard terms and conditions apply.</p>';
 }
 
+// Replace {{token}} placeholders (tolerating inner whitespace) with values.
+// Unrecognised tokens and null/undefined values render empty, so no {{...}}
+// ever survives. Returns RAW text — the caller's render path escapes it.
+export function substituteTokens(text, values) {
+  if (text == null) return '';
+  return String(text).replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
+    const v = values && values[key];
+    return v == null ? '' : String(v);
+  });
+}
+
 export function escHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
