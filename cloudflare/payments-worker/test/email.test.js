@@ -53,3 +53,40 @@ describe('renderVoucherEmail data-driven fields', () => {
     expect(hidden).not.toContain('>Value<');
   });
 });
+
+describe('renderVoucherEmail token substitution', () => {
+  it('substitutes tokens in email_body and leaves no braces', () => {
+    const html = renderVoucherEmail({ ...base, emailBody: 'Code {{voucher_id}}, value {{value}}' });
+    expect(html).toContain('UJ-AAAA-BBBB');
+    expect(html).toContain('$100.00');
+    expect(html).not.toContain('{{');
+    expect(html).not.toContain('}}');
+  });
+
+  it('falls back {{item_name}} to the type name when itemName is absent', () => {
+    const html = renderVoucherEmail({ ...base, emailBody: 'Deal: {{item_name}}' });
+    expect(html).toContain('Deal: Gift Certificate');
+  });
+
+  it('uses itemName for {{item_name}} when provided', () => {
+    const html = renderVoucherEmail({ ...base, itemName: '2 adults, 2 children', emailBody: 'Deal: {{item_name}}' });
+    expect(html).toContain('2 adults, 2 children');
+  });
+
+  it('escapes a token value containing HTML characters', () => {
+    const html = renderVoucherEmail({ ...base, customerName: 'A<b>&', emailBody: 'Hi {{name}}' });
+    expect(html).toContain('A&lt;b&gt;&amp;');
+    expect(html).not.toContain('A<b>&');
+  });
+
+  it('strips an unrecognised token in email_body', () => {
+    const html = renderVoucherEmail({ ...base, emailBody: 'x{{bogus}}y' });
+    expect(html).toContain('xy');
+    expect(html).not.toContain('{{bogus}}');
+  });
+
+  it('substitutes tokens in usage_info', () => {
+    const html = renderVoucherEmail({ ...base, usageInfo: 'Worth {{value}}.' });
+    expect(html).toContain('Worth $100.00.');
+  });
+});

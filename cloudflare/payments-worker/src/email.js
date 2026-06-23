@@ -25,6 +25,7 @@ export function renderVoucherEmail({
   value,
   expiryDate,
   typeName,
+  itemName,
   emailBody,
   termsConditions,
   giftFrom,
@@ -39,17 +40,27 @@ export function renderVoucherEmail({
 }) {
   const accent = safeColor(accentColor);
   const label = voucherLabel || 'Your Voucher';
-  const instructions = redemptionInstructions || 'Scan at the front desk to redeem';
   const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${encodeURIComponent(voucherCode)}`;
   const formattedValue = `$${Number(value).toFixed(2)}`;
   const formattedExpiry = expiryDate
     ? new Date(expiryDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
     : 'No expiry';
 
+  // Token values for {{...}} substitution in the per-type free-text fields.
+  const tokenValues = {
+    name: customerName,
+    voucher_id: voucherCode,
+    value: formattedValue,
+    expiry_date: formattedExpiry,
+    item_name: itemName || typeName,
+    message: giftMessage,
+  };
+  const instructions = substituteTokens(redemptionInstructions || 'Scan at the front desk to redeem', tokenValues);
+
   // ── Section 1: acknowledgement / message to the purchaser ──────────────────
   const greeting = customerName ? `<p style="margin:0 0 12px;font-size:16px;color:#1C121B;font-weight:600;">Hi ${escHtml(customerName)},</p>` : '';
   const ackBody = emailBody
-    ? renderBodyMdEmail(emailBody)
+    ? renderBodyMdEmail(substituteTokens(emailBody, tokenValues))
     : `<p style="margin:0;font-size:15px;color:#444;line-height:1.6;">Thank you for your purchase! Your ${escHtml(typeName)} is ready to use. The voucher is below — present this email (printed or on your phone) at the Urban Jungle front desk.</p>`;
 
   // ── Section 2: the voucher itself (gift rows only when it's a gift) ─────────
@@ -69,7 +80,7 @@ export function renderVoucherEmail({
   const termsSection = termsConditions ? `
       <div style="margin:20px 0 0;padding-top:16px;border-top:1px solid #eee;">
         <p style="font-size:12px;color:#777;margin:0 0 8px;font-weight:600;">Terms &amp; Conditions</p>
-        <div style="font-size:12px;color:#999;line-height:1.5;">${renderTCMdEmail(termsConditions)}</div>
+        <div style="font-size:12px;color:#999;line-height:1.5;">${renderTCMdEmail(substituteTokens(termsConditions, tokenValues))}</div>
       </div>` : '';
 
   return `<!DOCTYPE html>
@@ -116,7 +127,7 @@ export function renderVoucherEmail({
 
         ${giftRows}
 
-        ${usageInfo ? `<div style="margin:0 0 16px;padding:12px 14px;background:#fff;border:1px solid #f0e0db;border-radius:6px;text-align:left;">${renderBodyMdEmail(usageInfo)}</div>` : ''}
+        ${usageInfo ? `<div style="margin:0 0 16px;padding:12px 14px;background:#fff;border:1px solid #f0e0db;border-radius:6px;text-align:left;">${renderBodyMdEmail(substituteTokens(usageInfo, tokenValues))}</div>` : ''}
 
         <p style="margin:0 0 4px;font-size:11px;color:#999;letter-spacing:1px;text-transform:uppercase;">Voucher Code</p>
         <p style="margin:0 0 16px;font-size:26px;font-weight:700;color:${accent};letter-spacing:3px;font-family:'Courier New',monospace;">${escHtml(voucherCode)}</p>
