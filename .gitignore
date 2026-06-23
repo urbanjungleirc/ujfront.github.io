@@ -39,3 +39,8 @@
 .dev.vars.*
 wrangler.local.toml
 .claude/settings.local.json
+
+# Internal handover/setup notes — never commit to this public repo
+# (may contain API keys, tokens, service credentials)
+*handover*
+n8n-windows-handover.md
