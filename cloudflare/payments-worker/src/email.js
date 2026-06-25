@@ -63,19 +63,22 @@ export function renderVoucherEmail({
     ? renderBodyMdEmail(substituteTokens(emailBody, tokenValues))
     : `<p style="margin:0;font-size:15px;color:#444;line-height:1.6;">Thank you for your purchase! Your ${escHtml(typeName)} is ready to use. The voucher is below — present this email (printed or on your phone) at the Urban Jungle front desk.</p>`;
 
-  // ── Section 2: the voucher itself (gift rows only when it's a gift) ─────────
-  const giftRows = giftFrom ? `
+  // ── Section 2: the voucher itself ───────────────────────────────────────────
+  // Render whatever gift fields the staff member filled in — independently, so a
+  // lone "From", lone "To", or lone message all still show.
+  const giftFromToRows = (giftFrom || giftTo) ? `
         <table role="presentation" width="100%" style="margin:0 0 16px;border-collapse:collapse;">
-          <tr>
+          ${giftFrom ? `<tr>
             <td style="padding:2px 0;font-size:13px;color:#777;width:48px;">From</td>
             <td style="padding:2px 0;font-size:14px;color:#1C121B;font-weight:600;">${escHtml(giftFrom)}</td>
-          </tr>
+          </tr>` : ''}
           ${giftTo ? `<tr>
-            <td style="padding:2px 0;font-size:13px;color:#777;">To</td>
+            <td style="padding:2px 0;font-size:13px;color:#777;width:48px;">To</td>
             <td style="padding:2px 0;font-size:14px;color:#1C121B;font-weight:600;">${escHtml(giftTo)}</td>
           </tr>` : ''}
-        </table>
-        ${giftMessage ? `<p style="margin:0 0 16px;padding:10px 14px;background:#fff;border-radius:6px;font-size:14px;color:#444;font-style:italic;line-height:1.5;">&ldquo;${escHtml(giftMessage)}&rdquo;</p>` : ''}` : '';
+        </table>` : '';
+  const giftMessageBlock = giftMessage ? `<p style="margin:0 0 16px;padding:10px 14px;background:#fff;border-radius:6px;font-size:14px;color:#444;font-style:italic;line-height:1.5;">&ldquo;${escHtml(giftMessage)}&rdquo;</p>` : '';
+  const giftRows = `${giftFromToRows}${giftMessageBlock}`;
 
   const termsSection = termsConditions ? `
       <div style="margin:20px 0 0;padding-top:16px;border-top:1px solid #eee;">
@@ -172,8 +175,14 @@ export function renderVoucherEmail({
 // Markdown → inline-styled HTML for email (email-client safe)
 // ════════════════════════════════════════════════════════════════════════════
 
-function _boldEmail(s) {
-  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+// Inline formatting for the email Markdown: bold, italic, and links. The caller
+// passes HTML-escaped text, so the markers (** _ [ ] ( )) survive escaping and
+// these regexes still match.
+function _inlineEmail(s) {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^\w*])_([^_\n]+)_(?![\w*])/g, '$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" style="color:inherit;text-decoration:underline;">$1</a>');
 }
 
 // Body Markdown for the acknowledgement section — larger, darker text than the
@@ -193,12 +202,12 @@ function renderBodyMdEmail(md) {
       html += `<p style="margin:0 0 6px;font-size:15px;font-weight:600;color:#333;">${escHtml(text)}</p>`;
     } else if (line.startsWith('- ')) {
       if (!inList) { html += '<ul style="margin:6px 0;padding-left:18px;">'; inList = true; }
-      html += `<li style="font-size:15px;color:#444;margin:3px 0;line-height:1.6;">${_boldEmail(escHtml(line.slice(2)))}</li>`;
+      html += `<li style="font-size:15px;color:#444;margin:3px 0;line-height:1.6;">${_inlineEmail(escHtml(line.slice(2)))}</li>`;
     } else if (line.trim() === '') {
       if (inList) { html += '</ul>'; inList = false; }
     } else {
       if (inList) { html += '</ul>'; inList = false; }
-      html += `<p style="margin:0 0 10px;font-size:15px;color:#444;line-height:1.6;">${_boldEmail(escHtml(line))}</p>`;
+      html += `<p style="margin:0 0 10px;font-size:15px;color:#444;line-height:1.6;">${_inlineEmail(escHtml(line))}</p>`;
     }
   }
   if (inList) html += '</ul>';
@@ -221,12 +230,12 @@ function renderMdEmail(md) {
       html += `<p style="margin:4px 0;font-size:12px;font-weight:600;color:#666;">${escHtml(text)}</p>`;
     } else if (line.startsWith('- ')) {
       if (!inList) { html += '<ul style="margin:4px 0;padding-left:16px;">'; inList = true; }
-      html += `<li style="font-size:12px;color:#999;margin:2px 0;line-height:1.5;">${_boldEmail(escHtml(line.slice(2)))}</li>`;
+      html += `<li style="font-size:12px;color:#999;margin:2px 0;line-height:1.5;">${_inlineEmail(escHtml(line.slice(2)))}</li>`;
     } else if (line.trim() === '') {
       if (inList) { html += '</ul>'; inList = false; }
     } else {
       if (inList) { html += '</ul>'; inList = false; }
-      html += `<p style="margin:4px 0;font-size:12px;color:#999;line-height:1.5;">${_boldEmail(escHtml(line))}</p>`;
+      html += `<p style="margin:4px 0;font-size:12px;color:#999;line-height:1.5;">${_inlineEmail(escHtml(line))}</p>`;
     }
   }
   if (inList) html += '</ul>';

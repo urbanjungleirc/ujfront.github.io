@@ -122,6 +122,12 @@ async function handleStaffRequest(request, env, url) {
     return upsertVoucherItem(request, env);
   }
 
+  // DELETE /v1/staff/voucher-items/:id  (delete if never used, else 409 → archive)
+  if (method === 'DELETE' && path.startsWith('/v1/staff/voucher-items/')) {
+    const id = decodeURIComponent(path.split('/')[4] || '');
+    return deleteVoucherItem(id, request, env);
+  }
+
   // GET /v1/staff/voucher-types — all types, including inactive, full fields
   if (method === 'GET' && path === '/v1/staff/voucher-types') {
     return await getVoucherTypesStaff(request, env);
@@ -505,16 +511,20 @@ const PREVIEW_SAMPLE = {
 async function previewVoucherType(request, env) {
   const t = await request.json();
 
+  // Per-voucher data: built-in sample, optionally overridden by `_sample` so the
+  // staff create form can preview the email with the real customer/gift details.
+  const s = { ...PREVIEW_SAMPLE, ...(t._sample || {}) };
+
   const html = renderVoucherEmail({
     // per-voucher sample data
-    customerName: PREVIEW_SAMPLE.customerName,
-    voucherCode: PREVIEW_SAMPLE.voucherCode,
-    value: PREVIEW_SAMPLE.value,
-    expiryDate: PREVIEW_SAMPLE.expiryDate,
-    itemName: PREVIEW_SAMPLE.itemName,
-    giftFrom: PREVIEW_SAMPLE.giftFrom,
-    giftTo: PREVIEW_SAMPLE.giftTo,
-    giftMessage: PREVIEW_SAMPLE.giftMessage,
+    customerName: s.customerName,
+    voucherCode: s.voucherCode,
+    value: s.value,
+    expiryDate: s.expiryDate,
+    itemName: s.itemName,
+    giftFrom: s.giftFrom,
+    giftTo: s.giftTo,
+    giftMessage: s.giftMessage,
     // type-driven fields from the draft (snake_case DB columns)
     typeName: t.display_name || 'Sample Voucher',
     emailBody: t.email_body ?? null,
@@ -664,6 +674,12 @@ async function createPhysicalVoucher(request, env) {
 
   if (!isPhysical && !customerEmail) {
     return json({ error: 'customer_email is required for non-physical vouchers' }, 400, request, env);
+  }
+
+  // Catch a malformed address before creating the voucher, so the send can't
+  // fail after the fact with an unfriendly provider error.
+  if (!isPhysical && customerEmail && !isValidEmail(customerEmail)) {
+    return json({ error: `“${customerEmail}” doesn’t look like a valid email address. Please check it and try again.` }, 400, request, env);
   }
 
   // Determine value
@@ -858,6 +874,10 @@ async function resendVoucherEmail(code, request, env) {
   const sendTo = rawOverride || voucher.customer_email;
   const overridden = !!(rawOverride && rawOverride !== voucher.customer_email);
 
+  if (!isValidEmail(sendTo)) {
+    return json({ error: `“${sendTo}” doesn’t look like a valid email address. Please check it and try again.` }, 400, request, env);
+  }
+
   const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(voucher.voucher_type_id)}&select=*`);
   const vt = types[0] || {};
 
@@ -917,6 +937,25 @@ async function upsertVoucherItem(request, env) {
   return json({ ok: true }, 200, request, env);
 }
 
+// Delete an item only when it has never been issued on a voucher. If any voucher
+// references it, deleting would orphan that record, so we refuse with 409 and the
+// UI offers to archive (is_active=false) instead.
+async function deleteVoucherItem(id, request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+  if (!id) return json({ error: 'Item id is required' }, 400, request, env);
+
+  const used = await sbGet(env, `vouchers?voucher_item_id=eq.${encodeURIComponent(id)}&select=voucher_id&limit=1`);
+  if (used.length) {
+    return json({
+      error: 'This item has already been issued on a voucher and cannot be deleted. Archive it instead.',
+      used: true,
+    }, 409, request, env);
+  }
+
+  await sbDelete(env, `voucher_items?id=eq.${encodeURIComponent(id)}`);
+  return json({ ok: true, deleted: true }, 200, request, env);
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // Email
 // ════════════════════════════════════════════════════════════════════════════
@@ -944,8 +983,26 @@ async function sendVoucherEmail(env, opts) {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Resend email failed: ${res.status} ${text}`);
+    // Translate the provider's response into something a staff member can act on,
+    // instead of surfacing the raw 422/JSON payload.
+    let friendly = 'The voucher email could not be sent. Please try again, or check the address.';
+    try {
+      const body = JSON.parse(text);
+      if (res.status === 422 || /invalid .*`?to`?/i.test(body.message || '')) {
+        friendly = `The email address (${to}) was rejected as invalid. Please check it and try again.`;
+      } else if (body.message) {
+        friendly = `The voucher email could not be sent: ${body.message}`;
+      }
+    } catch { /* non-JSON provider error — keep the generic message */ }
+    const err = new Error(friendly);
+    err.status = 400;
+    throw err;
   }
+}
+
+// Basic email shape check — mirrors the staff UI's client-side validation.
+function isValidEmail(s) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim());
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1018,6 +1075,17 @@ async function sbPatch(env, query, data) {
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Supabase PATCH failed (${res.status}): ${text}`);
+  }
+}
+
+async function sbDelete(env, query) {
+  const res = await fetch(`${SUPABASE_REST(env.SUPABASE_URL)}/${query}`, {
+    method: 'DELETE',
+    headers: sbHeaders(env),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase DELETE failed (${res.status}): ${text}`);
   }
 }
 
@@ -1130,7 +1198,7 @@ function corsHeaders(request, env) {
   const origin = request.headers.get('Origin') || '';
   return {
     'Access-Control-Allow-Origin': isAllowedOrigin(origin, env) ? origin : 'null',
-    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type,X-Staff-Secret',
     Vary: 'Origin',
   };
