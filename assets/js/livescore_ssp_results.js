@@ -17,7 +17,7 @@ let currentTable = null;
 let allCategories = [];
 let showRankings = false;
 let currentFilters = {
-    category: '',
+    categories: [],
     gender: ''
 };
 
@@ -54,23 +54,16 @@ function setupAdminControls() {
     
     // Close admin panel when clicking outside - but not on dropdowns
     $(document).on('click', function(e) {
-        if (!$(e.target).closest('.admin-controls').length && 
+        if (!$(e.target).closest('.admin-controls').length &&
             !$(e.target).closest('#adminPanel').length &&
-            !$(e.target).closest('.modern-select').length) {
+            !$(e.target).closest('.modern-select').length &&
+            !$(e.target).closest('.cat-combo').length) {
             console.log("Closing admin panel - clicked outside");
             $('#adminPanel').removeClass('show');
         }
     });
     
     // Filter change events - prevent event bubbling
-    $('#categoryFilter').on('change click', function(e) {
-        console.log("Category filter changed:", $(this).val());
-        e.stopPropagation();
-        e.preventDefault();
-        currentFilters.category = $(this).val();
-        applyFilters();
-    });
-    
     $('#genderFilter').on('change click', function(e) {
         console.log("Gender filter changed:", $(this).val());
         e.stopPropagation();
@@ -78,7 +71,36 @@ function setupAdminControls() {
         currentFilters.gender = $(this).val();
         applyFilters();
     });
-    
+
+    // Category combo: toggle the menu open/closed
+    $('#categoryComboTrigger').on('click', function(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('categoryComboMenu');
+        const open = menu.hidden;
+        menu.hidden = !open;
+        $(this).attr('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // Category combo: checkbox toggles a category (event-delegated; options are injected later)
+    $('#categoryComboMenu').on('change', 'input[type="checkbox"]', function(e) {
+        e.stopPropagation();
+        const value = this.value;
+        if (this.checked) {
+            if (!currentFilters.categories.includes(value)) {
+                currentFilters.categories.push(value);
+            }
+        } else {
+            currentFilters.categories = currentFilters.categories.filter(c => c !== value);
+        }
+        updateCategoryTriggerLabel();
+        applyFilters();
+    });
+
+    // Keep clicks inside the combo from bubbling up and closing the admin panel
+    $('#categoryCombo').on('click', function(e) {
+        e.stopPropagation();
+    });
+
     // Prevent admin panel from closing when clicking on dropdown elements
     $('#adminPanel').on('click', function(e) {
         e.stopPropagation();
@@ -286,13 +308,36 @@ function initializeTable() {
 function populateCategoryFilter(data) {
     const categories = [...new Set(data.map(item => item.category).filter(cat => cat))];
     allCategories = categories;
-    
-    const categorySelect = $('#categoryFilter');
-    categorySelect.find('option:not(:first)').remove(); // Keep "All Categories" option
-    
+    renderCategoryOptions(categories);
+}
+
+function renderCategoryOptions(categories) {
+    const menu = document.getElementById('categoryComboMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
     categories.forEach(category => {
-        categorySelect.append(`<option value="${category}">${category.charAt(0).toUpperCase() + category.slice(1)}</option>`);
+        const label = document.createElement('label');
+        label.className = 'cat-combo-option';
+        const checked = currentFilters.categories.includes(category) ? 'checked' : '';
+        const display = category.charAt(0).toUpperCase() + category.slice(1);
+        label.innerHTML = `<input type="checkbox" value="${category}" ${checked}><span>${display}</span>`;
+        menu.appendChild(label);
     });
+    updateCategoryTriggerLabel();
+}
+
+function updateCategoryTriggerLabel() {
+    const labelEl = document.getElementById('categoryComboLabel');
+    if (!labelEl) return;
+    const n = currentFilters.categories.length;
+    if (n === 0) {
+        labelEl.textContent = 'All categories';
+    } else if (n === 1) {
+        const c = currentFilters.categories[0];
+        labelEl.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+    } else {
+        labelEl.textContent = `${n} categories`;
+    }
 }
 
 function applyFilters() {
@@ -300,12 +345,8 @@ function applyFilters() {
     
     console.log("Applying filters:", currentFilters);
     
-    // Apply category filter
-    if (currentFilters.category) {
-        currentTable.column(6).search(currentFilters.category, true, false);
-    } else {
-        currentTable.column(6).search('');
-    }
+    // Apply category filter (anchored alternation across all selected categories)
+    currentTable.column(6).search(buildAnchoredRegex(currentFilters.categories), true, false);
     
     // Apply gender filter (anchored so "male" does not also match "female")
     if (currentFilters.gender) {
@@ -319,7 +360,7 @@ function applyFilters() {
     updateCompetitorCounts();
     
     // Auto-show rankings when filtering
-    if ((currentFilters.category || currentFilters.gender) && !showRankings) {
+    if ((currentFilters.categories.length || currentFilters.gender) && !showRankings) {
         setTimeout(() => {
             showRankings = true;
             applyRankingDisplay();
@@ -361,15 +402,20 @@ function applyRankingDisplay() {
 function clearAllFilters() {
     console.log("Clearing all filters");
     
-    // Reset filter selects
-    $('#categoryFilter').val('');
+    // Reset filter controls
     $('#genderFilter').val('');
-    
+
     // Reset filter object
     currentFilters = {
-        category: '',
+        categories: [],
         gender: ''
     };
+
+    // Uncheck and relabel the category combo
+    $('#categoryComboMenu input[type="checkbox"]').prop('checked', false);
+    updateCategoryTriggerLabel();
+    $('#categoryComboTrigger').attr('aria-expanded', 'false');
+    document.getElementById('categoryComboMenu').hidden = true;
     
     // Clear table filters
     if (currentTable) {
@@ -391,8 +437,11 @@ function updateFilterDisplay() {
     let displayText = "All Competitors";
     const filters = [];
     
-    if (currentFilters.category) {
-        filters.push(currentFilters.category.charAt(0).toUpperCase() + currentFilters.category.slice(1));
+    if (currentFilters.categories.length) {
+        const pretty = currentFilters.categories
+            .map(c => c.charAt(0).toUpperCase() + c.slice(1))
+            .join(', ');
+        filters.push(pretty);
     }
     
     if (currentFilters.gender) {
