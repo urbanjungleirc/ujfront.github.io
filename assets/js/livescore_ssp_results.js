@@ -18,7 +18,7 @@ let allCategories = [];
 let showRankings = false;
 let currentFilters = {
     categories: [],
-    gender: ''
+    genders: []
 };
 
 // Initialize when page loads (browser only; skipped when required under Node for tests)
@@ -63,15 +63,6 @@ function setupAdminControls() {
         }
     });
     
-    // Filter change events - prevent event bubbling
-    $('#genderFilter').on('change click', function(e) {
-        console.log("Gender filter changed:", $(this).val());
-        e.stopPropagation();
-        e.preventDefault();
-        currentFilters.gender = $(this).val();
-        applyFilters();
-    });
-
     // Category combo: toggle the menu open/closed
     $('#categoryComboTrigger').on('click', function(e) {
         e.stopPropagation();
@@ -96,8 +87,32 @@ function setupAdminControls() {
         applyFilters();
     });
 
-    // Keep clicks inside the combo from bubbling up and closing the admin panel
-    $('#categoryCombo').on('click', function(e) {
+    // Gender combo: toggle the menu open/closed
+    $('#genderComboTrigger').on('click', function(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('genderComboMenu');
+        const open = menu.hidden;
+        menu.hidden = !open;
+        $(this).attr('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // Gender combo: checkbox toggles a gender (event-delegated; options are injected later)
+    $('#genderComboMenu').on('change', 'input[type="checkbox"]', function(e) {
+        e.stopPropagation();
+        const value = this.value;
+        if (this.checked) {
+            if (!currentFilters.genders.includes(value)) {
+                currentFilters.genders.push(value);
+            }
+        } else {
+            currentFilters.genders = currentFilters.genders.filter(g => g !== value);
+        }
+        updateGenderTriggerLabel();
+        applyFilters();
+    });
+
+    // Keep clicks inside either combo from bubbling up and closing the admin panel
+    $('#categoryCombo, #genderCombo').on('click', function(e) {
         e.stopPropagation();
     });
 
@@ -105,12 +120,7 @@ function setupAdminControls() {
     $('#adminPanel').on('click', function(e) {
         e.stopPropagation();
     });
-    
-    // Specifically handle select dropdowns
-    $('#categoryFilter, #genderFilter').on('mousedown focus', function(e) {
-        e.stopPropagation();
-    });
-    
+
     // Button events
     $('#btnShowRankings').on('click', function() {
         console.log("Show Rankings clicked");
@@ -150,6 +160,7 @@ function initializeTable() {
         .on("xhr.dt", function (e, settings, json, xhr) {
             if (json && json.data) {
                 populateCategoryFilter(json.data);
+                populateGenderFilter(json.data);
                 updateCompetitorCounts();
             }
         })
@@ -340,6 +351,40 @@ function updateCategoryTriggerLabel() {
     }
 }
 
+function populateGenderFilter(data) {
+    const genders = [...new Set(data.map(item => item.gender).filter(g => g))];
+    renderGenderOptions(genders);
+}
+
+function renderGenderOptions(genders) {
+    const menu = document.getElementById('genderComboMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    genders.forEach(gender => {
+        const label = document.createElement('label');
+        label.className = 'cat-combo-option';
+        const checked = currentFilters.genders.includes(gender) ? 'checked' : '';
+        const display = gender.charAt(0).toUpperCase() + gender.slice(1);
+        label.innerHTML = `<input type="checkbox" value="${gender}" ${checked}><span>${display}</span>`;
+        menu.appendChild(label);
+    });
+    updateGenderTriggerLabel();
+}
+
+function updateGenderTriggerLabel() {
+    const labelEl = document.getElementById('genderComboLabel');
+    if (!labelEl) return;
+    const n = currentFilters.genders.length;
+    if (n === 0) {
+        labelEl.textContent = 'All genders';
+    } else if (n === 1) {
+        const g = currentFilters.genders[0];
+        labelEl.textContent = g.charAt(0).toUpperCase() + g.slice(1);
+    } else {
+        labelEl.textContent = `${n} genders`;
+    }
+}
+
 function applyFilters() {
     if (!currentTable) return;
     
@@ -348,19 +393,15 @@ function applyFilters() {
     // Apply category filter (anchored alternation across all selected categories)
     currentTable.column(6).search(buildAnchoredRegex(currentFilters.categories), true, false);
     
-    // Apply gender filter (anchored so "male" does not also match "female")
-    if (currentFilters.gender) {
-        currentTable.column(7).search(buildAnchoredRegex([currentFilters.gender]), true, false);
-    } else {
-        currentTable.column(7).search('');
-    }
-    
+    // Apply gender filter (anchored alternation so "male" does not also match "female")
+    currentTable.column(7).search(buildAnchoredRegex(currentFilters.genders), true, false);
+
     currentTable.draw();
     updateFilterDisplay();
     updateCompetitorCounts();
-    
+
     // Auto-show rankings when filtering
-    if ((currentFilters.categories.length || currentFilters.gender) && !showRankings) {
+    if ((currentFilters.categories.length || currentFilters.genders.length) && !showRankings) {
         setTimeout(() => {
             showRankings = true;
             applyRankingDisplay();
@@ -402,21 +443,20 @@ function applyRankingDisplay() {
 function clearAllFilters() {
     console.log("Clearing all filters");
     
-    // Reset filter controls
-    $('#genderFilter').val('');
-
     // Reset filter object
     currentFilters = {
         categories: [],
-        gender: ''
+        genders: []
     };
 
-    // Uncheck and relabel the category combo
-    $('#categoryComboMenu input[type="checkbox"]').prop('checked', false);
+    // Uncheck and relabel both combos
+    $('#categoryComboMenu input[type="checkbox"], #genderComboMenu input[type="checkbox"]').prop('checked', false);
     updateCategoryTriggerLabel();
-    $('#categoryComboTrigger').attr('aria-expanded', 'false');
+    updateGenderTriggerLabel();
+    $('#categoryComboTrigger, #genderComboTrigger').attr('aria-expanded', 'false');
     document.getElementById('categoryComboMenu').hidden = true;
-    
+    document.getElementById('genderComboMenu').hidden = true;
+
     // Clear table filters
     if (currentTable) {
         currentTable.search('').columns().search('').draw();
@@ -444,8 +484,11 @@ function updateFilterDisplay() {
         filters.push(pretty);
     }
     
-    if (currentFilters.gender) {
-        filters.push(currentFilters.gender.charAt(0).toUpperCase() + currentFilters.gender.slice(1));
+    if (currentFilters.genders.length) {
+        const pretty = currentFilters.genders
+            .map(g => g.charAt(0).toUpperCase() + g.slice(1))
+            .join(', ');
+        filters.push(pretty);
     }
     
     if (filters.length > 0) {
