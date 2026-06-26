@@ -1,6 +1,17 @@
 /*  TV-Optimized Results Page with Smart Filtering and Ranking Display
 */
 
+/*  Pure helpers for filter search strings (unit-tested under Node).
+    Keep these free of jQuery/DataTables references so the file can be required in tests. */
+function escapeRegex(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildAnchoredRegex(values) {
+    if (!values || values.length === 0) return '';
+    return '^(' + values.map(escapeRegex).join('|') + ')$';
+}
+
 // Global variables
 let currentTable = null;
 let allCategories = [];
@@ -10,16 +21,18 @@ let currentFilters = {
     gender: ''
 };
 
-// Initialize when page loads
-$(document).ready(function () {
-    console.log(`Results table initialisation start: ${new Date().getTime()}`);
-    
-    // Setup admin controls
-    setupAdminControls();
-    
-    // Initialize the table
-    initializeTable();
-});
+// Initialize when page loads (browser only; skipped when required under Node for tests)
+if (typeof window !== 'undefined' && typeof window.jQuery !== 'undefined') {
+    jQuery(function () {
+        console.log(`Results table initialisation start: ${new Date().getTime()}`);
+
+        // Setup admin controls
+        setupAdminControls();
+
+        // Initialize the table
+        initializeTable();
+    });
+}
 
 function setupAdminControls() {
     // Toggle admin panel with animation
@@ -294,9 +307,9 @@ function applyFilters() {
         currentTable.column(6).search('');
     }
     
-    // Apply gender filter
+    // Apply gender filter (anchored so "male" does not also match "female")
     if (currentFilters.gender) {
-        currentTable.column(7).search(currentFilters.gender, true, false);
+        currentTable.column(7).search(buildAnchoredRegex([currentFilters.gender]), true, false);
     } else {
         currentTable.column(7).search('');
     }
@@ -413,5 +426,12 @@ function updateCompetitorCounts() {
     }
 }
 
-/* Default class for buttons */
-$.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
+/* Default class for buttons (browser only) */
+if (typeof window !== 'undefined' && window.jQuery && jQuery.fn.dataTable) {
+    jQuery.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
+}
+
+/* Export pure helpers for unit tests under Node. No-op in the browser. */
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { escapeRegex, buildAnchoredRegex };
+}
