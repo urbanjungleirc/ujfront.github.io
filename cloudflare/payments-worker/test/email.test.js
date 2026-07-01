@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { renderVoucherEmail, safeColor } from '../src/email.js';
+import { renderVoucherEmail, safeColor, darken } from '../src/email.js';
 
 const base = {
   customerName: 'Test User',
@@ -19,6 +19,40 @@ describe('safeColor', () => {
     expect(safeColor('red; } <script>')).toBe('#ae222a');
     expect(safeColor(null)).toBe('#ae222a');
     expect(safeColor('')).toBe('#ae222a');
+  });
+});
+
+describe('darken', () => {
+  it('darkens a 6-digit hex toward black', () => {
+    expect(darken('#ffffff', 0.5)).toBe('#808080');
+    expect(darken('#ffffff', 1)).toBe('#000000');
+    expect(darken('#000000', 0.3)).toBe('#000000');
+  });
+  it('expands a 3-digit hex before darkening', () => {
+    expect(darken('#fff', 0)).toBe('#ffffff');
+    expect(darken('#fff', 1)).toBe('#000000');
+  });
+  it('falls back to brand red for invalid input, then darkens', () => {
+    expect(darken('nope', 0)).toBe('#ae222a');
+  });
+});
+
+describe('email header gradient', () => {
+  it('derives both stops from the single accent colour (no hardcoded blend colours)', () => {
+    const html = renderVoucherEmail({ ...base, accentColor: '#3366cc' });
+    expect(html).toContain(`linear-gradient(135deg,#3366cc,${darken('#3366cc', 0.3)})`);
+    // the old hardcoded gradient stops must be gone
+    expect(html).not.toContain('linear-gradient(135deg,#1C121B');
+    expect(html).not.toContain('#c24657');
+  });
+});
+
+describe('voucher ticket surface', () => {
+  it('uses a neutral background that suits any accent (no cream/reddish tints)', () => {
+    const html = renderVoucherEmail({ ...base, accentColor: '#3366cc' });
+    expect(html).toContain('background:#f7f7f9'); // neutral ticket surface
+    expect(html).not.toContain('#fffaf7');        // old cream background
+    expect(html).not.toContain('#f0e0db');        // old reddish inner borders
   });
 });
 

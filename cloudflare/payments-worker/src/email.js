@@ -19,6 +19,21 @@ export function safeColor(input) {
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(input || '')) ? input : DEFAULT_ACCENT;
 }
 
+// Darken a hex colour toward black by `amount` (0..1) — multiplies each RGB
+// channel by (1 - amount). Used to derive the email header gradient's second
+// stop from the single staff-chosen accent colour, so the gradient stays
+// monochromatic (accent → a deeper shade of itself) instead of blending in
+// hardcoded colours. Runs its input through safeColor first, so junk falls back
+// to brand red, and a 3-digit hex is expanded to 6.
+export function darken(input, amount) {
+  const c = safeColor(input).slice(1);
+  const full = c.length === 3 ? c.split('').map((ch) => ch + ch).join('') : c;
+  const n = parseInt(full, 16);
+  const f = Math.max(0, Math.min(1, 1 - amount));
+  const ch = (shift) => Math.round(((n >> shift) & 0xff) * f).toString(16).padStart(2, '0');
+  return `#${ch(16)}${ch(8)}${ch(0)}`;
+}
+
 export function renderVoucherEmail({
   customerName,
   voucherCode,
@@ -111,7 +126,7 @@ export function renderVoucherEmail({
   <div style="background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1);overflow:hidden;">
 
     <!-- Header -->
-    <div style="background:linear-gradient(135deg,#1C121B,${accent},#c24657);padding:24px;text-align:center;">
+    <div style="background:linear-gradient(135deg,${accent},${darken(accent, 0.3)});padding:24px;text-align:center;">
       <p style="margin:0 0 4px;color:#fff;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Urban Jungle Indoor Rock Climbing</p>
       <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700;">${escHtml(typeName)}</h1>
     </div>
@@ -124,24 +139,24 @@ export function renderVoucherEmail({
 
     <!-- Section 2: the voucher -->
     <div style="padding:8px 24px 24px;">
-      <div class="voucher-ticket" style="background:#fffaf7;border:2px dashed ${accent};border-radius:10px;padding:22px;text-align:center;box-shadow:0 1px 4px rgba(174,34,42,.08);">
+      <div class="voucher-ticket" style="background:#f7f7f9;border:2px dashed ${accent};border-radius:10px;padding:22px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);">
 
         <p style="margin:0 0 14px;font-size:12px;color:${accent};letter-spacing:2px;text-transform:uppercase;font-weight:700;">${escHtml(label)}</p>
 
         ${giftRows}
 
-        ${usageInfo ? `<div style="margin:0 0 16px;padding:12px 14px;background:#fff;border:1px solid #f0e0db;border-radius:6px;text-align:left;">${renderBodyMdEmail(substituteTokens(usageInfo, tokenValues))}</div>` : ''}
+        ${usageInfo ? `<div style="margin:0 0 16px;padding:12px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;text-align:left;">${renderBodyMdEmail(substituteTokens(usageInfo, tokenValues))}</div>` : ''}
 
         <p style="margin:0 0 4px;font-size:11px;color:#999;letter-spacing:1px;text-transform:uppercase;">Voucher Code</p>
         <p style="margin:0 0 16px;font-size:26px;font-weight:700;color:${accent};letter-spacing:3px;font-family:'Courier New',monospace;">${escHtml(voucherCode)}</p>
 
-        ${showValue ? `<table role="presentation" width="100%" style="border-collapse:collapse;border-top:1px solid #f0e0db;border-bottom:1px solid #f0e0db;margin:0 0 16px;">
+        ${showValue ? `<table role="presentation" width="100%" style="border-collapse:collapse;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;margin:0 0 16px;">
           <tr>
             <td style="text-align:center;padding:12px 4px;width:50%;">
               <p style="margin:0 0 2px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px;">Value</p>
               <p style="margin:0;font-size:24px;font-weight:700;color:#1C121B;">${formattedValue}</p>
             </td>
-            <td style="text-align:center;padding:12px 4px;width:50%;border-left:1px solid #f0e0db;">
+            <td style="text-align:center;padding:12px 4px;width:50%;border-left:1px solid #e5e7eb;">
               <p style="margin:0 0 2px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px;">Expires</p>
               <p style="margin:0;font-size:15px;font-weight:600;color:#1C121B;">${formattedExpiry}</p>
             </td>
