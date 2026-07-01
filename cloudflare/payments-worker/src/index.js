@@ -235,6 +235,34 @@ async function createVoucherSession(data, origin, request, env) {
   const item = items[0];
   if (!item.is_active) return json({ error: 'Voucher item is not available' }, 400, request, env);
 
+  // ── Per-customer purchase limit (enforced server-side) ──────────────────────
+  // max_per_customer null ⇒ unlimited. When a limit is set we count the buyer's
+  // prior *completed* purchases (purchase_tracking rows are written at
+  // fulfilment). We need their email to do that, so a limited type requires one.
+  if (vt.max_per_customer != null && vt.limit_period) {
+    const email = cleanString(data.customer_email || '', 254).trim().toLowerCase();
+    if (!email) {
+      return json({ error: 'An email address is required to purchase this voucher.' }, 400, request, env);
+    }
+    let trackQuery = `purchase_tracking?email_address=eq.${encodeURIComponent(email)}`
+      + `&voucher_type_id=eq.${encodeURIComponent(typeId)}&select=id`;
+    if (vt.limit_period === 'annual') {
+      // Rolling 12 months. For a calendar-year reset instead, swap this cutoff
+      // for `${new Date().getFullYear()}-01-01`.
+      const since = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
+      trackQuery += `&purchase_date=gte.${encodeURIComponent(since)}`;
+    }
+    const prior = await sbGet(env, trackQuery);
+    if (prior.length >= vt.max_per_customer) {
+      const scope = vt.limit_period === 'annual' ? 'per year' : 'per customer';
+      const noun = vt.max_per_customer === 1 ? 'voucher' : 'vouchers';
+      return json({
+        error: `Purchase limit reached — only ${vt.max_per_customer} ${vt.display_name} ${noun} allowed ${scope}.`,
+        code: 'purchase_limit_reached',
+      }, 409, request, env);
+    }
+  }
+
   const amountCents = chargeAmountCents(item);
   const currency = 'aud';
 
@@ -392,10 +420,12 @@ async function fulfillVoucher(session, env) {
     created_timestamp: now,
   });
 
-  // Insert purchase tracking (for purchase limit enforcement)
+  // Insert purchase tracking (for purchase limit enforcement).
+  // Store the email lowercased so the limit count in createVoucherSession
+  // matches regardless of the casing the customer typed.
   if (customerEmail) {
     await sbPost(env, 'purchase_tracking', {
-      email_address: customerEmail,
+      email_address: customerEmail.trim().toLowerCase(),
       voucher_type_id: typeId,
       purchase_date: now,
       voucher_id: voucherCode,
