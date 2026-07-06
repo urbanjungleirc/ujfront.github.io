@@ -95,6 +95,12 @@ async function handleStaffRequest(request, env, url) {
     return redeemVoucher(code, request, env);
   }
 
+  // POST /v1/vouchers/:code/notes  (add/edit free-form staff notes)
+  if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/notes$/)) {
+    const code = path.split('/')[3];
+    return updateVoucherNotes(code, request, env);
+  }
+
   // POST /v1/vouchers/:code/undo-redemption
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/undo-redemption$/)) {
     const code = path.split('/')[3];
@@ -843,6 +849,38 @@ async function redeemVoucher(code, request, env) {
     voucher_type_id: voucher.voucher_type_id,
     user_id: staffId,
     data: { amount, previous_balance: voucher.balance, new_balance: newBalance, clubworx_receipt: clubworxReceipt, notes },
+  });
+
+  const updated = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
+  return json(updated[0], 200, request, env);
+}
+
+async function updateVoucherNotes(code, request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+
+  const data = await request.json();
+  const notes = cleanString(data.staff_notes || '', 2000);
+  const staffId = cleanString(data.updated_by || 'staff', 100);
+
+  const vouchers = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
+  if (!vouchers.length) return json({ error: 'Voucher not found' }, 404, request, env);
+  const voucher = vouchers[0];
+
+  const previous = voucher.staff_notes || '';
+  const now = new Date().toISOString();
+
+  // Store empty string as null so "no note" is consistent regardless of how it got there.
+  await sbPatch(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}`, {
+    staff_notes: notes || null,
+  });
+
+  await sbPost(env, 'audit_log', {
+    timestamp: now,
+    action: 'voucher_notes_updated',
+    voucher_id: code,
+    voucher_type_id: voucher.voucher_type_id,
+    user_id: staffId,
+    data: { previous_notes: previous, new_notes: notes },
   });
 
   const updated = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
