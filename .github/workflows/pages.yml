@@ -1,0 +1,35 @@
+# Deploy the static site to GitHub Pages via Actions.
+# Replaces the legacy Jekyll-based Pages builder, which began failing/wedging
+# on every push on 2026-07-06 ("Page build failed" with no diagnostics).
+# The site is pure static HTML/CSS/JS — no build step, just publish the checkout.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; let an in-flight deploy finish rather than cancelling.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
