@@ -697,6 +697,7 @@ async function createPhysicalVoucher(request, env) {
   const giftFrom = data.gift_from ? cleanString(data.gift_from, 200) : null;
   const giftTo = data.gift_to ? cleanString(data.gift_to, 200) : null;
   const giftMessage = data.gift_message ? cleanString(data.gift_message, 500) : null;
+  const reason = data.reason ? cleanString(data.reason, 500) : null;
 
   if (!typeId || !customerName) {
     return json({ error: 'voucher_type_id and customer_name are required' }, 400, request, env);
@@ -748,7 +749,7 @@ async function createPhysicalVoucher(request, env) {
     customer_name: customerName,
     customer_email: customerEmail,
     customer_phone: data.customer_phone ? cleanString(data.customer_phone, 30) : null,
-    reason: data.reason ? cleanString(data.reason, 500) : null,
+    reason,
     is_physical: isPhysical,
     gift_from: giftFrom,
     gift_to: giftTo,
@@ -765,7 +766,7 @@ async function createPhysicalVoucher(request, env) {
     voucher_id: voucherCode,
     voucher_type_id: typeId,
     user_id: staffId,
-    data: { is_physical: isPhysical, value, customer_name: customerName },
+    data: { is_physical: isPhysical, value, customer_name: customerName, reason },
   });
 
   if (!isPhysical && customerEmail) {

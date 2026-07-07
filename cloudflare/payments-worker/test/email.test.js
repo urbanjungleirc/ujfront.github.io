@@ -82,9 +82,22 @@ describe('renderVoucherEmail data-driven fields', () => {
     expect(renderVoucherEmail({ ...base, showQr: true })).toContain('api.qrserver.com');
   });
 
+  it('hides the redemption instructions along with the QR', () => {
+    const custom = { ...base, redemptionInstructions: 'Show at the bar' };
+    expect(renderVoucherEmail({ ...custom, showQr: true })).toContain('Show at the bar');
+    expect(renderVoucherEmail({ ...custom, showQr: false })).not.toContain('Show at the bar');
+  });
+
   it('hides the value block when show_value is false', () => {
     const hidden = renderVoucherEmail({ ...base, showValue: false });
     expect(hidden).not.toContain('>Value<');
+    expect(hidden).not.toContain('$100.00');
+  });
+
+  it('keeps the expiry visible when show_value is false', () => {
+    const hidden = renderVoucherEmail({ ...base, showValue: false });
+    expect(hidden).toContain('>Expires<');
+    expect(hidden).toContain('1 January 2027');
   });
 });
 

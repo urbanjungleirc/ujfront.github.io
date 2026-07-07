@@ -161,13 +161,20 @@ export function renderVoucherEmail({
               <p style="margin:0;font-size:15px;font-weight:600;color:#1C121B;">${formattedExpiry}</p>
             </td>
           </tr>
-        </table>` : ''}
+        </table>` : `<table role="presentation" width="100%" style="border-collapse:collapse;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;margin:0 0 16px;">
+          <tr>
+            <td style="text-align:center;padding:12px 4px;">
+              <p style="margin:0 0 2px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px;">Expires</p>
+              <p style="margin:0;font-size:15px;font-weight:600;color:#1C121B;">${formattedExpiry}</p>
+            </td>
+          </tr>
+        </table>`}
 
         ${showQr ? `<div style="margin:0 auto;width:100px;height:100px;">
           <img src="${qrImgUrl}" width="100" height="100" alt="Voucher QR code" style="display:block;border:6px solid #fff;border-radius:4px;background:#fff;">
         </div>
         <p style="margin:8px 0 0;font-size:11px;color:#999;">${escHtml(instructions)}</p>`
-        : (instructions ? `<p style="margin:4px 0 0;font-size:12px;color:#666;">${escHtml(instructions)}</p>` : '')}
+        : ''}
 
       </div>
 
