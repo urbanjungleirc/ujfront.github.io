@@ -21,3 +21,4 @@ DEPOSIT_CURRENCY = "aud"
 # wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 # wrangler secret put RESEND_API_KEY
 # wrangler secret put STAFF_SHARED_SECRET
+# wrangler secret put MANAGER_SHARED_SECRET

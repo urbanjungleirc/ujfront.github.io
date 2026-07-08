@@ -107,6 +107,12 @@ async function handleStaffRequest(request, env, url) {
     return undoRedemption(code, request, env);
   }
 
+  // POST /v1/vouchers/:code/cancel  (manager-gated soft delete)
+  if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/cancel$/)) {
+    const code = path.split('/')[3];
+    return cancelVoucher(code, request, env);
+  }
+
   // POST /v1/vouchers/:code/resend-email
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/resend-email$/)) {
     const code = path.split('/')[3];
@@ -600,10 +606,11 @@ async function getVoucher(code, request, env) {
   const voucher = vouchers[0];
 
   // Attach the type's staff-facing fields (e.g. redemption warning for credits)
-  const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(voucher.voucher_type_id)}&select=redemption_warning,usage_info,voucher_label`);
+  const types = await sbGet(env, `voucher_types?type_id=eq.${encodeURIComponent(voucher.voucher_type_id)}&select=redemption_warning,usage_info,voucher_label,display_name`);
   voucher._redemption_warning = types[0]?.redemption_warning ?? null;
   voucher._usage_info = types[0]?.usage_info ?? null;
   voucher._voucher_label = types[0]?.voucher_label ?? null;
+  voucher._type_name = types[0]?.display_name ?? null;
 
   // Attach recent audit history
   const history = await sbGet(env, `audit_log?voucher_id=eq.${encodeURIComponent(code)}&order=timestamp.desc&limit=20&select=*`);
@@ -619,7 +626,7 @@ async function searchVouchers(params, request, env) {
   const status = cleanString(params.get('status') || '', 20);
   const limit = Math.min(Number(params.get('limit') || 100), 500);
 
-  let query = `vouchers?order=created_timestamp.desc&limit=${limit}&select=voucher_id,voucher_type_id,customer_name,customer_email,value,balance,status,issued_date,expiry_date,is_physical,email_sent`;
+  let query = `vouchers?order=created_timestamp.desc&limit=${limit}&select=voucher_id,voucher_type_id,customer_name,customer_email,value,balance,status,issued_date,expiry_date,is_physical,email_sent,voucher_types(display_name)`;
 
   if (status && ['active', 'redeemed', 'expired', 'cancelled'].includes(status)) {
     query += `&status=eq.${status}`;
@@ -632,6 +639,11 @@ async function searchVouchers(params, request, env) {
   }
 
   const results = await sbGet(env, query);
+  // Flatten the PostgREST embed to a plain type_name field
+  for (const row of results) {
+    row.type_name = row.voucher_types?.display_name ?? null;
+    delete row.voucher_types;
+  }
   return json(results, 200, request, env);
 }
 
@@ -879,6 +891,32 @@ async function undoRedemption(code, request, env) {
   const result = await sbRpc(env, 'undo_redemption', {
     p_code: code,
     p_staff: staffId,
+  });
+
+  const errorResponse = rpcErrorToResponse(result, request, env);
+  if (errorResponse) return errorResponse;
+  return json(result.voucher, 200, request, env);
+}
+
+async function cancelVoucher(code, request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+  await assertManagerAuth(request, env);
+
+  const data = await request.json();
+  const staffId = cleanString(data.cancelled_by || 'staff', 100);
+  const reason = cleanString(data.reason || '', 500);
+  // Cloudflare Access identity of the manager, reported by the staff page.
+  // Audit-only: the API cannot verify it (different CF account), so it must
+  // never gate authorisation — the manager secret above does that.
+  const accessEmail = cleanString(data.access_email || '', 254);
+
+  if (!reason) return json({ error: 'reason is required' }, 400, request, env);
+
+  const result = await sbRpc(env, 'cancel_voucher', {
+    p_code: code,
+    p_staff: staffId,
+    p_reason: reason,
+    p_access_email: accessEmail,
   });
 
   const errorResponse = rpcErrorToResponse(result, request, env);
@@ -1275,6 +1313,12 @@ export function rpcErrorParts(result) {
       return { status: 400, message: `Amount ${d.amount} exceeds balance ${d.balance}` };
     case 'NOTHING_TO_UNDO':
       return { status: 400, message: 'No redemption to undo' };
+    case 'VOUCHER_ALREADY_CANCELLED':
+      return { status: 400, message: 'Voucher is already cancelled' };
+    case 'VOUCHER_CANCELLED':
+      return { status: 400, message: 'Voucher is cancelled' };
+    case 'REASON_REQUIRED':
+      return { status: 400, message: 'reason is required' };
     default:
       return { status: 400, message: `Redemption failed: ${result.error}` };
   }
@@ -1298,7 +1342,7 @@ function corsHeaders(request, env) {
   return {
     'Access-Control-Allow-Origin': isAllowedOrigin(origin, env) ? origin : 'null',
     'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type,X-Staff-Secret',
+    'Access-Control-Allow-Headers': 'Content-Type,X-Staff-Secret,X-Manager-Secret',
     Vary: 'Origin',
   };
 }
@@ -1333,6 +1377,20 @@ async function isStaffAuthed(request, env) {
 async function assertStaffAuth(request, env) {
   if (!(await isStaffAuthed(request, env))) {
     throw Object.assign(new Error('Unauthorised'), { status: 401 });
+  }
+}
+
+export async function isManagerAuthed(request, env) {
+  const secret = env.MANAGER_SHARED_SECRET;
+  if (!secret) return false;
+  return staffSecretMatches(request.headers.get('X-Manager-Secret') || '', secret);
+}
+
+// 403 (not 401) so the UI can distinguish "wrong manager password" from a
+// stale staff secret, which it handles by wiping the stored login.
+async function assertManagerAuth(request, env) {
+  if (!(await isManagerAuthed(request, env))) {
+    throw Object.assign(new Error('Manager authorisation required'), { status: 403 });
   }
 }
 
