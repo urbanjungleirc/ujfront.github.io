@@ -818,42 +818,17 @@ async function redeemVoucher(code, request, env) {
 
   if (!amount || amount <= 0) return json({ error: 'amount must be a positive number' }, 400, request, env);
 
-  const vouchers = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
-  if (!vouchers.length) return json({ error: 'Voucher not found' }, 404, request, env);
-  const voucher = vouchers[0];
-
-  if (voucher.status !== 'active') {
-    return json({ error: `Cannot redeem voucher with status: ${voucher.status}` }, 400, request, env);
-  }
-  if (amount > voucher.balance) {
-    return json({ error: `Amount ${amount} exceeds balance ${voucher.balance}` }, 400, request, env);
-  }
-
-  const newBalance = Math.round((voucher.balance - amount) * 100) / 100;
-  const newStatus = newBalance <= 0 ? 'redeemed' : 'active';
-  const now = new Date().toISOString();
-
-  await sbPatch(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}`, {
-    balance: newBalance,
-    status: newStatus,
-    last_redeemed_date: now,
-    last_redeemed_by: staffId,
-    last_redeemed_amount: amount,
-    clubworx_receipt: clubworxReceipt || voucher.clubworx_receipt,
-    redemption_notes: notes || voucher.redemption_notes,
+  const result = await sbRpc(env, 'redeem_voucher', {
+    p_code: code,
+    p_amount: amount,
+    p_staff: staffId,
+    p_receipt: clubworxReceipt,
+    p_notes: notes,
   });
 
-  await sbPost(env, 'audit_log', {
-    timestamp: now,
-    action: 'voucher_redeemed',
-    voucher_id: code,
-    voucher_type_id: voucher.voucher_type_id,
-    user_id: staffId,
-    data: { amount, previous_balance: voucher.balance, new_balance: newBalance, clubworx_receipt: clubworxReceipt, notes },
-  });
-
-  const updated = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
-  return json(updated[0], 200, request, env);
+  const errorResponse = rpcErrorToResponse(result, request, env);
+  if (errorResponse) return errorResponse;
+  return json(result.voucher, 200, request, env);
 }
 
 async function updateVoucherNotes(code, request, env) {
@@ -894,36 +869,14 @@ async function undoRedemption(code, request, env) {
   const data = await request.json();
   const staffId = cleanString(data.undone_by || 'staff', 100);
 
-  const vouchers = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
-  if (!vouchers.length) return json({ error: 'Voucher not found' }, 404, request, env);
-  const voucher = vouchers[0];
-
-  if (!voucher.last_redeemed_amount) {
-    return json({ error: 'No redemption to undo' }, 400, request, env);
-  }
-
-  const restoredBalance = Math.round((voucher.balance + voucher.last_redeemed_amount) * 100) / 100;
-  const now = new Date().toISOString();
-
-  await sbPatch(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}`, {
-    balance: restoredBalance,
-    status: 'active',
-    last_redeemed_date: null,
-    last_redeemed_by: null,
-    last_redeemed_amount: null,
+  const result = await sbRpc(env, 'undo_redemption', {
+    p_code: code,
+    p_staff: staffId,
   });
 
-  await sbPost(env, 'audit_log', {
-    timestamp: now,
-    action: 'undo_redemption',
-    voucher_id: code,
-    voucher_type_id: voucher.voucher_type_id,
-    user_id: staffId,
-    data: { restored_amount: voucher.last_redeemed_amount, restored_balance: restoredBalance },
-  });
-
-  const updated = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=*`);
-  return json(updated[0], 200, request, env);
+  const errorResponse = rpcErrorToResponse(result, request, env);
+  if (errorResponse) return errorResponse;
+  return json(result.voucher, 200, request, env);
 }
 
 async function resendVoucherEmail(code, request, env) {
@@ -1171,6 +1124,19 @@ async function sbUpsert(env, table, data, onConflict) {
   return res.json();
 }
 
+async function sbRpc(env, fn, args) {
+  const res = await fetch(`${SUPABASE_REST(env.SUPABASE_URL)}/rpc/${fn}`, {
+    method: 'POST',
+    headers: sbHeaders(env),
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Supabase RPC ${fn} failed (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // Utilities
 // ════════════════════════════════════════════════════════════════════════════
@@ -1254,6 +1220,35 @@ function timingSafeEqualHex(a, b) {
   let result = 0;
   for (let i = 0; i < a.length; i += 1) result |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return result === 0;
+}
+
+// Maps an RPC result's error code to HTTP parts. Message texts must match the
+// pre-RPC API exactly — the staff UI displays them verbatim.
+export function rpcErrorParts(result) {
+  if (!result || !result.error) return null;
+  const d = result.detail || {};
+  switch (result.error) {
+    case 'VOUCHER_NOT_FOUND':
+      return { status: 404, message: 'Voucher not found' };
+    case 'VOUCHER_NOT_ACTIVE':
+      return { status: 400, message: `Cannot redeem voucher with status: ${d.status}` };
+    case 'VOUCHER_EXPIRED':
+      return { status: 400, message: `Voucher expired on ${d.expiry_date}` };
+    case 'INVALID_AMOUNT':
+      return { status: 400, message: 'amount must be a positive number' };
+    case 'INSUFFICIENT_BALANCE':
+      return { status: 400, message: `Amount ${d.amount} exceeds balance ${d.balance}` };
+    case 'NOTHING_TO_UNDO':
+      return { status: 400, message: 'No redemption to undo' };
+    default:
+      return { status: 400, message: `Redemption failed: ${result.error}` };
+  }
+}
+
+function rpcErrorToResponse(result, request, env) {
+  const parts = rpcErrorParts(result);
+  if (!parts) return null;
+  return json({ error: parts.message }, parts.status, request, env);
 }
 
 function json(data, status, request, env) {
