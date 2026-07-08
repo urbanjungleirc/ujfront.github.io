@@ -395,36 +395,44 @@ async function fulfillVoucher(session, env) {
   // Calculate expiry date
   const expiryDate = vt.expiry_months ? addMonths(new Date(), vt.expiry_months) : null;
 
-  // Generate unique voucher code
-  const voucherCode = await generateUniqueCode(env);
-
   const now = new Date().toISOString();
 
-  // Insert voucher
-  await sbPost(env, 'vouchers', {
-    voucher_id: voucherCode,
-    voucher_type_id: typeId,
-    voucher_item_id: metadata.voucher_item_id || null,
-    value,
-    balance: value,
-    status: 'active',
-    issued_date: now,
-    expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
-    issued_by: 'customer_purchase',
-    customer_name: customerName,
-    customer_email: customerEmail,
-    customer_phone: metadata.customer_phone || null,
-    is_physical: false,
-    gift_from: metadata.gift_from || null,
-    gift_to: metadata.gift_to || null,
-    gift_message: metadata.gift_message || null,
-    promo_code_used: metadata.promo_id || null,
-    payment_reference: paymentReference,
-    payment_platform: 'stripe',
-    email_sent: false,
-    purchase_source: 'online',
-    created_timestamp: now,
-  });
+  // Insert voucher. The unique index on payment_reference is the real
+  // idempotency guard — the read above is just a fast path. A conflict means
+  // a concurrent delivery of the same Stripe event already fulfilled it.
+  let voucherCode;
+  try {
+    voucherCode = await insertVoucherWithRetry(env, (code) => ({
+      voucher_id: code,
+      voucher_type_id: typeId,
+      voucher_item_id: metadata.voucher_item_id || null,
+      value,
+      balance: value,
+      status: 'active',
+      issued_date: now,
+      expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
+      issued_by: 'customer_purchase',
+      customer_name: customerName,
+      customer_email: customerEmail,
+      customer_phone: metadata.customer_phone || null,
+      is_physical: false,
+      gift_from: metadata.gift_from || null,
+      gift_to: metadata.gift_to || null,
+      gift_message: metadata.gift_message || null,
+      promo_code_used: metadata.promo_id || null,
+      payment_reference: paymentReference,
+      payment_platform: 'stripe',
+      email_sent: false,
+      purchase_source: 'online',
+      created_timestamp: now,
+    }));
+  } catch (err) {
+    if (isUniqueViolation(err, 'vouchers_payment_reference_key')) {
+      console.log(`Voucher already fulfilled for session ${paymentReference} (unique constraint)`);
+      return;
+    }
+    throw err;
+  }
 
   // Insert purchase tracking (for purchase limit enforcement).
   // Store the email lowercased so the limit count in createVoucherSession
@@ -733,11 +741,10 @@ async function createPhysicalVoucher(request, env) {
   }
 
   const expiryDate = vt.expiry_months ? addMonths(new Date(), vt.expiry_months) : null;
-  const voucherCode = await generateUniqueCode(env);
   const now = new Date().toISOString();
 
-  await sbPost(env, 'vouchers', {
-    voucher_id: voucherCode,
+  const voucherCode = await insertVoucherWithRetry(env, (code) => ({
+    voucher_id: code,
     voucher_type_id: typeId,
     voucher_item_id: itemId || null,
     value,
@@ -758,7 +765,7 @@ async function createPhysicalVoucher(request, env) {
     email_sent: false,
     purchase_source: 'staff',
     created_timestamp: now,
-  });
+  }));
 
   await sbPost(env, 'audit_log', {
     timestamp: now,
@@ -1141,15 +1148,43 @@ async function sbRpc(env, fn, args) {
 // Utilities
 // ════════════════════════════════════════════════════════════════════════════
 
-async function generateUniqueCode(env) {
+export function randomVoucherCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I, O, 0, 1
+  // 32 divides 256, so byte % 32 has no modulo bias.
+  const bytes = crypto.getRandomValues(new Uint8Array(8));
+  const s = [...bytes].map((b) => chars[b % 32]).join('');
+  return `UJ-${s.slice(0, 4)}-${s.slice(4)}`;
+}
+
+async function generateUniqueCode(env) {
   for (let attempt = 0; attempt < 5; attempt++) {
-    const seg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    const code = `UJ-${seg()}-${seg()}`;
+    const code = randomVoucherCode();
     const existing = await sbGet(env, `vouchers?voucher_id=eq.${encodeURIComponent(code)}&select=voucher_id`);
     if (!existing.length) return code;
   }
   throw new Error('Failed to generate unique voucher code after 5 attempts');
+}
+
+export function isUniqueViolation(err, constraintName) {
+  const message = String(err && err.message);
+  return message.includes('23505') && message.includes(constraintName);
+}
+
+// The pre-insert existence check in generateUniqueCode is a fast path only;
+// the PK is the real guard. On a code collision at insert time, retry once
+// with a fresh code instead of surfacing a 500.
+export async function insertVoucherWithRetry(env, buildRow) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const code = await generateUniqueCode(env);
+    try {
+      await sbPost(env, 'vouchers', buildRow(code));
+      return code;
+    } catch (err) {
+      if (isUniqueViolation(err, 'vouchers_pkey') && attempt === 0) continue;
+      throw err;
+    }
+  }
+  throw new Error('Voucher insert failed after code-collision retry');
 }
 
 function addMonths(date, months) {

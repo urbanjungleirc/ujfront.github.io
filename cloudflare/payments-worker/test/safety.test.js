@@ -1,5 +1,64 @@
-import { describe, it, expect } from 'vitest';
-import { rpcErrorParts, staffSecretMatches } from '../src/index.js';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import {
+  rpcErrorParts, staffSecretMatches,
+  randomVoucherCode, isUniqueViolation, insertVoucherWithRetry,
+} from '../src/index.js';
+
+describe('randomVoucherCode', () => {
+  it('always matches UJ-XXXX-XXXX with the unambiguous alphabet', () => {
+    for (let i = 0; i < 200; i++) {
+      expect(randomVoucherCode()).toMatch(/^UJ-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/);
+    }
+  });
+});
+
+describe('isUniqueViolation', () => {
+  it('detects a 23505 on the named constraint', () => {
+    const err = new Error('Supabase POST vouchers failed (409): {"code":"23505","message":"duplicate key value violates unique constraint \\"vouchers_pkey\\""}');
+    expect(isUniqueViolation(err, 'vouchers_pkey')).toBe(true);
+    expect(isUniqueViolation(err, 'vouchers_payment_reference_key')).toBe(false);
+  });
+  it('ignores non-unique errors', () => {
+    expect(isUniqueViolation(new Error('Supabase POST vouchers failed (500): boom'), 'vouchers_pkey')).toBe(false);
+  });
+});
+
+describe('insertVoucherWithRetry', () => {
+  const env = { SUPABASE_URL: 'https://sb.test', SUPABASE_SERVICE_ROLE_KEY: 'k' };
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('retries once with a fresh code on a PK collision', async () => {
+    const bodies = [];
+    let postCount = 0;
+    vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
+      if (!opts.method) return { ok: true, json: async () => [] }; // GET: code is unused
+      postCount += 1;
+      bodies.push(JSON.parse(opts.body));
+      if (postCount === 1) {
+        return { ok: false, status: 409, text: async () => '{"code":"23505","message":"duplicate key value violates unique constraint \\"vouchers_pkey\\""}' };
+      }
+      return { ok: true, json: async () => [{}] };
+    }));
+
+    const code = await insertVoucherWithRetry(env, (c) => ({ voucher_id: c, value: 50 }));
+    expect(postCount).toBe(2);
+    expect(code).toBe(bodies[1].voucher_id);
+    expect(bodies[0].voucher_id).not.toBe(bodies[1].voucher_id);
+  });
+
+  it('rethrows a payment_reference conflict without retrying', async () => {
+    let postCount = 0;
+    vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
+      if (!opts.method) return { ok: true, json: async () => [] };
+      postCount += 1;
+      return { ok: false, status: 409, text: async () => '{"code":"23505","message":"duplicate key value violates unique constraint \\"vouchers_payment_reference_key\\""}' };
+    }));
+
+    await expect(insertVoucherWithRetry(env, (c) => ({ voucher_id: c })))
+      .rejects.toThrow(/vouchers_payment_reference_key/);
+    expect(postCount).toBe(1);
+  });
+});
 
 describe('staffSecretMatches', () => {
   it('accepts the exact secret', async () => {
