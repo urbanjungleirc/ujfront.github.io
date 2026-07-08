@@ -58,7 +58,7 @@ export default {
 // ════════════════════════════════════════════════════════════════════════════
 
 async function handleStaffRequest(request, env, url) {
-  assertStaffAuth(request, env);
+  await assertStaffAuth(request, env);
 
   const method = request.method;
   const path = url.pathname;
@@ -491,7 +491,7 @@ async function getVoucherTypes(request, env) {
 
   const url = new URL(request.url);
   const promoId = url.searchParams.get('promo_id') || '';
-  const staffMode = isStaffAuthed(request, env);
+  const staffMode = await isStaffAuthed(request, env);
 
   let query = 'voucher_types?is_active=eq.true&order=sort_order.asc&select=type_id,display_name,description,is_physical,expiry_months,availability,max_per_customer,limit_period,promo_id,terms_conditions,sort_order';
 
@@ -1278,14 +1278,25 @@ function isAllowedOrigin(origin, env) {
   return (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean).includes(origin);
 }
 
-function isStaffAuthed(request, env) {
-  const secret = env.STAFF_SHARED_SECRET;
-  if (!secret) return false;
-  return request.headers.get('X-Staff-Secret') === secret;
+async function sha256Hex(text) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-function assertStaffAuth(request, env) {
-  if (!isStaffAuthed(request, env)) {
+// Hash both sides then compare digests: constant-time and length-independent.
+export async function staffSecretMatches(provided, secret) {
+  const [a, b] = await Promise.all([sha256Hex(provided || ''), sha256Hex(secret)]);
+  return timingSafeEqualHex(a, b);
+}
+
+async function isStaffAuthed(request, env) {
+  const secret = env.STAFF_SHARED_SECRET;
+  if (!secret) return false;
+  return staffSecretMatches(request.headers.get('X-Staff-Secret') || '', secret);
+}
+
+async function assertStaffAuth(request, env) {
+  if (!(await isStaffAuthed(request, env))) {
     throw Object.assign(new Error('Unauthorised'), { status: 401 });
   }
 }

@@ -1,5 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { rpcErrorParts } from '../src/index.js';
+import { rpcErrorParts, staffSecretMatches } from '../src/index.js';
+
+describe('staffSecretMatches', () => {
+  it('accepts the exact secret', async () => {
+    expect(await staffSecretMatches('hunter2-secret', 'hunter2-secret')).toBe(true);
+  });
+  it('rejects a wrong secret of the same length', async () => {
+    expect(await staffSecretMatches('hunter2-secreT', 'hunter2-secret')).toBe(false);
+  });
+  it('rejects different lengths', async () => {
+    expect(await staffSecretMatches('short', 'a-much-longer-secret')).toBe(false);
+  });
+  it('rejects empty input', async () => {
+    expect(await staffSecretMatches('', 'a-secret')).toBe(false);
+  });
+});
 
 describe('rpcErrorParts', () => {
   it('returns null for success results', () => {
