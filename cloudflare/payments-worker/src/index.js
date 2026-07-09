@@ -113,6 +113,12 @@ async function handleStaffRequest(request, env, url) {
     return cancelVoucher(code, request, env);
   }
 
+  // POST /v1/vouchers/:code/uncancel  (manager-gated restore)
+  if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/uncancel$/)) {
+    const code = path.split('/')[3];
+    return restoreVoucher(code, request, env);
+  }
+
   // POST /v1/vouchers/:code/resend-email
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/resend-email$/)) {
     const code = path.split('/')[3];
@@ -898,12 +904,14 @@ async function undoRedemption(code, request, env) {
   return json(result.voucher, 200, request, env);
 }
 
-async function cancelVoucher(code, request, env) {
+// Cancel and restore are the same shape: manager-gated, reason required, one
+// RPC call. staffField is the body key each action reports its actor under.
+async function managerVoucherAction(rpcName, staffField, code, request, env) {
   assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
   await assertManagerAuth(request, env);
 
   const data = await request.json();
-  const staffId = cleanString(data.cancelled_by || 'staff', 100);
+  const staffId = cleanString(data[staffField] || 'staff', 100);
   const reason = cleanString(data.reason || '', 500);
   // Cloudflare Access identity of the manager, reported by the staff page.
   // Audit-only: the API cannot verify it (different CF account), so it must
@@ -912,7 +920,7 @@ async function cancelVoucher(code, request, env) {
 
   if (!reason) return json({ error: 'reason is required' }, 400, request, env);
 
-  const result = await sbRpc(env, 'cancel_voucher', {
+  const result = await sbRpc(env, rpcName, {
     p_code: code,
     p_staff: staffId,
     p_reason: reason,
@@ -922,6 +930,14 @@ async function cancelVoucher(code, request, env) {
   const errorResponse = rpcErrorToResponse(result, request, env);
   if (errorResponse) return errorResponse;
   return json(result.voucher, 200, request, env);
+}
+
+function cancelVoucher(code, request, env) {
+  return managerVoucherAction('cancel_voucher', 'cancelled_by', code, request, env);
+}
+
+function restoreVoucher(code, request, env) {
+  return managerVoucherAction('restore_voucher', 'restored_by', code, request, env);
 }
 
 async function resendVoucherEmail(code, request, env) {
@@ -1315,6 +1331,8 @@ export function rpcErrorParts(result) {
       return { status: 400, message: 'No redemption to undo' };
     case 'VOUCHER_ALREADY_CANCELLED':
       return { status: 400, message: 'Voucher is already cancelled' };
+    case 'VOUCHER_NOT_CANCELLED':
+      return { status: 400, message: `Cannot restore voucher with status: ${d.status}` };
     case 'VOUCHER_CANCELLED':
       return { status: 400, message: 'Voucher is cancelled' };
     case 'REASON_REQUIRED':
