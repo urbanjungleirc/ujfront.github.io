@@ -753,11 +753,13 @@ async function createPhysicalVoucher(request, env) {
 
   // Determine value
   let value;
+  let itemPrice = null;
   let itemName = null;
   if (itemId) {
     const items = await sbGet(env, `voucher_items?id=eq.${encodeURIComponent(itemId)}&select=*`);
     if (!items.length) return json({ error: 'Voucher item not found' }, 404, request, env);
     value = items[0].value;
+    itemPrice = items[0].price;
     itemName = items[0].name || null;
   } else {
     value = Number(data.value || 0);
@@ -768,8 +770,13 @@ async function createPhysicalVoucher(request, env) {
 
   // Money in, as distinct from face value. Comps and credits take no money;
   // recording their face value here would read as revenue that never existed.
+  // For an item, the real charge is its price (voucher_items.price is the
+  // "sold below face value" promo mechanism) — never the face value it was
+  // picked from. A custom typed-in value has no separate price, so it's what
+  // was actually charged.
+  const chargedAmount = itemId ? (itemPrice ?? value) : value;
   const isRevenue = vt.revenue_class === 'sale' || vt.revenue_class === 'promo_sale';
-  const amountPaid = isRevenue ? value : 0;
+  const amountPaid = isRevenue ? chargedAmount : 0;
 
   const now = new Date().toISOString();
 
