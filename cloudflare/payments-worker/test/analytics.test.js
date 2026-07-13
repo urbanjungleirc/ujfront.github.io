@@ -105,4 +105,82 @@ describe('GET /v1/vouchers/analytics', () => {
     const res = await worker.fetch(req('?from=2026-05&to=2026-06&class=free_stuff'), ENV);
     expect(res.status).toBe(400);
   });
+
+  it('rejects from later than to (400)', async () => {
+    stubRpc();
+    const res = await worker.fetch(req('?from=2026-06&to=2026-05'), ENV);
+    expect(res.status).toBe(400);
+  });
+
+  it('fails loudly (500) instead of silently seeding zero when opening balance is null', async () => {
+    // A PostgREST hiccup / renamed RPC / function regression could return null.
+    // Silently falling back to 0 would recreate the exact failure this endpoint
+    // exists to prevent: the liability curve driven deeply negative.
+    stubRpc(MONTHS, null);
+    const res = await worker.fetch(req('?from=2026-05&to=2026-06'), ENV);
+    expect(res.status).toBe(500);
+  });
+
+  it('keeps a NULL 12-month cohort figure as null, not 0', async () => {
+    // A young cohort hasn't reached the 12-month mark yet — the SQL correctly
+    // returns NULL. Coercing to 0 would falsely claim it had a full year to redeem.
+    const calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
+      const u = String(url);
+      calls.push({ url: u, body: opts.body ? JSON.parse(opts.body) : null });
+      const ok = (b) => new Response(JSON.stringify(b), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      if (u.includes('voucher_opening_liability')) return ok(0);
+      if (u.includes('voucher_monthly_stats'))   return ok(MONTHS);
+      if (u.includes('voucher_window_summary'))  return ok([{ redemption_rate: 62.5, full_redemption_rate: 40, median_days_to_redeem: 34.5, avg_voucher_value: 83.33 }]);
+      if (u.includes('voucher_item_mix'))        return ok([{ item_id: 'item_gv_100', item_name: '$100 Gift Certificate', units: 1, revenue: 100 }]);
+      if (u.includes('voucher_cohorts'))          return ok([{ cohort_month: '2026-06-01', issued_value: 100, redeemed_by_1m: null, redeemed_by_3m: null, redeemed_by_6m: null, redeemed_by_12m: null, cohort_age_days: 12 }]);
+      return ok([]);
+    }));
+
+    const res = await worker.fetch(req('?from=2026-05&to=2026-06'), ENV);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.cohorts[0].redeemed_by_12m).toBeNull();
+    expect(body.cohorts[0].cohort_age_days).toBe(12);
+  });
+
+  it('passes through an all-NULL summary row without fabricating zeros', async () => {
+    // voucher_window_summary returns a SINGLE all-NULL row (not zero rows)
+    // when the window has no vouchers at all.
+    const calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
+      const u = String(url);
+      calls.push({ url: u, body: opts.body ? JSON.parse(opts.body) : null });
+      const ok = (b) => new Response(JSON.stringify(b), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      if (u.includes('voucher_opening_liability')) return ok(0);
+      if (u.includes('voucher_monthly_stats'))   return ok([]);
+      if (u.includes('voucher_window_summary'))  return ok([{ redemption_rate: null, full_redemption_rate: null, median_days_to_redeem: null, avg_voucher_value: null }]);
+      if (u.includes('voucher_item_mix'))        return ok([]);
+      if (u.includes('voucher_cohorts'))         return ok([]);
+      return ok([]);
+    }));
+
+    const res = await worker.fetch(req('?from=2026-05&to=2026-06'), ENV);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.summary).toEqual({
+      redemption_rate: null,
+      full_redemption_rate: null,
+      median_days_to_redeem: null,
+      avg_voucher_value: null,
+    });
+  });
+
+  it('treats a whitespace-only type filter as unfiltered', async () => {
+    const calls = stubRpc();
+    const res = await worker.fetch(req('?from=2026-05&to=2026-06&type=%20'), ENV);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.type).toBeNull();
+    const monthly = calls.find((c) => c.url.includes('voucher_monthly_stats'));
+    expect(monthly.body.p_type).toBeNull();
+  });
 });

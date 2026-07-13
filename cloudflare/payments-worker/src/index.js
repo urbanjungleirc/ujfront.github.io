@@ -745,7 +745,11 @@ async function getAnalytics(params, request, env) {
     return json({ error: 'from must not be after to' }, 400, request, env);
   }
 
-  const typeId = params.get('type') ? cleanString(params.get('type'), 100) : null;
+  // A whitespace-only ?type= passes the truthiness check but trims to '', which
+  // would reach Postgres as p_type: '' and match no voucher type — silently
+  // returning an empty report instead of the intended "unfiltered".
+  const cleanedType = params.get('type') ? cleanString(params.get('type'), 100) : '';
+  const typeId = cleanedType || null;
   const cls = params.get('class') || null;
   if (cls && !REVENUE_CLASSES.includes(cls)) {
     return json({ error: `class must be one of: ${REVENUE_CLASSES.join(', ')}` }, 400, request, env);
@@ -770,7 +774,23 @@ async function getAnalytics(params, request, env) {
   // everything redeemed, less everything expired, seeded with what was already
   // owed when the window opened. Kept out of SQL so the functions stay simple
   // per-month rollups.
-  let running = Number(opening) || 0;
+  //
+  // `0` is a legitimate opening balance (an epoch-anchored window correctly opens
+  // at zero), so this must check Number.isFinite, NOT truthiness. `|| 0` would
+  // quietly turn a null/NaN opening balance — a PostgREST hiccup, a renamed RPC,
+  // a function regression — into seeding from zero: the exact catastrophic
+  // failure mode (a deeply negative liability curve) that this endpoint exists
+  // to prevent. A missing opening balance must fail loudly (the top-level catch
+  // turns this throw into a 500), never silently.
+  // Number(null) === 0 and Number('') === 0, so those must be rejected before
+  // the numeric coercion — otherwise the exact silent-zero failure mode slips
+  // back in through the one input that looks falsy-but-numeric.
+  const openingLiability = opening === null || opening === undefined ? NaN : Number(opening);
+  if (!Number.isFinite(openingLiability)) {
+    throw new Error('voucher_opening_liability returned a non-numeric value');
+  }
+
+  let running = openingLiability;
   const withLiability = months.map((m) => {
     running += Number(m.face_value_issued) - Number(m.redeemed_value) - Number(m.expired_value);
     return { ...m, liability_close: Math.round(running * 100) / 100 };
@@ -780,7 +800,7 @@ async function getAnalytics(params, request, env) {
     from, to,
     type: typeId,
     class: cls,
-    opening_liability: Number(opening) || 0,
+    opening_liability: openingLiability,
     months: withLiability,
     summary: summary[0] || null,
     items,
