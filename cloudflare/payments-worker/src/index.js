@@ -1,5 +1,6 @@
 import { encode as qrEncode } from 'uqr';
 import { renderVoucherEmail } from './email.js';
+import { verifyAccessJwt } from './access-jwt.js';
 
 const STRIPE_API_BASE = 'https://api.stripe.com/v1';
 const STRIPE_API_VERSION = '2025-08-27.basil';
@@ -58,7 +59,7 @@ export default {
 // ════════════════════════════════════════════════════════════════════════════
 
 async function handleStaffRequest(request, env, url) {
-  await assertStaffAuth(request, env);
+  const identity = await assertStaffAuth(request, env);
 
   const method = request.method;
   const path = url.pathname;
@@ -92,7 +93,7 @@ async function handleStaffRequest(request, env, url) {
   // POST /v1/vouchers/:code/redeem
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/redeem$/)) {
     const code = path.split('/')[3];
-    return redeemVoucher(code, request, env);
+    return redeemVoucher(code, request, env, identity);
   }
 
   // POST /v1/vouchers/:code/notes  (add/edit free-form staff notes)
@@ -104,19 +105,19 @@ async function handleStaffRequest(request, env, url) {
   // POST /v1/vouchers/:code/undo-redemption
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/undo-redemption$/)) {
     const code = path.split('/')[3];
-    return undoRedemption(code, request, env);
+    return undoRedemption(code, request, env, identity);
   }
 
   // POST /v1/vouchers/:code/cancel  (manager-gated soft delete)
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/cancel$/)) {
     const code = path.split('/')[3];
-    return cancelVoucher(code, request, env);
+    return cancelVoucher(code, request, env, identity);
   }
 
   // POST /v1/vouchers/:code/uncancel  (manager-gated restore)
   if (method === 'POST' && path.match(/^\/v1\/vouchers\/[^/]+\/uncancel$/)) {
     const code = path.split('/')[3];
-    return restoreVoucher(code, request, env);
+    return restoreVoucher(code, request, env, identity);
   }
 
   // POST /v1/vouchers/:code/resend-email
@@ -832,7 +833,7 @@ async function createPhysicalVoucher(request, env) {
   return json(voucher[0], 201, request, env);
 }
 
-async function redeemVoucher(code, request, env) {
+async function redeemVoucher(code, request, env, identity) {
   assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
 
   const data = await request.json();
@@ -849,6 +850,7 @@ async function redeemVoucher(code, request, env) {
     p_staff: staffId,
     p_receipt: clubworxReceipt,
     p_notes: notes,
+    p_access_email: identity.email || '',
   });
 
   const errorResponse = rpcErrorToResponse(result, request, env);
@@ -888,7 +890,7 @@ async function updateVoucherNotes(code, request, env) {
   return json(updated[0], 200, request, env);
 }
 
-async function undoRedemption(code, request, env) {
+async function undoRedemption(code, request, env, identity) {
   assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
 
   const data = await request.json();
@@ -897,6 +899,7 @@ async function undoRedemption(code, request, env) {
   const result = await sbRpc(env, 'undo_redemption', {
     p_code: code,
     p_staff: staffId,
+    p_access_email: identity.email || '',
   });
 
   const errorResponse = rpcErrorToResponse(result, request, env);
@@ -906,17 +909,17 @@ async function undoRedemption(code, request, env) {
 
 // Cancel and restore are the same shape: manager-gated, reason required, one
 // RPC call. staffField is the body key each action reports its actor under.
-async function managerVoucherAction(rpcName, staffField, code, request, env) {
+async function managerVoucherAction(rpcName, staffField, code, request, env, identity) {
   assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
   await assertManagerAuth(request, env);
 
   const data = await request.json();
   const staffId = cleanString(data[staffField] || 'staff', 100);
   const reason = cleanString(data.reason || '', 500);
-  // Cloudflare Access identity of the manager, reported by the staff page.
-  // Audit-only: the API cannot verify it (different CF account), so it must
-  // never gate authorisation — the manager secret above does that.
-  const accessEmail = cleanString(data.access_email || '', 254);
+  // The Access identity is verified server-side from the signed JWT. Anything
+  // the client puts in data.access_email is ignored. Empty on the break-glass
+  // secret path, which has no identity.
+  const accessEmail = identity.email || '';
 
   if (!reason) return json({ error: 'reason is required' }, 400, request, env);
 
@@ -932,12 +935,12 @@ async function managerVoucherAction(rpcName, staffField, code, request, env) {
   return json(result.voucher, 200, request, env);
 }
 
-function cancelVoucher(code, request, env) {
-  return managerVoucherAction('cancel_voucher', 'cancelled_by', code, request, env);
+function cancelVoucher(code, request, env, identity) {
+  return managerVoucherAction('cancel_voucher', 'cancelled_by', code, request, env, identity);
 }
 
-function restoreVoucher(code, request, env) {
-  return managerVoucherAction('restore_voucher', 'restored_by', code, request, env);
+function restoreVoucher(code, request, env, identity) {
+  return managerVoucherAction('restore_voucher', 'restored_by', code, request, env, identity);
 }
 
 async function resendVoucherEmail(code, request, env) {
@@ -1386,16 +1389,46 @@ export async function staffSecretMatches(provided, secret) {
   return timingSafeEqualHex(a, b);
 }
 
-async function isStaffAuthed(request, env) {
+// Staff auth has two doors:
+//   1. Cloudflare Access JWT — injected by Access on ujstaff.happyk.au. Carries
+//      a verified identity, so it also supplies the audit email.
+//   2. X-Staff-Secret — local dev and break-glass (a direct workers.dev call,
+//      which Access never sees). No identity.
+//
+// A present-but-invalid JWT is rejected outright rather than falling through to
+// door 2: otherwise a forged token alongside a leaked secret would authenticate
+// silently, and we'd never see the forgery.
+export async function resolveStaffIdentity(request, env) {
+  const jwt = request.headers.get('Cf-Access-Jwt-Assertion') || '';
+  if (jwt) {
+    const result = await verifyAccessJwt(jwt, {
+      teamDomain: env.ACCESS_TEAM_DOMAIN,
+      aud: env.ACCESS_AUD,
+    });
+    if (!result.ok) return { ok: false };
+    return { ok: true, email: result.email };
+  }
+
   const secret = env.STAFF_SHARED_SECRET;
-  if (!secret) return false;
-  return staffSecretMatches(request.headers.get('X-Staff-Secret') || '', secret);
+  if (secret && (await staffSecretMatches(request.headers.get('X-Staff-Secret') || '', secret))) {
+    return { ok: true, email: null };
+  }
+  return { ok: false };
+}
+
+// Kept for getVoucherTypes, which is a PUBLIC endpoint that reveals staff-only
+// voucher types when the caller happens to be staff. It needs a boolean, not an
+// identity — and it must not throw on anonymous customers.
+async function isStaffAuthed(request, env) {
+  return (await resolveStaffIdentity(request, env)).ok;
 }
 
 async function assertStaffAuth(request, env) {
-  if (!(await isStaffAuthed(request, env))) {
+  const identity = await resolveStaffIdentity(request, env);
+  if (!identity.ok) {
     throw Object.assign(new Error('Unauthorised'), { status: 401 });
   }
+  return identity;
 }
 
 export async function isManagerAuthed(request, env) {

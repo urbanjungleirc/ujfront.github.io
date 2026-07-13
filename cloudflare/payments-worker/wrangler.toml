@@ -10,6 +10,11 @@ DEPOSIT_AMOUNT_CENTS = "10000"
 DEPOSIT_FEE_CENTS = "230"
 DEPOSIT_CURRENCY = "aud"
 
+# Cloudflare Access (staff auth). Neither value is secret: the AUD tag is an
+# identifier, and a token is worthless without Cloudflare's signature.
+ACCESS_TEAM_DOMAIN = "happyk.cloudflareaccess.com"
+ACCESS_AUD = "65dd83df311d06ffbc7db624cc4e88e3c4d216e716630cfaf60d6d09b7f0e939"
+
 # Set these as Worker secrets, not plain vars:
 # --- existing (deposits) ---
 # wrangler secret put STRIPE_SECRET_KEY

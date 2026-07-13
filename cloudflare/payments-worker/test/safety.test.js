@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  rpcErrorParts, staffSecretMatches,
+  rpcErrorParts, staffSecretMatches, resolveStaffIdentity,
   randomVoucherCode, isUniqueViolation, insertVoucherWithRetry,
 } from '../src/index.js';
+import { resetJwksCache } from '../src/access-jwt.js';
 
 describe('randomVoucherCode', () => {
   it('always matches UJ-XXXX-XXXX with the unambiguous alphabet', () => {
@@ -114,5 +115,84 @@ describe('rpcErrorParts', () => {
   it('maps unknown codes to a generic 400', () => {
     expect(rpcErrorParts({ error: 'SOMETHING_NEW' }))
       .toEqual({ status: 400, message: 'Redemption failed: SOMETHING_NEW' });
+  });
+});
+
+describe('resolveStaffIdentity', () => {
+  const TEAM = 'happyk.cloudflareaccess.com';
+  const AUD = 'aud-tag';
+  const env = { ACCESS_TEAM_DOMAIN: TEAM, ACCESS_AUD: AUD, STAFF_SHARED_SECRET: 'correct-secret' };
+
+  const b64url = (bytes) => {
+    let bin = '';
+    for (const b of new Uint8Array(bytes)) bin += String.fromCharCode(b);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  };
+  const b64urlJson = (o) => b64url(new TextEncoder().encode(JSON.stringify(o)));
+
+  let keys;
+  beforeEach(async () => {
+    resetJwksCache();
+    keys = await crypto.subtle.generateKey(
+      { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+      true, ['sign', 'verify'],
+    );
+    const jwk = await crypto.subtle.exportKey('jwk', keys.publicKey);
+    const keyset = { keys: [{ kty: 'RSA', n: jwk.n, e: jwk.e, alg: 'RS256', kid: 'k1' }] };
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(keyset))));
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function token(over = {}) {
+    const h = b64urlJson({ alg: 'RS256', kid: 'k1' });
+    const p = b64urlJson({
+      iss: `https://${TEAM}`, aud: AUD,
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      email: 'mod@urbanjungleirc.com', sub: 's1', ...over,
+    });
+    const sig = await crypto.subtle.sign(
+      { name: 'RSASSA-PKCS1-v1_5' }, keys.privateKey, new TextEncoder().encode(`${h}.${p}`),
+    );
+    return `${h}.${p}.${b64url(sig)}`;
+  }
+  const req = (headers) => new Request('https://x.test/v1/vouchers/search', { headers });
+
+  it('accepts a valid Access JWT and returns the email', async () => {
+    const r = await resolveStaffIdentity(req({ 'Cf-Access-Jwt-Assertion': await token() }), env);
+    expect(r).toEqual({ ok: true, email: 'mod@urbanjungleirc.com' });
+  });
+
+  it('accepts the shared secret with a null email', async () => {
+    const r = await resolveStaffIdentity(req({ 'X-Staff-Secret': 'correct-secret' }), env);
+    expect(r).toEqual({ ok: true, email: null });
+  });
+
+  it('prefers the JWT when both are present', async () => {
+    const r = await resolveStaffIdentity(
+      req({ 'Cf-Access-Jwt-Assertion': await token(), 'X-Staff-Secret': 'correct-secret' }), env,
+    );
+    expect(r).toEqual({ ok: true, email: 'mod@urbanjungleirc.com' });
+  });
+
+  it('FAILS CLOSED on an invalid JWT even when a valid secret is present', async () => {
+    const r = await resolveStaffIdentity(
+      req({ 'Cf-Access-Jwt-Assertion': await token({ exp: 1 }), 'X-Staff-Secret': 'correct-secret' }), env,
+    );
+    expect(r).toEqual({ ok: false });
+  });
+
+  it('rejects a wrong secret', async () => {
+    expect(await resolveStaffIdentity(req({ 'X-Staff-Secret': 'wrong' }), env)).toEqual({ ok: false });
+  });
+
+  it('rejects when neither is present', async () => {
+    expect(await resolveStaffIdentity(req({}), env)).toEqual({ ok: false });
+  });
+
+  it('rejects a JWT when ACCESS_AUD is unset (misconfiguration fails closed)', async () => {
+    const r = await resolveStaffIdentity(
+      req({ 'Cf-Access-Jwt-Assertion': await token() }), { ...env, ACCESS_AUD: undefined },
+    );
+    expect(r).toEqual({ ok: false });
   });
 });
