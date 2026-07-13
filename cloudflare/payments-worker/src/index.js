@@ -402,6 +402,10 @@ async function fulfillVoucher(session, env) {
   const vt = types[0];
 
   const value = Number(metadata.voucher_value || 0);
+  // Stripe's amount_total is the money that actually landed — authoritative over
+  // any price we recomputed. It diverges from `value` whenever the item was sold
+  // below face value (voucher_items.price), which is what promo pricing is for.
+  const amountPaid = session.amount_total != null ? Number(session.amount_total) / 100 : value;
   const customerEmail = session.customer_details?.email || session.customer_email || '';
   const customerName = metadata.customer_name || session.customer_details?.name || '';
 
@@ -421,6 +425,7 @@ async function fulfillVoucher(session, env) {
       voucher_item_id: metadata.voucher_item_id || null,
       value,
       balance: value,
+      amount_paid: amountPaid,
       status: 'active',
       issued_date: now,
       expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
@@ -760,6 +765,12 @@ async function createPhysicalVoucher(request, env) {
   }
 
   const expiryDate = vt.expiry_months ? addMonths(new Date(), vt.expiry_months) : null;
+
+  // Money in, as distinct from face value. Comps and credits take no money;
+  // recording their face value here would read as revenue that never existed.
+  const isRevenue = vt.revenue_class === 'sale' || vt.revenue_class === 'promo_sale';
+  const amountPaid = isRevenue ? value : 0;
+
   const now = new Date().toISOString();
 
   const voucherCode = await insertVoucherWithRetry(env, (code) => ({
@@ -768,6 +779,7 @@ async function createPhysicalVoucher(request, env) {
     voucher_item_id: itemId || null,
     value,
     balance: value,
+    amount_paid: amountPaid,
     status: 'active',
     issued_date: now,
     expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
