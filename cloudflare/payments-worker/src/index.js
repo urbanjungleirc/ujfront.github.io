@@ -295,6 +295,15 @@ async function createVoucherSession(data, origin, request, env) {
   if (data.customer_email) params.set('customer_email', cleanString(data.customer_email, 254));
   params.set('success_url', `${voucherBaseUrl}/?payment=success&session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${voucherBaseUrl}/?payment=cancelled`);
+  // WARNING: fulfilment (below, ~line 410-413) records session.amount_total as
+  // amount_paid, and that is only correct because this checkout has exactly
+  // ONE line item at quantity 1 — amount_total is the sum of every line item,
+  // with no way to tell them apart afterwards. The deposits checkout above
+  // adds a second "Online processing fee" line item for exactly this reason;
+  // if a fee, tip, or any other line item is ever added here, amount_total
+  // will silently include it and analytics will overstate voucher revenue by
+  // that amount. Either keep this checkout single-line-item, or change
+  // fulfilment to read amount_paid from this line item's price alone.
   params.set('line_items[0][quantity]', '1');
   params.set('line_items[0][price_data][currency]', currency);
   params.set('line_items[0][price_data][unit_amount]', String(amountCents));
