@@ -102,6 +102,51 @@ describe('amount_paid on staff-created vouchers', () => {
     expect(inserted[0].value).toBe(100);        // face value the customer can still spend
     expect(inserted[0].balance).toBe(100);       // liability tracks face value, not the discount
   });
+
+  it('records the charged price as amount_paid for a promo_sale-class type (not 0, not face value)', async () => {
+    const inserted = stubSupabase({
+      type: { type_id: 'promo_voucher', display_name: 'Promo', revenue_class: 'promo_sale', expiry_months: 12, is_physical: true },
+      item: { id: 'item_promo', name: 'Promo item', value: 100, price: 60 },
+    });
+
+    const res = await worker.fetch(new Request('https://w.example.com/v1/vouchers', {
+      method: 'POST',
+      headers: { 'X-Staff-Secret': 'test-secret', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        voucher_type_id: 'promo_voucher',
+        voucher_item_id: 'item_promo',
+        customer_name: 'Test Customer',
+        issued_by: 'staff',
+      }),
+    }), ENV);
+
+    expect(res.status).toBe(201);
+    expect(inserted[0].amount_paid).toBe(60);   // what staff actually took
+    expect(inserted[0].amount_paid).not.toBe(0);
+    expect(inserted[0].value).toBe(100);        // face value the customer can still spend
+  });
+
+  it('records amount_paid as 0 for a genuinely free item (price = 0), not the face value', async () => {
+    const inserted = stubSupabase({
+      type: { type_id: 'physical_voucher', display_name: 'Physical', revenue_class: 'sale', expiry_months: 12, is_physical: true },
+      item: { id: 'item_free', name: 'Free promo item', value: 100, price: 0 },
+    });
+
+    const res = await worker.fetch(new Request('https://w.example.com/v1/vouchers', {
+      method: 'POST',
+      headers: { 'X-Staff-Secret': 'test-secret', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        voucher_type_id: 'physical_voucher',
+        voucher_item_id: 'item_free',
+        customer_name: 'Test Customer',
+        issued_by: 'staff',
+      }),
+    }), ENV);
+
+    expect(res.status).toBe(201);
+    expect(inserted[0].amount_paid).toBe(0);    // genuinely free — price=0 must not fall back to face value
+    expect(inserted[0].value).toBe(100);        // face value the customer can still spend
+  });
 });
 
 // ────────────────────────────────────────────────────────────────────────────
