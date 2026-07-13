@@ -79,6 +79,11 @@ async function handleStaffRequest(request, env, url) {
     return getVoucherStats(request, env);
   }
 
+  // GET /v1/vouchers/analytics?from=YYYY-MM&to=YYYY-MM&type=&class=
+  if (method === 'GET' && path === '/v1/vouchers/analytics') {
+    return getAnalytics(url.searchParams, request, env);
+  }
+
   // GET /v1/vouchers/:code
   if (method === 'GET' && path.startsWith('/v1/vouchers/')) {
     const code = path.split('/')[3];
@@ -714,6 +719,72 @@ async function getVoucherStats(request, env) {
     active_total_value: activeTotalValue,
     today_issued: todayIssued.length,
     today_redeemed: todayRedeemed.length,
+  }, 200, request, env);
+}
+
+const REVENUE_CLASSES = ['sale', 'promo_sale', 'credit', 'comp'];
+
+// 'YYYY-MM' → 'YYYY-MM-01'. Rejects anything else rather than handing a
+// malformed string to Postgres and getting a 500 back.
+function parseMonth(value) {
+  if (!/^\d{4}-\d{2}$/.test(value || '')) return null;
+  const [, m] = value.split('-').map(Number);
+  if (m < 1 || m > 12) return null;
+  return `${value}-01`;
+}
+
+async function getAnalytics(params, request, env) {
+  assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
+
+  const from = parseMonth(params.get('from'));
+  const to = parseMonth(params.get('to'));
+  if (!from || !to) {
+    return json({ error: 'from and to are required, formatted YYYY-MM' }, 400, request, env);
+  }
+  if (from > to) {
+    return json({ error: 'from must not be after to' }, 400, request, env);
+  }
+
+  const typeId = params.get('type') ? cleanString(params.get('type'), 100) : null;
+  const cls = params.get('class') || null;
+  if (cls && !REVENUE_CLASSES.includes(cls)) {
+    return json({ error: `class must be one of: ${REVENUE_CLASSES.join(', ')}` }, 400, request, env);
+  }
+
+  const args = { p_from: from, p_to: to, p_type: typeId, p_class: cls };
+
+  const [months, summary, items, cohorts, opening] = await Promise.all([
+    sbRpc(env, 'voucher_monthly_stats', args),
+    sbRpc(env, 'voucher_window_summary', args),
+    sbRpc(env, 'voucher_item_mix', args),
+    sbRpc(env, 'voucher_cohorts', args),
+    // CRITICAL: the liability outstanding immediately BEFORE the window opens.
+    // voucher_monthly_stats returns per-month FLOWS, so accumulating them from
+    // zero would count a redemption inside the window while ignoring the issuance
+    // that preceded it — driving the curve deeply negative on any window that
+    // doesn't start at the epoch (e.g. the page's default of "last 24 months").
+    sbRpc(env, 'voucher_opening_liability', { p_from: from, p_type: typeId, p_class: cls }),
+  ]);
+
+  // Liability is a running total, not a per-month fact: everything issued, less
+  // everything redeemed, less everything expired, seeded with what was already
+  // owed when the window opened. Kept out of SQL so the functions stay simple
+  // per-month rollups.
+  let running = Number(opening) || 0;
+  const withLiability = months.map((m) => {
+    running += Number(m.face_value_issued) - Number(m.redeemed_value) - Number(m.expired_value);
+    return { ...m, liability_close: Math.round(running * 100) / 100 };
+  });
+
+  return json({
+    from, to,
+    type: typeId,
+    class: cls,
+    opening_liability: Number(opening) || 0,
+    months: withLiability,
+    summary: summary[0] || null,
+    items,
+    cohorts,
   }, 200, request, env);
 }
 
