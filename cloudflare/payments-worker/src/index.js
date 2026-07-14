@@ -440,6 +440,9 @@ async function fulfillVoucher(session, env) {
       value,
       balance: value,
       amount_paid: amountPaid,
+      // Snapshotted, never re-read from the type. Reclassifying a type must not
+      // restate what this voucher was when it was sold. See migration 015.
+      revenue_class: vt.revenue_class,
       status: 'active',
       issued_date: now,
       expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,
@@ -703,13 +706,27 @@ async function getReport(params, request, env) {
   return json({ type, start: startStr, issued, redeemed }, 200, request, env);
 }
 
+// The Perth calendar date at instant `d`, as 'YYYY-MM-DD'.
+// Perth is a fixed UTC+8 and has never observed DST, so shifting the instant and
+// reading the UTC date is exact — no timezone database required. (The referendum
+// that would have introduced DST failed; if that ever changes, this becomes an
+// Intl.DateTimeFormat call with timeZone: 'Australia/Perth'.)
+const PERTH_UTC_OFFSET_MS = 8 * 60 * 60 * 1000;
+function perthToday(d) {
+  return new Date(d.getTime() + PERTH_UTC_OFFSET_MS).toISOString().slice(0, 10);
+}
+
 async function getVoucherStats(request, env) {
   assertEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
 
   const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-  const todayStart = todayStr + 'T00:00:00.000Z';
-  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  // "Today" is a Perth day, not a UTC one. Perth is UTC+8, so for the first eight
+  // hours of every Perth day the UTC date is still yesterday — long enough for the
+  // gym's whole morning to land in the wrong bucket. Every other date in this system
+  // (the SQL analytics, expiry) buckets in Australia/Perth; this now agrees.
+  const todayStr = perthToday(now);
+  const todayStart = new Date(`${todayStr}T00:00:00+08:00`).toISOString();
+  const in30Days = perthToday(new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000));
 
   const [activeVouchers, todayIssued, todayRedeemed] = await Promise.all([
     sbGet(env, `vouchers?status=eq.active&select=balance,expiry_date`),
@@ -717,13 +734,26 @@ async function getVoucherStats(request, env) {
     sbGet(env, `vouchers?last_redeemed_date=gte.${todayStart}&select=voucher_id`),
   ]);
 
-  const activeTotalValue = activeVouchers.reduce((s, v) => s + Number(v.balance || 0), 0);
+  // A voucher past its expiry date is NOT active, whatever the status column says.
+  // `status` is a stored value that nothing lazily flips when a date passes, so the
+  // book is full of rows still marked 'active' that expired years ago. Counting their
+  // balance as outstanding liability overstated it by ~$11.4k ($42,496.77 against a
+  // real $30,881.39) and contradicted the stats page, which excludes exactly these as
+  // breakage (migration 013's `expired` predicate). Same rule, same numbers, both pages.
+  //
+  // expiry_date is a plain 'YYYY-MM-DD' date, so a lexical compare is the right one —
+  // this is how expiringSoonCount below has always done it. A voucher expiring TODAY has
+  // not expired yet (it is redeemable all day), hence >= and not >.
+  const isLive = (v) => !v.expiry_date || v.expiry_date >= todayStr;
+
+  const liveVouchers = activeVouchers.filter(isLive);
+  const activeTotalValue = liveVouchers.reduce((s, v) => s + Number(v.balance || 0), 0);
   const expiringSoonCount = activeVouchers.filter(v =>
     v.expiry_date && v.expiry_date >= todayStr && v.expiry_date <= in30Days
   ).length;
 
   return json({
-    active_count: activeVouchers.length,
+    active_count: liveVouchers.length,
     expiring_soon_count: expiringSoonCount,
     active_total_value: activeTotalValue,
     today_issued: todayIssued.length,
@@ -887,6 +917,10 @@ async function createPhysicalVoucher(request, env) {
     value,
     balance: value,
     amount_paid: amountPaid,
+    // The same vt.revenue_class that decided amountPaid above, recorded rather than
+    // recomputed later — so the money and the class it implies can never disagree.
+    // See migration 015.
+    revenue_class: vt.revenue_class,
     status: 'active',
     issued_date: now,
     expiry_date: expiryDate ? expiryDate.toISOString().slice(0, 10) : null,

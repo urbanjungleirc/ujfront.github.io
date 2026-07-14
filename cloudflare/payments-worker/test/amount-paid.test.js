@@ -258,3 +258,97 @@ describe('amount_paid on Stripe-fulfilled vouchers (fulfillVoucher)', () => {
     expect(inserted[0].amount_paid).not.toBe(0);
   });
 });
+
+// ────────────────────────────────────────────────────────────────────────────
+// revenue_class snapshot (migration 015).
+//
+// The class is written ONTO the voucher at issue rather than read back from the
+// type at query time. Without it, reclassifying a type restates every dollar it
+// ever earned, back to 2020, with no audit row. These tests are the guarantee
+// that the snapshot is actually recorded — if it silently stopped being written,
+// the column would fall back to its 'sale' default and comps would start reading
+// as revenue.
+// ────────────────────────────────────────────────────────────────────────────
+
+describe('revenue_class snapshot on staff-created vouchers', () => {
+  // Every class the CHECK constraint allows, so a new one can't be added to the
+  // schema and quietly skipped here.
+  for (const revenueClass of ['sale', 'promo_sale', 'credit', 'comp']) {
+    it(`snapshots revenue_class '${revenueClass}' onto the voucher`, async () => {
+      const inserted = stubSupabase({
+        type: { type_id: 'some_type', display_name: 'Some type', revenue_class: revenueClass, expiry_months: 12, is_physical: false },
+        item: null,
+      });
+
+      const res = await worker.fetch(new Request('https://w.example.com/v1/vouchers', {
+        method: 'POST',
+        headers: { 'X-Staff-Secret': 'test-secret', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voucher_type_id: 'some_type',
+          value: 50,
+          customer_name: 'Test Customer',
+          customer_email: 'test@example.com',
+          issued_by: 'staff',
+        }),
+      }), ENV);
+
+      expect(res.status).toBe(201);
+      expect(inserted[0].revenue_class).toBe(revenueClass);
+    });
+  }
+
+  it('keeps the snapshot and amount_paid consistent: a comp records comp AND takes no money', async () => {
+    const inserted = stubSupabase({
+      type: { type_id: 'comp_voucher', display_name: 'Comp', revenue_class: 'comp', expiry_months: 12, is_physical: true },
+      item: { id: 'item_comp', name: 'Comp item', value: 100 },
+    });
+
+    const res = await worker.fetch(new Request('https://w.example.com/v1/vouchers', {
+      method: 'POST',
+      headers: { 'X-Staff-Secret': 'test-secret', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        voucher_type_id: 'comp_voucher',
+        voucher_item_id: 'item_comp',
+        customer_name: 'Test Customer',
+        issued_by: 'staff',
+      }),
+    }), ENV);
+
+    expect(res.status).toBe(201);
+    // The two must agree: they are decided from the same vt.revenue_class, and a
+    // voucher that says 'comp' while carrying money would corrupt every report.
+    expect(inserted[0].revenue_class).toBe('comp');
+    expect(inserted[0].amount_paid).toBe(0);
+    expect(inserted[0].value).toBe(100);   // still $100 of liability the gym owes
+  });
+});
+
+describe('revenue_class snapshot on Stripe-fulfilled vouchers (fulfillVoucher)', () => {
+  // This path never consulted revenue_class before the snapshot — it takes its money
+  // figure straight from Stripe — so this is a genuinely new read, not a moved one.
+  it('snapshots the type\'s revenue_class onto a customer-purchased voucher', async () => {
+    const inserted = stubSupabaseForWebhook({
+      type: { type_id: 'physical_voucher', display_name: 'Physical', revenue_class: 'promo_sale', expiry_months: 12 },
+    });
+
+    const res = await postStripeWebhook(makeCheckoutSession({ amount_total: 8000 }));
+
+    expect(res.status).toBe(200);
+    expect(inserted[0].revenue_class).toBe('promo_sale');
+    expect(inserted[0].amount_paid).toBe(80);
+  });
+
+  it('snapshots \'sale\' rather than leaving the column to its default', async () => {
+    const inserted = stubSupabaseForWebhook({
+      type: { type_id: 'gift_voucher', display_name: 'Gift', revenue_class: 'sale', expiry_months: 12 },
+    });
+
+    const res = await postStripeWebhook(makeCheckoutSession());
+
+    expect(res.status).toBe(200);
+    // Explicitly present, not merely absent-and-defaulting: the Worker must be the
+    // thing that decides this, so that a future default change cannot rewrite intent.
+    expect(inserted[0]).toHaveProperty('revenue_class');
+    expect(inserted[0].revenue_class).toBe('sale');
+  });
+});
