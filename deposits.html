@@ -146,11 +146,11 @@
 
         <div class="row">
           <div class="col-lg-6 content" data-aos="fade-up">
+            <!-- The form is read, never submitted. Stripe collects the email at checkout and
+                 the Worker posts the verified order to GAS server-side, so the old hidden
+                 id/paid/fee/email fields (which the PayPal client-side capture used to fill
+                 in) are gone along with PayPal. -->
             <form name="orderForm" id="orderForm" class="row mt-3 mx-0 g-3 needs-validation" novalidate>
-              <input class="form-control" name="id" type="text" hidden>
-              <input class="form-control" name="paid" type="text" hidden>
-              <input class="form-control" name="fee" type="text" hidden>
-              <input class="form-control" name="email" type="email" hidden>
 
               <div class="row mb-3">
                   <label for="name" class="col-sm-3 col-form-label">Organiser</label>
@@ -182,14 +182,13 @@
                       </select>
                   </div>
               </div>
-              <select style="visibility: hidden" id="quantitySelect"></select>
           </form>
           </div>
           <div class="col-lg-6 pt-4 pt-lg-0" data-aos="fade-up">
             <div class="alert alert-secondary text-center" role="alert" id="warningMassage">
                 Fill in your booking details to continue.
             </div>
-            <div id="paypal-button-container"></div>
+            <div id="deposit-button-container"></div>
           </div>
         </div>            
       </div>
@@ -288,204 +287,15 @@
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
 
-  <!-- PayPay button -->
-  <script
-  src="https://www.paypal.com/sdk/js?client-id=AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I&enable-funding=venmo&currency=AUD&locale=en_AU"
-  data-sdk-integration-source="button-factory"></script>
-<!-- AdAVYdDfxnQOiy6JRVbg-MEG9bj2QE8hcxTe_Odjwc7Vp-IQSFG4NHd31Q0B7ZGCB8XV29crxXqOW88I -->
-<!-- sb: Adso4sTVWJuYY1cSvqhhtzgX14KG5vKtESOkv1cptmHOBcNd6jtCKrFE2VPKr66f8pUaVmuBVhYP_Yau -->
-
-<!-- form a pp scripts -->
+<!-- Deposit checkout — Stripe, via the uj-payments Cloudflare Worker.
+     PayPal was removed on 2026-07-14 (transition plan Phase 9). It had been dead code since
+     the Stripe cutover in June: the provider switch was pinned to 'stripe', so the PayPal
+     branch never ran. The rollback path it existed to provide is long expired. -->
 <script>
-  const PAYMENT_PROVIDER = 'stripe';
   const PAYMENTS_WORKER_URL = 'https://uj-payments.urbanjungle.workers.dev';
 
-  function initPayPalButton() {
-      var shipping = 0;
-      var quantity = parseInt();
-      const promoID = 'deposit';
-      var orderDescription = 'event deposit';
-      if (orderDescription === '') {
-          orderDescription = 'Item';
-      }
-      paypal.Buttons({
-          style: {
-              shape: 'rect',
-              color: 'gold',
-              layout: 'vertical',
-              label: 'paypal',
-          },
-
-          // onInit is called when the button first renders
-          onInit: function (data, actions) {
-              // Disable the buttons
-              actions.disable();
-
-              const nameInput = document.getElementById('name');
-              const dateInput = document.getElementById('event_date');
-              const timeInput = document.getElementById('event_time');
-
-              // Add event listeners to each input field
-              nameInput.addEventListener('input', validateForm);
-              timeInput.addEventListener('input', validateForm);
-              dateInput.addEventListener('input', function (event) {
-                  const enteredDate = new Date(dateInput.value);
-                  const currentDate = new Date();
-                  if (enteredDate > currentDate) {
-                      // Date is in the future
-                      console.log('Date is valid');
-                      // Here you can perform additional actions, such as submitting the form
-                      dateInput.classList.remove("is-invalid");
-                  } else {
-                      // Date is not in the future
-                      console.log('Date must be in the future');
-                      // Optionally, you can display an error message to the user
-                      dateInput.classList.add("is-invalid");
-                  }
-                  validateForm();
-              });
-
-              // Function to validate the form
-              function validateForm() {
-
-                  // check all fields on class 'is-invalid'
-                  const form = document.getElementById('orderForm');
-                  const firstInvalidField = form.querySelector('.is-invalid');
-                  let isValid = firstInvalidField === null ? true : false;
-
-                  let element = document.getElementById("warningMassage");
-                  if (nameInput.checkValidity() && dateInput.checkValidity() && timeInput.checkValidity() && isValid) {
-                      actions.enable();
-                      element.classList.remove("alert-danger");
-                      element.classList.add("alert-light");
-                      element.innerText = "Please proceed with the payment below.";
-                  } else {
-                      actions.disable();
-                      element.classList.remove("alert-light");
-                      element.classList.add("alert-danger");
-                      element.innerText = "Please ensure to fill in all details correctly.";
-                  }
-              }
-          },
-
-          createOrder: function (data, actions) {
-              const form = document.forms['orderForm'];
-              var selectElement = document.getElementById("event_time");
-              var selectedOption = selectElement.options[selectElement.selectedIndex];
-              var selectedOptionText = selectedOption.innerText;
-              var selectedItemDescription = form.elements["event_date"].value + ' @ ' + selectedOptionText;
-              var selectedItemPriceIncludingTax = parseFloat(100); // selectedItemPrice        
-              // Assuming the price includes 10% tax, calculating the base price without tax
-              var basePrice = selectedItemPriceIncludingTax / 1.1;
-              var taxRate = 0.1;
-              var taxAmount = selectedItemPriceIncludingTax - basePrice;
-              quantity = 1;
-
-
-              var basePriceTotal = basePrice * quantity;
-              var taxTotal = taxAmount * quantity;
-              var priceTotal = selectedItemPriceIncludingTax * quantity + parseFloat(shipping);
-              var handling =  priceTotal * 0.026 + 0.3;
-              priceTotal = priceTotal + handling;
-              return actions.order.create({
-                  purchase_units: [{
-                      description: orderDescription,
-                      amount: {
-                          currency_code: 'AUD',
-                          value: priceTotal.toFixed(2),
-                          breakdown: {
-                              item_total: {
-                                  currency_code: 'AUD',
-                                  value: basePriceTotal.toFixed(2),
-                              },
-                              shipping: {
-                                  currency_code: 'AUD',
-                                  value: shipping.toFixed(2),
-                              },
-                              tax_total: {
-                                  currency_code: 'AUD',
-                                  value: taxTotal.toFixed(2),
-                              },
-                              handling: {
-                                  currency_code: "AUD",
-                                  value: handling.toFixed(2),
-                              },
-                          }
-                      },
-                      items: [{
-                          name: selectedItemDescription,
-                          unit_amount: {
-                              currency_code: 'AUD',
-                              value: basePrice.toFixed(2),
-                          },
-                          quantity: quantity,
-                          category: "PHYSICAL_GOODS"
-                      }]
-                  }],
-                  application_context: {
-                      shipping_preference: "NO_SHIPPING" // no shipping option for goods
-                  }
-              });
-          },
-          onApprove: function (data, actions) {
-              return actions.order.capture().then(function (orderData) {
-                  // Full available details
-                  console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                  document.getElementById("warningMassage").hidden = true;
-                  // Show a success message within this page
-                  const element = document.getElementById('paypal-button-container');
-                  element.innerHTML = '';
-                  element.innerHTML = ` <div class="alert alert-success" role="alert">
-                                  <h4 class="alert-heading">Thank you, ${orderData.payer.name.given_name}!</h4>
-                                  <p>We have received your deposit payment of $${parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value)} for the event scheduled on <strong>${orderData.purchase_units[0].items[0].name}</strong>.</p>
-                                  <p>Once the booking is confirmed, we will send the booking confirmation and provide further details to your registered email address ${orderData.payer.email_address}.</p>
-                                  <hr>
-                                  <p>If you have any additional questions or need further assistance, please feel free to contact us.</p>
-                                  <p class="mb-0">Thank you for choosing <a href="http://urbanjungleirc.com" class="alert-link">Urban Jungle IRC</a>!</p>
-                                  </div>`
-                  // form handling
-                  const form = document.forms['orderForm'];
-                  form.elements["email"].value = orderData.payer.email_address;
-                  if (form.elements["name"].value === '') {
-                      form.elements["name"].value = orderData.payer.name.given_name + ' ' + orderData.payer.name.surname;
-                  }
-                  form.elements["id"].value = orderData.id;
-                  form.elements["paid"].value = parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value);
-                  form.elements["fee"].value = orderData.purchase_units[0].amount.breakdown.handling.value;
-                  window.dataLayer = window.dataLayer || [];
-                  window.dataLayer.push({
-                      event: 'deposit_purchase',
-                      ecommerce: {
-                          transaction_id: orderData.id,
-                          value: parseFloat(orderData.purchase_units[0].amount.value),
-                          currency: orderData.purchase_units[0].amount.currency_code,
-                          items: [{
-                              item_id: 'group_booking_deposit',
-                              item_name: 'Group booking deposit',
-                              price: parseFloat(orderData.purchase_units[0].amount.breakdown.item_total.value) + parseFloat(orderData.purchase_units[0].amount.breakdown.tax_total.value),
-                              quantity: 1
-                          }]
-                      }
-                  });
-                  const scriptURL = 'https://script.google.com/macros/s/AKfycbyZlYo_tNjTxxhMQPmVKmuezurH7PlXyAXwE9uC1cYAYh5CaxJJnNbEY3KyQOeqTrPw/exec';
-                  fetch(scriptURL, {
-                      method: 'POST',
-                      body: new FormData(form)
-                  })
-                      .then(response => console.log('Success!', response))
-                      .catch(error => console.error('Error!', error.message));
-                  //form.reset();
-                  // end of form handling
-              });
-          },
-          onError: function (err) {
-              console.log(err);
-          },
-      }).render('#paypal-button-container');
-  }
-
   function initStripeCheckoutButton() {
-      const container = document.getElementById('paypal-button-container');
+      const container = document.getElementById('deposit-button-container');
       const warning = document.getElementById('warningMassage');
       const form = document.forms['orderForm'];
 
@@ -580,11 +390,7 @@
       validateStripeForm();
   }
 
-  if (PAYMENT_PROVIDER === 'stripe') {
-      initStripeCheckoutButton();
-  } else {
-      initPayPalButton();
-  }
+  initStripeCheckoutButton();
 
   (function handleReturnFromCheckout() {
       const params = new URLSearchParams(window.location.search);
@@ -592,7 +398,7 @@
       if (!status) return;
 
       const paymentSection = document.getElementById('payment');
-      const container = document.getElementById('paypal-button-container');
+      const container = document.getElementById('deposit-button-container');
       const warning = document.getElementById('warningMassage');
       const form = document.getElementById('orderForm');
 
