@@ -288,6 +288,13 @@
   <script src="assets/js/main.js"></script>
 
 <!-- Deposit checkout — Stripe, via the uj-payments Cloudflare Worker.
+
+     The Worker's source is NOT in this repo. It lives in the private hub,
+     urbanjungleirc/vouchers → cloudflare/payments-worker/, and deploys with `npx wrangler
+     deploy` from there. It was moved out on 2026-07-14 because this repo is public and its
+     Pages workflow publishes every file in it. This page reaches the Worker only by the
+     runtime URL below — there is no build coupling.
+
      PayPal was removed on 2026-07-14 (transition plan Phase 9). It had been dead code since
      the Stripe cutover in June: the provider switch was pinned to 'stripe', so the PayPal
      branch never ran. The rollback path it existed to provide is long expired. -->
