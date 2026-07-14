@@ -392,6 +392,43 @@
 
   initStripeCheckoutButton();
 
+  // GA4 ecommerce purchase, fired on the Stripe return. This event previously lived inside
+  // PayPal's onApprove callback and was lost in the June cutover, so GA4 has recorded no
+  // deposit revenue since. The Worker supplies the amounts via the success URL; the Stripe
+  // session id is the transaction_id, which is also how GA4 de-duplicates purchases.
+  function trackDepositPurchase(params) {
+      const transactionId = params.get('session_id');
+      const value = parseFloat(params.get('value'));
+      if (!transactionId || !Number.isFinite(value)) return;
+
+      // A refresh of the return URL replays the same params. Fire once per session id.
+      const seenKey = 'uj_deposit_tracked_' + transactionId;
+      try {
+          if (sessionStorage.getItem(seenKey)) return;
+          sessionStorage.setItem(seenKey, '1');
+      } catch (e) {
+          // Private mode / storage blocked — GA4 still de-dupes on transaction_id.
+      }
+
+      const depositValue = parseFloat(params.get('deposit'));
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ ecommerce: null }); // clear any previous ecommerce object
+      window.dataLayer.push({
+          event: 'deposit_purchase',
+          ecommerce: {
+              transaction_id: transactionId,
+              value: value,
+              currency: params.get('currency') || 'AUD',
+              items: [{
+                  item_id: 'group_booking_deposit',
+                  item_name: 'Group booking deposit',
+                  price: Number.isFinite(depositValue) ? depositValue : value,
+                  quantity: 1
+              }]
+          }
+      });
+  }
+
   (function handleReturnFromCheckout() {
       const params = new URLSearchParams(window.location.search);
       const status = params.get('payment');
@@ -403,6 +440,7 @@
       const form = document.getElementById('orderForm');
 
       if (status === 'success') {
+          trackDepositPurchase(params);
           warning.hidden = true;
           if (form) form.hidden = true;
           if (container) {

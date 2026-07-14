@@ -202,7 +202,20 @@ async function createDepositSession(data, origin, request, env) {
   params.set('mode', 'payment');
   params.set('client_reference_id', deposit.request_id);
   if (deposit.email) params.set('customer_email', deposit.email);
-  params.set('success_url', `${origin}/deposits.html?payment=success&session_id={CHECKOUT_SESSION_ID}`);
+  // The return page fires the GA4 `deposit_purchase` event and has no other source for the
+  // amount — the Sheet is fulfilled server-side by the webhook and never reaches the browser.
+  // Analytics only: the Sheet and Stripe remain the financial record, so a tampered value here
+  // skews a report, not the books.
+  const successParams = new URLSearchParams({
+    payment: 'success',
+    value: centsToDollarString(amountCents + feeCents),
+    deposit: centsToDollarString(amountCents),
+    currency: currency.toUpperCase(),
+  });
+  params.set(
+    'success_url',
+    `${origin}/deposits.html?${successParams}&session_id={CHECKOUT_SESSION_ID}`,
+  );
   params.set('cancel_url', `${origin}/deposits.html?payment=cancelled`);
   params.set('line_items[0][quantity]', '1');
   params.set('line_items[0][price_data][currency]', currency);
