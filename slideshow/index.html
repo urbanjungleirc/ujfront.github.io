@@ -6,8 +6,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon-slideshow.svg">
     <!-- font-family: 'fatFrank', sans-serif; -->
     <link rel="stylesheet" href="https://use.typekit.net/tco5lzp.css">
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        // TV mode (?folder=<ID>) is sign-in-free and must never talk to Google auth
+        // endpoints. Only load the OAuth/gapi libraries for the staff (login) path.
+        (function() {
+            var __tvParams = new URLSearchParams(window.location.search);
+            if (!__tvParams.get('folder')) {
+                document.write('<script src="https://apis.google.com/js/api.js"><\/script>');
+                document.write('<script src="https://accounts.google.com/gsi/client" async defer><\/script>');
+            }
+        })();
+    </script>
     <title>Drive Slideshow</title>
     <style>
         * {
@@ -3763,6 +3772,7 @@ default_leaderboard_row_limit: 12
             constructor() {
                 this.accessToken = null;
                 this.folderId = null;
+                this.publicApiKey = null; // set in TV mode; when set, Drive REST uses key= instead of access_token=
                 this.config = {
                     default_slide_duration_seconds: 10,
                     slideshow_title: "Slideshow",
@@ -3788,7 +3798,7 @@ default_leaderboard_row_limit: 12
 
             async init() {
                 // OAuth-based initialization - folder and auth token already set
-                if (!this.folderId || !this.accessToken) {
+                if (!this.folderId || (!this.accessToken && !this.publicApiKey)) {
                     this.showError('Authentication error. Please log in again.');
                     return;
                 }
@@ -3803,6 +3813,14 @@ default_leaderboard_row_limit: 12
                 }
             }
 
+            // Returns the auth query-param for Drive REST calls: API key in public/TV mode,
+            // OAuth access token in staff mode.
+            driveKeyParam() {
+                return this.publicApiKey
+                    ? `key=${this.publicApiKey}`
+                    : `access_token=${this.accessToken}`;
+            }
+
             async loadFolder() {
                 try {
                     // First, try to load config
@@ -3810,7 +3828,7 @@ default_leaderboard_row_limit: 12
                     
                     // Then load all files using access token (exclude trashed files)
                     const response = await fetch(
-                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,description,createdTime,modifiedTime,webContentLink,webViewLink,thumbnailLink)&access_token=${this.accessToken}`
+                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,description,createdTime,modifiedTime,webContentLink,webViewLink,thumbnailLink)&${this.driveKeyParam()}`
                     );
                     
                     if (!response.ok) {
@@ -3845,7 +3863,7 @@ default_leaderboard_row_limit: 12
                 // Look for settings.txt file in the Drive folder and use its description for config
                 try {
                     const response = await fetch(
-                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+(name='settings.txt'+or+name='config.txt')&fields=files(id,name,description)&access_token=${this.accessToken}`
+                        `https://www.googleapis.com/drive/v3/files?q='${this.folderId}'+in+parents+and+(name='settings.txt'+or+name='config.txt')&fields=files(id,name,description)&${this.driveKeyParam()}`
                     );
                     
                     const data = await response.json();
@@ -4393,7 +4411,9 @@ default_leaderboard_row_limit: 12
                             }
 
                             // Fallback to alternative URL format
-                            const fallbackUrl = `https://drive.google.com/uc?id=${slide.id}&export=download&access_token=${window.driveAuth.accessToken}`;
+                            const fallbackUrl = window.driveAuth && window.driveAuth.accessToken
+                                ? `https://drive.google.com/uc?id=${slide.id}&export=download&access_token=${window.driveAuth.accessToken}`
+                                : `https://drive.google.com/uc?id=${slide.id}&export=download`;
                             tryLoadImage(fallbackUrl, true).then(resolve).catch(() => {
                                 reject(new Error('Failed to load image after token refresh and fallback'));
                             });
@@ -4963,6 +4983,26 @@ default_leaderboard_row_limit: 12
 
         // Initialize OAuth system when page loads
         window.addEventListener('load', async () => {
+            // --- TV mode: sign-in-free render of a public folder ---
+            var __p = new URLSearchParams(window.location.search);
+            var __folder = __p.get('folder');
+            if (__folder) {
+                window.driveAuth = null; // no OAuth in TV mode
+                var s = new DriveSlideshow();
+                window.slideshow = s;
+                s.publicApiKey = 'AIzaSyAL0c1mpOJImMGiDA6XtMV2aPA2mWgdrJE';
+                s.folderId = __folder;
+                // Hide the folder-browser/login chrome; go straight to the slideshow surface.
+                var authContainer = document.getElementById('auth-container');
+                if (authContainer) authContainer.style.display = 'none';
+                var browser = document.getElementById('folder-browser');
+                if (browser) browser.style.display = 'none';
+                document.getElementById('slideshow-container').style.display = 'flex';
+                s.init();
+                return; // skip the staff OAuth path entirely
+            }
+            // --- existing staff (OAuth) boot path continues below unchanged ---
+
             // Wait for Google libraries to load
             let attempts = 0;
             const maxAttempts = 50; // 5 seconds max
