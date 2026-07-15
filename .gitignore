@@ -7,7 +7,10 @@ node_modules/
 # Local editor and test state
 /.vscode/
 /.playwright-mcp/
-/tests/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # AI assistant local files
 /.claude/

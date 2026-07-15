@@ -1,8 +1,12 @@
 {
+  "scripts": {
+    "test": "playwright test"
+  },
   "dependencies": {
     "bootstrap": "^5.3.8"
   },
   "devDependencies": {
-    "sass": "^1.97.0"
+    "sass": "^1.97.0",
+    "@playwright/test": "^1.48.0"
   }
 }
