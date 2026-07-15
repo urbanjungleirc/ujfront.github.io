@@ -10,8 +10,10 @@
         // TV mode (?folder=<ID>) is sign-in-free and must never talk to Google auth
         // endpoints. Only load the OAuth/gapi libraries for the staff (login) path.
         (function() {
-            var __tvParams = new URLSearchParams(window.location.search);
-            if (!__tvParams.get('folder')) {
+            // Dependency-free check (no URLSearchParams) so this head-parse-time gate
+            // can't fail on older Android/Smart-TV browsers and take down both modes.
+            var __hasFolder = /[?&]folder=/.test(window.location.search);
+            if (!__hasFolder) {
                 document.write('<script src="https://apis.google.com/js/api.js"><\/script>');
                 document.write('<script src="https://accounts.google.com/gsi/client" async defer><\/script>');
             }

@@ -6,6 +6,8 @@ const SLIDESHOW = 'file://' + path.resolve(__dirname, '../slideshow/index.html')
 test('slideshow page loads', async ({ page }) => {
   await page.goto(SLIDESHOW);
   await expect(page).toHaveTitle(/slideshow/i);
+  // Staff path (no ?folder): the head gate must still emit the GSI script tag.
+  await expect(page.locator('script[src*="accounts.google.com/gsi/client"]')).toHaveCount(1);
 });
 
 const fs = require('fs');
