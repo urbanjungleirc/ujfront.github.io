@@ -5142,5 +5142,55 @@ default_leaderboard_row_limit: 12
             }
         });
     </script>
+
+    <!-- TV keep-awake (TV mode only).
+         Cast receivers let the TV sleep after ~10 min on a static page, which
+         blanks the slideshow. Nothing detects this over the network (app_id
+         stays ours and is_stand_by is unreliable) and a re-cast will not wake a
+         sleeping Android TV, so the screen must be kept awake instead.
+         Verified on the gym fleet 2026-07-16: a page holding a wake lock stayed
+         up 27+ min untouched vs ~10 min without. No-ops where unsupported. -->
+    <script>
+    (function () {
+        if (!/[?&]folder=/.test(window.location.search)) return;  // TV mode only
+
+        // 1) Screen Wake Lock — the actual fix. Locks are dropped when a page is
+        //    backgrounded, so re-acquire whenever we become visible again.
+        var lock = null;
+        function acquire() {
+            if (!('wakeLock' in navigator)) return;
+            navigator.wakeLock.request('screen').then(function (l) {
+                lock = l;
+                l.addEventListener('release', function () { lock = null; });
+            }).catch(function () { /* not permitted — the video below covers us */ });
+        }
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible' && !lock) acquire();
+        });
+        acquire();
+
+        // 2) Backup: a genuinely-playing muted video built from a canvas stream
+        //    (no asset needed). Devices generally stay awake during playback.
+        try {
+            var c = document.createElement('canvas');
+            c.width = c.height = 16;
+            var cx = c.getContext('2d');
+            setInterval(function () {
+                cx.fillStyle = '#' + (((Math.random() * 0xffffff) | 0).toString(16)).padStart(6, '0');
+                cx.fillRect(0, 0, 16, 16);
+            }, 250);
+            var v = document.createElement('video');
+            v.muted = true;
+            v.autoplay = true;
+            v.playsInline = true;
+            v.setAttribute('playsinline', '');
+            v.style.cssText = 'position:fixed;bottom:0;right:0;width:2px;height:2px;' +
+                              'opacity:.01;pointer-events:none';
+            document.body.appendChild(v);
+            v.srcObject = c.captureStream(10);
+            v.play().catch(function () { /* no-op */ });
+        } catch (e) { /* no-op */ }
+    })();
+    </script>
 </body>
 </html>
