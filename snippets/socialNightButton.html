@@ -1,40 +1,55 @@
 <!--
-  Urban Jungle — "Book the next Social Night" button
-  ---------------------------------------------------
+  Urban Jungle — "Book Now" button for the next Social Night
+  ----------------------------------------------------------
   Paste this whole block into a Squarespace Code Block (HTML mode).
+  On urbanjungleirc.com/social-night it sits inside the hero's
+  .sn-hero__actions row and picks up the page's lime pill button style.
 
   What it does
-    1. Renders a button straight away ("Book the next Social Night") that links
-       to the public Clubworx calendar, so there is never an empty gap.
+    1. Renders a plain "Book Now" button straight away, linking to the public
+       Clubworx calendar, so there is never an empty gap while loading.
     2. Asks the same Google Apps Script proxy the events calendar uses for the
        upcoming ".: Social Night :." sessions (next 3 months).
-    3. Rewrites the button to "Book the next Social Night · Wed 7 Oct" and
-       links straight to that session's Clubworx booking page.
+    3. Adds a smaller second line and links straight to the session's
+       Clubworx booking page:
+            Book Now
+            for next social night · Wed 7 Oct
 
-  Edge cases
-    - nearest session is full      -> "Wed 7 Oct is full · book Wed 4 Nov"
-    - every session is full        -> "Social Nights are booked out" (calendar link)
-    - nothing scheduled in window  -> "No Social Night scheduled yet · see the calendar"
-    - proxy down / slow / error    -> placeholder button stays (calendar link)
+  Edge cases (main line / second line)
+    - nearest session is full      Book Now / Wed 7 Oct is full · next open Wed 4 Nov
+    - every session is full        Booked Out / Wed 7 Oct is full · check the calendar
+    - nothing scheduled in window  Check Calendar / no social night scheduled yet
+    - proxy down / slow / error    Book Now (single line, calendar link)
 
   Settings you may want to change are at the top of the <script>.
 -->
 <div class="uj-social-night" data-uj-social-night>
   <a class="sqs-block-button-element--medium sqs-button-element--primary sqs-block-button-element uj-social-night__btn"
      href="https://app.clubworx.com/websites/urban-jungle-indoor-rock-climbing-1/calendar"
-     target="_blank" rel="noopener">Book the next Social Night</a>
-  <p class="uj-social-night__note" hidden></p>
+     target="_blank" rel="noopener"><span class="uj-social-night__main">Book Now</span><span class="uj-social-night__sub" hidden></span></a>
 </div>
 
 <style>
-  .uj-social-night { text-align: center; margin: 1em 0; }
+  .uj-social-night { display: inline-block; }
   /* Fallback look, only used if the Squarespace button classes are absent */
   .uj-social-night__btn:not(.sqs-block-button-element) {
-    display: inline-block; padding: 0.9em 1.8em; border-radius: 4px;
-    background: #ff4709; color: #fff; text-decoration: none; font-weight: 600;
+    display: inline-block; padding: 0.9em 1.8em; border-radius: 999px;
+    background: #c1ff72; color: #1a1a1a; text-decoration: none; font-weight: 700;
+    font-family: Poppins, "Helvetica Neue", Arial, sans-serif;
   }
   .uj-social-night__btn.is-loading { opacity: 0.85; }
-  .uj-social-night__note { margin: 0.6em 0 0; font-size: 0.9em; opacity: 0.8; }
+  .uj-social-night__main { display: block; line-height: 1.15; }
+  .uj-social-night__sub {
+    display: block; margin-top: 0.2em;
+    font-size: 0.78em; font-weight: 500; line-height: 1.2; opacity: 0.85;
+    letter-spacing: 0;
+  }
+  .uj-social-night__sub[hidden] { display: none; }
+  /* Two-line state: tighten the vertical padding so the pill stays compact.
+     Specificity (0,3,0) beats the page's .Main--page .sqs-block-button-element rule. */
+  .uj-social-night .uj-social-night__btn.has-sub {
+    padding-top: 0.7rem; padding-bottom: 0.7rem; text-align: center;
+  }
 </style>
 
 <script>
@@ -57,17 +72,18 @@
   var root = document.querySelector('[data-uj-social-night]');
   if (!root) { return; }
   var btn  = root.querySelector('.uj-social-night__btn');
-  var note = root.querySelector('.uj-social-night__note');
+  var main = root.querySelector('.uj-social-night__main');
+  var sub  = root.querySelector('.uj-social-night__sub');
   btn.classList.add('is-loading');
 
-  function setButton(text, href) {
-    btn.textContent = text;
+  // setButton('Book Now', 'for next social night · Wed 7 Oct', href)
+  function setButton(mainText, subText, href) {
+    main.textContent = mainText;
+    sub.textContent = subText || '';
+    sub.hidden = !subText;
+    btn.classList.toggle('has-sub', !!subText);
     btn.href = href;
     btn.classList.remove('is-loading');
-  }
-  function setNote(text) {
-    note.textContent = text || '';
-    note.hidden = !text;
   }
 
   // "Wed 7 Oct" in Perth time, regardless of the visitor's own timezone.
@@ -82,10 +98,9 @@
   }
   function todayIso() {
     try {
-      var p = new Intl.DateTimeFormat('en-CA', {
+      return new Intl.DateTimeFormat('en-CA', {          // en-CA gives YYYY-MM-DD
         year: 'numeric', month: '2-digit', day: '2-digit', timeZone: TIMEZONE
       }).format(new Date());
-      return p; // en-CA gives YYYY-MM-DD
     } catch (e) {
       return new Date().toISOString().slice(0, 10);
     }
@@ -109,31 +124,28 @@
         .sort(function (a, b) { return new Date(a.event_start_at) - new Date(b.event_start_at); });
 
       if (upcoming.length === 0) {
-        setButton('No Social Night scheduled yet · see the calendar', CALENDAR_URL);
-        setNote('');
+        setButton('Check Calendar', 'no social night scheduled yet', CALENDAR_URL);
         return;
       }
 
       var open = upcoming.filter(function (ev) { return !isFull(ev); });
       if (open.length === 0) {
-        setButton('Social Nights are booked out · see the calendar', CALENDAR_URL);
-        setNote('The next one on ' + shortDate(upcoming[0].event_start_at) + ' is full.');
+        setButton('Booked Out', shortDate(upcoming[0].event_start_at) + ' is full · check the calendar', CALENDAR_URL);
         return;
       }
 
       var next = open[0];
       if (next !== upcoming[0]) {
         // The nearest session is full; point at the first one with space.
-        setButton(shortDate(upcoming[0].event_start_at) + ' is full · book ' + shortDate(next.event_start_at),
+        setButton('Book Now',
+                  shortDate(upcoming[0].event_start_at) + ' is full · next open ' + shortDate(next.event_start_at),
                   EVENT_URL + next.event_id);
-        setNote('');
         return;
       }
 
-      setButton('Book the next Social Night · ' + shortDate(next.event_start_at), EVENT_URL + next.event_id);
-      setNote('');
+      setButton('Book Now', 'for next social night · ' + shortDate(next.event_start_at), EVENT_URL + next.event_id);
     } catch (e) {
-      // Any surprise in the data: leave the placeholder calendar link in place.
+      // Any surprise in the data: leave the plain "Book Now" calendar link in place.
       btn.classList.remove('is-loading');
     }
   };
@@ -141,7 +153,7 @@
   function giveUp() {
     if (done) { return; }
     done = true;
-    btn.classList.remove('is-loading'); // placeholder text + calendar link remain
+    btn.classList.remove('is-loading'); // "Book Now" + calendar link remain
   }
 
   var script = document.createElement('script');
